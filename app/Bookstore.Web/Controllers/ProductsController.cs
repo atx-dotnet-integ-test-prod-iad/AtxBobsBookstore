@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bookstore.Data;
 using Bookstore.Domain.Products;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+
 
 namespace Bookstore.Web.Controllers
 {
@@ -30,9 +31,12 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                string sql = @"EXEC [dbo].[uspGetProductData];";
-
-                return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
+                // TODO: Stored procedure [dbo].[uspGetProductData] not found in target PostgreSQL database
+                // Original SQL Server code commented out - requires manual migration
+                // string sql = @"EXEC [dbo].[uspGetProductData];";
+                // return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
+                
+                throw new NotImplementedException("Stored procedure uspGetProductData requires manual migration to PostgreSQL");
             }
             catch (Exception ex)
             {
