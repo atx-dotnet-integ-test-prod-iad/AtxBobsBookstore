@@ -1,0 +1,212 @@
+================================================================
+DMS MCP TOOL CONVERSION LOG
+SQL Server to PostgreSQL Migration
+================================================================
+Date: 2025-12-19
+Total Statements Processed: 5
+DMS Successful Conversions: 0
+DMS Failed Conversions: 5
+Manual Conversions Applied: 5
+================================================================
+
+================================================================
+STATEMENT 1: Update Author Using Stored Procedure
+================================================================
+Source: app/Bookstore.Web/Controllers/AuthorsController.cs (line 163)
+Method: EditUsingStoredProcedure
+
+ORIGINAL SQL (SQL Server):
+----------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+SELECT @rowsAffected;
+
+DMS TOOL ATTEMPT:
+----------------------------
+Timestamp: 2025-12-19T10:32:33.270122
+Status: error
+Error: Metadata model creation failed: {'error': 'Metadata model creation did not complete after 15 attempts'}
+Input Parameters:
+  - migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+  - database_name: BobsBookstore
+  - schema_name: dbo
+  - region: us-east-1
+  - server_name: 172.31.82.226
+
+MANUAL CONVERSION APPLIED:
+----------------------------
+DO $$
+DECLARE
+    rows_affected INT;
+BEGIN
+    CALL bobsbookstore_dbo.uspupdateauthorpersonalinfo(
+        p_businessentityid := @BusinessEntityID,
+        p_nationalidnumber := @NationalIDNumber,
+        p_birthdate := @BirthDate,
+        p_maritalstatus := @MaritalStatus,
+        p_gender := @Gender,
+        p_rowsaffected := rows_affected
+    );
+    SELECT rows_affected;
+END $$;
+
+CONVERSION NOTES:
+- SQL Server stored procedures with return values convert to PostgreSQL procedures with OUT parameters
+- DECLARE @variable INT; → DECLARE variable INT;
+- EXEC @return = procedure → CALL procedure(..., OUT parameter)
+- Parameter names follow PostgreSQL conventions (lowercase with underscores)
+- Schema qualifier maintained (bobsbookstore_dbo)
+
+================================================================
+STATEMENT 2: Select All Authors
+================================================================
+Source: app/Bookstore.Web/Controllers/AuthorsController.cs (line 187)
+Method: FindAllAuthorsEmbeddedSql
+
+ORIGINAL SQL (SQL Server):
+----------------------------
+SELECT * FROM bobsbookstore_dbo.author
+
+DMS TOOL ATTEMPT:
+----------------------------
+Timestamp: 2025-12-19T10:35:21.564758
+Status: error
+Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+Input Parameters:
+  - migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+  - database_name: BobsBookstore
+  - schema_name: dbo
+  - region: us-east-1
+  - server_name: 172.31.82.226
+
+MANUAL CONVERSION APPLIED:
+----------------------------
+SELECT * FROM bobsbookstore_dbo.author
+
+CONVERSION NOTES:
+- This SELECT statement is already PostgreSQL compatible
+- Schema-qualified table name works in both SQL Server and PostgreSQL
+- No conversion needed for basic SELECT *
+
+================================================================
+STATEMENT 3: Delete Author Using Stored Procedure
+================================================================
+Source: app/Bookstore.Web/Controllers/AuthorsController.cs (line 208)
+Method: DeleteAuthorEmbeddedSql
+
+ORIGINAL SQL (SQL Server):
+----------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+SELECT @rowsAffected;
+
+DMS TOOL ATTEMPT:
+----------------------------
+Timestamp: 2025-12-19T10:36:17.384352
+Status: error
+Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+Input Parameters:
+  - migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+  - database_name: BobsBookstore
+  - schema_name: dbo
+  - region: us-east-1
+  - server_name: 172.31.82.226
+
+MANUAL CONVERSION APPLIED:
+----------------------------
+DO $$
+DECLARE
+    rows_affected INT;
+BEGIN
+    CALL bobsbookstore_dbo.uspdeleteauthor(
+        p_businessentityid := @BusinessEntityID,
+        p_rowsaffected := rows_affected
+    );
+    SELECT rows_affected;
+END $$;
+
+CONVERSION NOTES:
+- Similar pattern to Statement 1
+- Stored procedure call with return value → procedure with OUT parameter
+- Parameter names follow PostgreSQL conventions
+
+================================================================
+STATEMENT 4: Select Authors by Hire Year with Date Functions
+================================================================
+Source: app/Bookstore.Web/Controllers/AuthorsController.cs (line 228)
+Method: SelectAuthorsByHireYear
+
+ORIGINAL SQL (SQL Server):
+----------------------------
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS TOOL ATTEMPT:
+----------------------------
+Timestamp: 2025-12-19T10:36:40.732295
+Status: error
+Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+Input Parameters:
+  - migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+  - database_name: BobsBookstore
+  - schema_name: dbo
+  - region: us-east-1
+  - server_name: 172.31.82.226
+
+MANUAL CONVERSION APPLIED:
+----------------------------
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+CONVERSION NOTES:
+- FORMAT(date, format) → TO_CHAR(date, format)
+- Format strings differ: 'yyyy-MM-dd HH:mm:ss' → 'YYYY-MM-DD HH24:MI:SS'
+- DATEDIFF(YEAR, start, end) → DATE_PART('year', AGE(end, start))
+- GETDATE() → CURRENT_TIMESTAMP or NOW()
+- DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+- PostgreSQL date/time format codes are different from SQL Server
+
+================================================================
+STATEMENT 5: Get All Products Using Stored Procedure
+================================================================
+Source: app/Bookstore.Web/Controllers/ProductsController.cs (line 32)
+Method: FindAllProducts
+
+ORIGINAL SQL (SQL Server):
+----------------------------
+EXEC [dbo].[uspGetProductData];
+
+DMS TOOL ATTEMPT:
+----------------------------
+Timestamp: 2025-12-19T10:37:03.393931
+Status: error
+Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+Input Parameters:
+  - migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+  - database_name: BobsBookstore
+  - schema_name: dbo
+  - region: us-east-1
+  - server_name: 172.31.82.226
+
+MANUAL CONVERSION APPLIED:
+----------------------------
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+CONVERSION NOTES:
+- SQL Server stored procedure returning result set → PostgreSQL function
+- EXEC [dbo].[procedure]; → SELECT * FROM schema.function();
+- Stored procedures that return datasets are typically converted to functions in PostgreSQL
+- Function names follow PostgreSQL conventions (lowercase)
+
+================================================================
+SUMMARY
+================================================================
+All 5 SQL statements were attempted through the DMS MCP tool first as required.
+All 5 attempts failed due to metadata model creation errors.
+Manual PostgreSQL conversions were applied following best practices:
+  - Stored procedure calls converted to PostgreSQL procedures/functions
+  - Date/time functions converted (FORMAT→TO_CHAR, DATEDIFF→DATE_PART/AGE, GETDATE→CURRENT_TIMESTAMP, DATEPART→EXTRACT)
+  - Parameter naming conventions adapted to PostgreSQL standards
+  - Schema qualifiers maintained
+  
+Note: The converted SQL statements will need corresponding PostgreSQL stored procedures/functions
+to be created in the database matching these call signatures.
+================================================================
