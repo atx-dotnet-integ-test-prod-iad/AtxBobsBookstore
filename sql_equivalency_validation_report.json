@@ -1,0 +1,179 @@
+{
+  "sql_equivalency_validation_report": {
+    "report_metadata": {
+      "report_generated": "2025-12-27T03:54:00Z",
+      "project_name": "BobsBookstore",
+      "migration_type": "Microsoft SQL Server to PostgreSQL",
+      "validation_tool": "sql-equivalency___validate_sql_equivalence",
+      "critical_note": "All equivalency statuses are determined EXCLUSIVELY by the SQL Equivalency tool. NO agent judgment was used to determine equivalency."
+    },
+    "summary": {
+      "number_of_statements_processed": 5,
+      "number_of_statements_equivalent": 1,
+      "number_of_statements_non_equivalent": 0,
+      "number_of_statements_with_equivalency_error": 4
+    },
+    "statement_details": [
+      {
+        "statement_id": "STMT_001",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "source_line": 194,
+        "method_name": "FindAllAuthorsEmbeddedSql",
+        "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+        "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "equivalency_status": "EQUIVALENT",
+        "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2025-12-27T03:54:48.815389\"}",
+        "validation_timestamp": "2025-12-27T03:54:48.815389",
+        "validation_method": "formal_verification",
+        "notes": "Simple SELECT statement with identical syntax in both SQL Server and PostgreSQL. Tool confirmed structural equivalence."
+      },
+      {
+        "statement_id": "STMT_002",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "source_line": 164,
+        "method_name": "EditUsingStoredProcedure",
+        "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+        "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "equivalency_status": "ERROR",
+        "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2025-12-27T03:55:03.124901\"}",
+        "validation_timestamp": "2025-12-27T03:55:03.124901",
+        "validation_method": "formal_verification",
+        "notes": "Tool returned UNKNOWN which is marked as ERROR per plan requirements. Complex stored procedure conversion involving DECLARE, EXEC, and return value handling. Z3 solver could not formally prove equivalency for this procedural logic pattern."
+      },
+      {
+        "statement_id": "STMT_003",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "source_line": 212,
+        "method_name": "DeleteAuthorEmbeddedSql",
+        "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+        "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "equivalency_status": "ERROR",
+        "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2025-12-27T03:55:14.985371\"}",
+        "validation_timestamp": "2025-12-27T03:55:14.985371",
+        "validation_method": "formal_verification",
+        "notes": "Tool returned UNKNOWN which is marked as ERROR per plan requirements. Stored procedure with DELETE operation converted to function. Z3 solver could not formally verify equivalency for this procedural pattern."
+      },
+      {
+        "statement_id": "STMT_004",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "source_line": 229,
+        "method_name": "SelectAuthorsByHireYear",
+        "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+        "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE DATE_PART('year', HireDate) = @HireDate;",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "equivalency_status": "ERROR",
+        "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2025-12-27T03:55:27.007815\"}",
+        "validation_timestamp": "2025-12-27T03:55:27.007815",
+        "validation_method": "formal_verification",
+        "notes": "Tool returned UNKNOWN which is marked as ERROR per plan requirements. Complex statement with multiple date/time function conversions (FORMAT→TO_CHAR, DATEDIFF→AGE/DATE_PART, DATEPART→DATE_PART, GETDATE→CURRENT_TIMESTAMP). Z3 solver could not formally prove equivalency for these complex function transformations."
+      },
+      {
+        "statement_id": "STMT_005",
+        "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+        "source_line": 31,
+        "method_name": "FindAllProducts",
+        "original_statement": "EXEC [dbo].[uspGetProductData];",
+        "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "equivalency_status": "ERROR",
+        "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2025-12-27T03:55:38.629997\"}",
+        "validation_timestamp": "2025-12-27T03:55:38.629997",
+        "validation_method": "formal_verification",
+        "notes": "Tool returned UNKNOWN which is marked as ERROR per plan requirements. Stored procedure returning result set converted to table-returning function. Z3 solver could not formally verify equivalency for this procedural pattern."
+      }
+    ],
+    "validation_compliance": {
+      "all_statements_validated_through_tool": true,
+      "no_agent_judgment_used": true,
+      "unknown_marked_as_error": true,
+      "tool_output_captured_exactly": true,
+      "compliance_notes": "100% compliance with transformation definition requirements: (1) ALL statement pairs validated through SQL Equivalency tool without exception. (2) ZERO agent judgment used - all equivalency determinations come exclusively from the tool. (3) All UNKNOWN results marked as ERROR as required. (4) Exact tool output captured for every validation."
+    },
+    "critical_analysis": {
+      "equivalent_statements": [
+        {
+          "statement_id": "STMT_001",
+          "reason": "Simple SELECT with identical syntax in both databases. Tool formally verified structural equivalence."
+        }
+      ],
+      "error_statements": [
+        {
+          "statement_id": "STMT_002",
+          "reason": "Tool returned UNKNOWN for stored procedure to function conversion with return value. Formal verification could not prove equivalency for procedural logic pattern.",
+          "risk_assessment": "Medium - Stored procedure conversion follows standard pattern, but lacks formal proof of equivalency. Requires runtime testing."
+        },
+        {
+          "statement_id": "STMT_003",
+          "reason": "Tool returned UNKNOWN for stored procedure to function conversion with DELETE operation. Z3 solver could not verify procedural equivalency.",
+          "risk_assessment": "Medium - DELETE operation conversion follows standard pattern, but lacks formal proof. Requires runtime testing."
+        },
+        {
+          "statement_id": "STMT_004",
+          "reason": "Tool returned UNKNOWN for complex date/time function conversions. Multiple function transformations exceed Z3 solver's verification capabilities.",
+          "risk_assessment": "Medium-High - Complex date/time functions require careful runtime validation to ensure semantic equivalence, especially for edge cases (leap years, time zones, date arithmetic)."
+        },
+        {
+          "statement_id": "STMT_005",
+          "reason": "Tool returned UNKNOWN for stored procedure returning result set converted to table-returning function. Formal verification could not prove equivalency.",
+          "risk_assessment": "Medium - Result set conversion follows standard pattern, but lacks formal proof. Requires runtime testing."
+        }
+      ],
+      "non_equivalent_statements": [],
+      "overall_assessment": "1 of 5 statements (20%) formally proven equivalent by the tool. 4 of 5 statements (80%) could not be formally verified (marked as ERROR per requirements). The ERROR status indicates the formal verification tool could not prove equivalency, NOT that the statements are necessarily non-equivalent. These statements follow standard SQL Server to PostgreSQL conversion patterns and should be functionally equivalent, but this requires runtime validation as formal verification was inconclusive."
+    },
+    "recommendations": {
+      "immediate_actions": [
+        "Deploy application to test environment with PostgreSQL database",
+        "Execute comprehensive runtime tests for all 5 SQL statements",
+        "Pay special attention to STMT_004 (date/time functions) due to complexity",
+        "Validate stored procedure/function behavior for STMT_002, STMT_003, STMT_005",
+        "Compare results between SQL Server and PostgreSQL for identical test data"
+      ],
+      "testing_priorities": [
+        {
+          "priority": "HIGH",
+          "statement_id": "STMT_004",
+          "reason": "Complex date/time function conversions with highest risk of semantic differences"
+        },
+        {
+          "priority": "MEDIUM",
+          "statement_id": "STMT_002",
+          "reason": "Stored procedure with UPDATE and return value - verify row count accuracy"
+        },
+        {
+          "priority": "MEDIUM",
+          "statement_id": "STMT_003",
+          "reason": "Stored procedure with DELETE and return value - verify row count accuracy"
+        },
+        {
+          "priority": "MEDIUM",
+          "statement_id": "STMT_005",
+          "reason": "Table-returning function - verify complete result set returned"
+        },
+        {
+          "priority": "LOW",
+          "statement_id": "STMT_001",
+          "reason": "Formally verified as equivalent - low risk, but include in regression testing"
+        }
+      ],
+      "validation_checklist": [
+        "Test STMT_001 with various row counts and data types",
+        "Test STMT_002 with valid updates, non-existent IDs, and boundary date values",
+        "Test STMT_003 with valid deletes, non-existent IDs, and cascade scenarios",
+        "Test STMT_004 with various birth dates (past century, leap years), hire years, time zones",
+        "Test STMT_005 with empty table, single row, and multiple rows",
+        "Verify parameter binding works correctly for all parameterized statements",
+        "Confirm return values and row counts match between SQL Server and PostgreSQL"
+      ]
+    },
+    "artifacts_reference": {
+      "extracted_statements": "extracted_statements.sql",
+      "converted_statements": "converted_statements.sql",
+      "dms_conversion_log": "dms_conversion_log.json",
+      "this_report": "sql_equivalency_validation_report.json"
+    }
+  }
+}
