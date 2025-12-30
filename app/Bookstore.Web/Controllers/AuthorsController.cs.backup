@@ -160,15 +160,14 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                // PostgreSQL: Converted from SQL Server stored procedure to direct UPDATE
-                string sql = @"UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender, modifieddate = CURRENT_TIMESTAMP WHERE businessentityid = @BusinessEntityID RETURNING 1;";
+                string sql = @"DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;";
 
                 var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql, 
-                    new NpgsqlParameter("@BusinessEntityID", businessEntityId),
-                    new NpgsqlParameter("@NationalIDNumber", nationalIdNumber),
-                    new NpgsqlParameter("@BirthDate", birthDate.ToUniversalTime()),
-                    new NpgsqlParameter("@MaritalStatus", maritalStatus),
-                    new NpgsqlParameter("@Gender", gender)
+                    new SqlParameter("@BusinessEntityID", businessEntityId),
+                    new SqlParameter("@NationalIDNumber", nationalIdNumber),
+                    new SqlParameter("@BirthDate", birthDate.ToUniversalTime()),
+                    new SqlParameter("@MaritalStatus", maritalStatus),
+                    new SqlParameter("@Gender", gender)
                     );
 
                 return rowsAffected > 0;
@@ -184,7 +183,7 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                // PostgreSQL: Statement is compatible with both SQL Server and PostgreSQL
+                // Build the SQL command
                 string sql = @"SELECT * FROM bobsbookstore_dbo.author";
 
                 // Execute the SQL command and get the number of rows affected
@@ -205,11 +204,11 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                // PostgreSQL: Converted from SQL Server stored procedure to direct DELETE
-                string sql = @"DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID RETURNING 1;";
+                // Build the SQL command
+                string sql = @"DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;";
 
                 // Execute the SQL command and get the number of rows affected
-                var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql, new NpgsqlParameter("@BusinessEntityID", businessEntityId));
+                var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sql, new SqlParameter("@BusinessEntityID", businessEntityId));
 
                 return rowsAffected > 0;
             }
@@ -225,12 +224,11 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                // PostgreSQL: Converted T-SQL functions to PostgreSQL equivalents
-                // FORMAT() -> TO_CHAR(), DATEDIFF(YEAR,...GETDATE()) -> DATE_PART('year',AGE(CURRENT_DATE,...)), DATEPART() -> EXTRACT()
-                string sql = @"SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_DATE, birthdate)) AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;";
+                // Build the SQL command
+                string sql = @"SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;";
 
                 // Execute the SQL command and get the number of rows affected
-                var results = await _context.Database.SqlQueryRaw<AuthorAgeResult>(sql, new NpgsqlParameter("@HireDate", hireYear)).ToListAsync();
+                var results = await _context.Database.SqlQueryRaw<AuthorAgeResult>(sql, new SqlParameter("@HireDate", hireYear)).ToListAsync();
 
                 return results;
             }
