@@ -1,0 +1,363 @@
+================================================================================
+SQL EQUIVALENCY VALIDATION LOG
+================================================================================
+Project: BobsBookstore - SQL Server to PostgreSQL Migration
+Validation Date: 2026-01-03
+Tool: sql-equivalency___validate_sql_equivalence
+Total Statement Pairs: 4
+================================================================================
+
+================================================================================
+Statement ID: 1 - FindAllAuthorsEmbeddedSql()
+================================================================================
+Timestamp: 2026-01-03T00:26:27.426679
+Query Complexity: easy
+
+MS SQL Statement:
+-----------------
+SELECT * FROM bobsbookstore_dbo.author
+
+PostgreSQL Statement:
+---------------------
+SELECT * FROM bobsbookstore_dbo.author
+
+MS SQL Table Creation:
+----------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber NVARCHAR(15) NOT NULL, loginid NVARCHAR(256) NOT NULL, jobtitle NVARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus NCHAR(1) NOT NULL, gender NCHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL)
+
+PostgreSQL Table Creation:
+--------------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INTEGER PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL)
+
+Sample Data:
+------------
+INSERT INTO bobsbookstore_dbo.author VALUES (1, '123456789', 'user1@test.com', 'Author', '1980-01-01', 'M', 'M', '2020-01-01', 80, '2024-01-01 10:00:00')
+
+Tool Output:
+------------
+{
+  "equivalence_status": "EQUIVALENT",
+  "result_details": "StructuralEquivalenceVerifier stage in formal methods proved equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-03T00:26:27.426679"
+}
+
+Equivalency Status: EQUIVALENT
+Result: The SQL Equivalency tool confirmed that both statements produce identical results.
+
+Analysis:
+---------
+The simple SELECT * statement is structurally identical in both SQL Server and 
+PostgreSQL. The tool successfully verified equivalency using formal verification 
+methods.
+
+================================================================================
+Statement ID: 2 - EditUsingStoredProcedure()
+================================================================================
+Timestamp: 2026-01-03T00:26:46.545303
+Query Complexity: medium
+
+MS SQL Statement:
+-----------------
+DECLARE @rowsAffected INT;EXEC @rowsAffected = uspUpdateAuthorPersonalInfo @BusinessEntityID=1, @NationalIDNumber='987654321', @BirthDate='1985-05-15', @MaritalStatus='S', @Gender='F';SELECT @rowsAffected
+
+PostgreSQL Statement:
+---------------------
+UPDATE bobsbookstore_dbo.author SET NationalIDNumber = '987654321', BirthDate = '1985-05-15', MaritalStatus = 'S', Gender = 'F', ModifiedDate = CURRENT_TIMESTAMP WHERE BusinessEntityID = 1
+
+MS SQL Table Creation:
+----------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber NVARCHAR(15) NOT NULL, loginid NVARCHAR(256) NOT NULL, jobtitle NVARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus NCHAR(1) NOT NULL, gender NCHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL); CREATE PROCEDURE uspUpdateAuthorPersonalInfo @BusinessEntityID INT, @NationalIDNumber NVARCHAR(15), @BirthDate DATE, @MaritalStatus NCHAR(1), @Gender NCHAR(1) AS BEGIN UPDATE bobsbookstore_dbo.author SET NationalIDNumber = @NationalIDNumber, BirthDate = @BirthDate, MaritalStatus = @MaritalStatus, Gender = @Gender, ModifiedDate = GETDATE() WHERE BusinessEntityID = @BusinessEntityID; END
+
+PostgreSQL Table Creation:
+--------------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INTEGER PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL)
+
+Sample Data:
+------------
+INSERT INTO bobsbookstore_dbo.author VALUES (1, '123456789', 'user1@test.com', 'Author', '1980-01-01', 'M', 'M', '2020-01-01', 80, '2024-01-01 10:00:00')
+
+Tool Output:
+------------
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-03T00:26:46.545303"
+}
+
+Equivalency Status: ERROR (UNKNOWN → ERROR per transformation definition)
+Result: The SQL Equivalency tool could not determine equivalency. Marking as ERROR.
+
+Analysis:
+---------
+The tool returned UNKNOWN status, which means it could not prove or disprove 
+equivalency using formal verification methods (Z3 SQL Solver). Per the 
+transformation definition: "UNKNOWN: Mark as ERROR per transformation definition."
+
+This is likely due to:
+1. The complexity of comparing a stored procedure call with inline UPDATE
+2. The timestamp difference (GETDATE() vs CURRENT_TIMESTAMP)
+3. The procedural vs declarative approach differences
+
+Manual Assessment (for reference only, NOT used for status determination):
+The statements perform equivalent operations - both update the same fields with 
+the same values. The ModifiedDate timestamp will differ slightly due to execution 
+timing, but functionally they achieve the same result.
+
+Note: Per transformation definition, this status MUST remain ERROR regardless of 
+manual assessment, as the tool is the ONLY source of truth for equivalency.
+
+================================================================================
+Statement ID: 3 - DeleteAuthorEmbeddedSql()
+================================================================================
+Timestamp: 2026-01-03T00:27:06.375085
+Query Complexity: medium
+
+MS SQL Statement:
+-----------------
+DECLARE @rowsAffected INT;EXEC @rowsAffected = uspDeleteAuthor @BusinessEntityID=1;SELECT @rowsAffected
+
+PostgreSQL Statement:
+---------------------
+DELETE FROM bobsbookstore_dbo.author WHERE BusinessEntityID = 1
+
+MS SQL Table Creation:
+----------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber NVARCHAR(15) NOT NULL, loginid NVARCHAR(256) NOT NULL, jobtitle NVARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus NCHAR(1) NOT NULL, gender NCHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL); CREATE PROCEDURE uspDeleteAuthor @BusinessEntityID INT AS BEGIN DELETE FROM bobsbookstore_dbo.author WHERE BusinessEntityID = @BusinessEntityID; END
+
+PostgreSQL Table Creation:
+--------------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INTEGER PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL)
+
+Sample Data:
+------------
+INSERT INTO bobsbookstore_dbo.author VALUES (1, '123456789', 'user1@test.com', 'Author', '1980-01-01', 'M', 'M', '2020-01-01', 80, '2024-01-01 10:00:00')
+
+Tool Output:
+------------
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-03T00:27:06.375085"
+}
+
+Equivalency Status: ERROR (UNKNOWN → ERROR per transformation definition)
+Result: The SQL Equivalency tool could not determine equivalency. Marking as ERROR.
+
+Analysis:
+---------
+The tool returned UNKNOWN status, which means it could not prove or disprove 
+equivalency using formal verification methods (Z3 SQL Solver). Per the 
+transformation definition: "UNKNOWN: Mark as ERROR per transformation definition."
+
+This is likely due to:
+1. The complexity of comparing a stored procedure call with inline DELETE
+2. The procedural vs declarative approach differences
+3. The Z3 solver's limitations with stored procedure equivalence
+
+Manual Assessment (for reference only, NOT used for status determination):
+The statements perform equivalent operations - both delete the author record with 
+BusinessEntityID = 1. The functional result is identical.
+
+Note: Per transformation definition, this status MUST remain ERROR regardless of 
+manual assessment, as the tool is the ONLY source of truth for equivalency.
+
+================================================================================
+Statement ID: 4 - SelectAuthorsByHireYear()
+================================================================================
+Timestamp: 2026-01-03T00:27:27.456943
+Query Complexity: hard
+
+MS SQL Statement:
+-----------------
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = 2020
+
+PostgreSQL Statement:
+---------------------
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = 2020
+
+MS SQL Table Creation:
+----------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber NVARCHAR(15) NOT NULL, loginid NVARCHAR(256) NOT NULL, jobtitle NVARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus NCHAR(1) NOT NULL, gender NCHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL)
+
+PostgreSQL Table Creation:
+--------------------------
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INTEGER PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL)
+
+Sample Data:
+------------
+INSERT INTO bobsbookstore_dbo.author VALUES (1, '123456789', 'user1@test.com', 'Author', '1980-01-01', 'M', 'M', '2020-01-01', 80, '2024-01-01 10:00:00')
+
+Tool Output:
+------------
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-03T00:27:27.456943"
+}
+
+Equivalency Status: ERROR (UNKNOWN → ERROR per transformation definition)
+Result: The SQL Equivalency tool could not determine equivalency. Marking as ERROR.
+
+Analysis:
+---------
+The tool returned UNKNOWN status, which means it could not prove or disprove 
+equivalency using formal verification methods (Z3 SQL Solver). Per the 
+transformation definition: "UNKNOWN: Mark as ERROR per transformation definition."
+
+This is likely due to:
+1. Complex date function conversions (FORMAT, DATEDIFF, DATEPART, GETDATE)
+2. Different function signatures and semantics between SQL Server and PostgreSQL
+3. The Z3 solver's limitations with complex date arithmetic equivalence
+4. Format string differences ('yyyy-MM-dd HH:mm:ss' vs 'YYYY-MM-DD HH24:MI:SS')
+
+Function Conversions:
+- FORMAT → TO_CHAR (different function, different format strings)
+- DATEDIFF(YEAR, BirthDate, GETDATE()) → EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate))
+- DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM HireDate)
+
+Manual Assessment (for reference only, NOT used for status determination):
+The statements should produce equivalent results for the same input data, as the 
+function conversions are standard SQL Server to PostgreSQL mappings. However, 
+there may be edge cases in date calculations or format string outputs.
+
+Note: Per transformation definition, this status MUST remain ERROR regardless of 
+manual assessment, as the tool is the ONLY source of truth for equivalency.
+
+================================================================================
+VALIDATION SUMMARY
+================================================================================
+Total Statement Pairs Validated: 4
+
+Equivalency Status Breakdown:
+- EQUIVALENT: 1 (Statement ID 1)
+- NOT_EQUIVALENT: 0
+- ERROR: 3 (Statement IDs 2, 3, 4 - all were UNKNOWN → ERROR per definition)
+
+Tool Performance:
+- Successful equivalency proofs: 1 (using StructuralEquivalenceVerifier)
+- Unable to determine: 3 (Z3SqlSolverVerifier could not prove/disprove)
+
+Key Findings:
+-------------
+1. Simple SELECT * statement: Successfully verified as EQUIVALENT
+2. Stored procedure conversions: Tool unable to determine (marked ERROR)
+3. Complex date function conversions: Tool unable to determine (marked ERROR)
+
+The SQL Equivalency tool performed well on simple structural comparisons but 
+encountered limitations with:
+- Stored procedure to inline SQL comparisons
+- Complex date function equivalence
+- Different function signatures between SQL dialects
+
+Critical Note:
+--------------
+Per transformation definition requirements:
+- "NEVER use agent judgment to determine equivalency"
+- "If tool fails, mark as ERROR, not equivalent"
+- "Tool output is the ONLY source of truth"
+
+All equivalency statuses in this log are based SOLELY on the tool's output, 
+with no agent judgment applied. Manual assessments included above are for 
+informational purposes only and DO NOT affect the official equivalency status.
+
+================================================================================
+Statement ID: 5 - FindAllProducts()
+================================================================================
+Timestamp: 2026-01-03T01:07:16.275054
+Query Complexity: medium
+
+MS SQL Statement:
+-----------------
+EXEC uspGetProductData
+
+PostgreSQL Statement:
+---------------------
+SELECT * FROM bobsbookstore_dbo.product
+
+MS SQL Table Creation:
+----------------------
+CREATE TABLE bobsbookstore_dbo.product (productid INT PRIMARY KEY, name NVARCHAR(100) NOT NULL, productnumber NVARCHAR(50) NOT NULL, safetystocklevel SMALLINT NOT NULL); CREATE PROCEDURE uspGetProductData AS BEGIN SELECT * FROM bobsbookstore_dbo.product; END
+
+PostgreSQL Table Creation:
+--------------------------
+CREATE TABLE bobsbookstore_dbo.product (productid INTEGER PRIMARY KEY, name VARCHAR(100) NOT NULL, productnumber VARCHAR(50) NOT NULL, safetystocklevel SMALLINT NOT NULL)
+
+Sample Data:
+------------
+N/A (would be product test data)
+
+Tool Output:
+------------
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-03T01:07:16.275054"
+}
+
+Equivalency Status: ERROR (UNKNOWN → ERROR per transformation definition)
+Result: The SQL Equivalency tool could not determine equivalency. Marking as ERROR.
+
+Analysis:
+---------
+The tool returned UNKNOWN status, which means it could not prove or disprove 
+equivalency using formal verification methods (Z3 SQL Solver). Per the 
+transformation definition: "UNKNOWN: Mark as ERROR per transformation definition."
+
+This is likely due to:
+1. The complexity of comparing a stored procedure call with inline SELECT
+2. The procedural vs declarative approach differences
+3. The Z3 solver's limitations with stored procedure equivalence
+
+Manual Assessment (for reference only, NOT used for status determination):
+The statements perform equivalent operations - both retrieve all product records 
+from the product table. The functional result is identical.
+
+Note: Per transformation definition, this status MUST remain ERROR regardless of 
+manual assessment, as the tool is the ONLY source of truth for equivalency.
+
+================================================================================
+VALIDATION SUMMARY UPDATE
+================================================================================
+Total Statement Pairs Validated: 5 (Updated from 4)
+
+Equivalency Status Breakdown:
+- EQUIVALENT: 1 (Statement ID 1)
+- NOT_EQUIVALENT: 0
+- ERROR: 4 (Statement IDs 2, 3, 4, 5 - all were UNKNOWN → ERROR per definition)
+
+Tool Performance:
+- Successful equivalency proofs: 1 (using StructuralEquivalenceVerifier)
+- Unable to determine: 4 (Z3SqlSolverVerifier could not prove/disprove)
+
+Key Findings:
+-------------
+1. Simple SELECT * statement: Successfully verified as EQUIVALENT
+2. Stored procedure conversions: Tool unable to determine (marked ERROR) - 3 instances
+3. Complex date function conversions: Tool unable to determine (marked ERROR) - 1 instance
+4. NEW: Statement 5 (stored procedure to SELECT): Tool unable to determine (marked ERROR)
+
+The SQL Equivalency tool performed well on simple structural comparisons but 
+encountered limitations with:
+- Stored procedure to inline SQL comparisons (Statements 2, 3, 5)
+- Complex date function equivalence (Statement 4)
+- Different function signatures between SQL dialects
+
+Critical Note:
+--------------
+Per transformation definition requirements:
+- "NEVER use agent judgment to determine equivalency"
+- "If tool fails, mark as ERROR, not equivalent"
+- "Tool output is the ONLY source of truth"
+
+All equivalency statuses in this log are based SOLELY on the tool's output, 
+with no agent judgment applied. Manual assessments included above are for 
+informational purposes only and DO NOT affect the official equivalency status.
+
+================================================================================
+END OF EQUIVALENCY VALIDATION LOG
+================================================================================
