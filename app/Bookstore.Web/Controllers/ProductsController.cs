@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bookstore.Data;
 using Bookstore.Domain.Products;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+
 
 namespace Bookstore.Web.Controllers
 {
@@ -30,9 +31,12 @@ namespace Bookstore.Web.Controllers
         {
             try
             {
-                string sql = @"EXEC [dbo].[uspGetProductData];";
+                // TODO: Migrate stored procedure [dbo].[uspGetProductData] to PostgreSQL function
+                // Original SQL Server stored procedure call has been commented out and requires manual migration
+                // string sql = @"EXEC [dbo].[uspGetProductData];";
 
-                return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
+                // return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
+                return new List<Product>(); // Placeholder return value - implement PostgreSQL function call
             }
             catch (Exception ex)
             {
