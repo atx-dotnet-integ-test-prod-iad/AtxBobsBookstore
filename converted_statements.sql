@@ -1,0 +1,134 @@
+-- ============================================================================
+-- CONVERTED SQL STATEMENTS CATALOG
+-- Migration: Microsoft SQL Server to PostgreSQL
+-- Project: BobsBookstore
+-- Date: 2026-01-06
+-- ============================================================================
+-- This file contains all SQL statements converted from T-SQL to PostgreSQL syntax
+-- Each statement corresponds to an entry in extracted_statements.sql
+-- Conversion Method is documented for each statement (DMS_TOOL or MANUAL_AFTER_DMS_FAILURE)
+-- ============================================================================
+
+-- ============================================================================
+-- STATEMENT 1: EditUsingStoredProcedure - Update Author Personal Information
+-- ============================================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: EditUsingStoredProcedure
+-- Line: ~158
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- DMS Status: ERROR - Metadata model creation failed
+-- Complexity: HARD (stored procedure with multiple parameters and return value)
+-- ============================================================================
+-- Original T-SQL:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+--
+-- PostgreSQL Conversion:
+-- Converted stored procedure call to PostgreSQL function call
+-- T-SQL stored procedure: [dbo].[uspUpdateAuthorPersonalInfo]
+-- PostgreSQL function: bobsbookstore_dbo.usp_update_author_personal_info (snake_case convention)
+-- Changed EXEC syntax to SELECT function call
+-- Removed DECLARE statement (not needed with SELECT)
+-- Parameter syntax: @ prefix works with Npgsql
+-- ============================================================================
+SELECT bobsbookstore_dbo.usp_update_author_personal_info(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+-- ============================================================================
+-- STATEMENT 2: FindAllAuthorsEmbeddedSql - Select All Authors
+-- ============================================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: FindAllAuthorsEmbeddedSql
+-- Line: ~185
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- DMS Status: ERROR - Metadata model creation failed
+-- Complexity: EASY (simple SELECT with no joins or complex functions)
+-- ============================================================================
+-- Original T-SQL:
+-- SELECT * FROM bobsbookstore_dbo.author
+--
+-- PostgreSQL Conversion:
+-- Schema and table names remain the same (already using PostgreSQL convention)
+-- No changes needed - syntax is compatible
+-- ============================================================================
+SELECT * FROM bobsbookstore_dbo.author;
+
+-- ============================================================================
+-- STATEMENT 3: DeleteAuthorEmbeddedSql - Delete Author
+-- ============================================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: DeleteAuthorEmbeddedSql
+-- Line: ~205
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- DMS Status: ERROR - Metadata model creation failed
+-- Complexity: HARD (stored procedure with parameter and return value)
+-- ============================================================================
+-- Original T-SQL:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+--
+-- PostgreSQL Conversion:
+-- Converted stored procedure call to PostgreSQL function call
+-- T-SQL stored procedure: [dbo].[uspDeleteAuthor]
+-- PostgreSQL function: bobsbookstore_dbo.usp_delete_author (snake_case convention)
+-- Changed EXEC syntax to SELECT function call
+-- Removed DECLARE statement
+-- ============================================================================
+SELECT bobsbookstore_dbo.usp_delete_author(@BusinessEntityID);
+
+-- ============================================================================
+-- STATEMENT 4: SelectAuthorsByHireYear - Select Authors with Date Functions
+-- ============================================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: SelectAuthorsByHireYear
+-- Line: ~226
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- DMS Status: ERROR - Metadata model creation failed
+-- Complexity: MEDIUM (uses SQL Server specific date functions)
+-- ============================================================================
+-- Original T-SQL:
+-- SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+--
+-- PostgreSQL Conversion:
+-- FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') -> TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+-- DATEDIFF(YEAR, BirthDate, GETDATE()) -> DATE_PART('year', AGE(NOW(), BirthDate))
+-- DATEPART(YEAR, HireDate) -> EXTRACT(YEAR FROM HireDate)
+-- GETDATE() -> NOW()
+-- ============================================================================
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(NOW(), BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+-- ============================================================================
+-- STATEMENT 5: FindAllProducts - Get All Products via Stored Procedure
+-- ============================================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs
+-- Method: FindAllProducts
+-- Line: ~30
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- DMS Status: ERROR - Metadata model creation failed
+-- Complexity: HARD (stored procedure call)
+-- ============================================================================
+-- Original T-SQL:
+-- EXEC [dbo].[uspGetProductData];
+--
+-- PostgreSQL Conversion:
+-- Converted stored procedure call to PostgreSQL function call
+-- T-SQL stored procedure: [dbo].[uspGetProductData]
+-- PostgreSQL function: bobsbookstore_dbo.usp_get_product_data (snake_case convention)
+-- Changed EXEC syntax to SELECT FROM function call
+-- ============================================================================
+SELECT * FROM bobsbookstore_dbo.usp_get_product_data();
+
+-- ============================================================================
+-- SUMMARY
+-- ============================================================================
+-- Total Statements Converted: 5
+-- Converted via DMS_TOOL: 0
+-- Converted MANUAL_AFTER_DMS_FAILURE: 5
+-- 
+-- KEY CONVERSION PATTERNS:
+-- 1. Stored Procedure Calls: EXEC [schema].[proc] -> SELECT schema.proc() or SELECT * FROM schema.proc()
+-- 2. Date Functions:
+--    - FORMAT() -> TO_CHAR()
+--    - DATEDIFF(YEAR, date1, date2) -> DATE_PART('year', AGE(date2, date1))
+--    - DATEPART(YEAR, date) -> EXTRACT(YEAR FROM date)
+--    - GETDATE() -> NOW()
+-- 3. Schema Names: [dbo].[name] -> bobsbookstore_dbo.name (snake_case)
+-- 4. Parameters: @ prefix works with Npgsql for PostgreSQL
+-- ============================================================================

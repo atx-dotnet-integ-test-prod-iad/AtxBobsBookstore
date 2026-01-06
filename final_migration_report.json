@@ -1,0 +1,160 @@
+{
+  "migration_summary": {
+    "project_name": "BobsBookstore",
+    "migration_type": "SQL Server to PostgreSQL",
+    "completion_date": "2026-01-06T16:21:00Z",
+    "total_sql_statements": 5,
+    "statements_successfully_converted_by_dms": 0,
+    "statements_requiring_manual_intervention": 5,
+    "statements_validated_equivalent": 1,
+    "statements_validated_non_equivalent": 0,
+    "statements_with_validation_errors": 4
+  },
+  "files_modified": [
+    {
+      "file_path": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "statements_updated": 4,
+      "modifications": "Replaced 4 SQL Server T-SQL statements with PostgreSQL equivalents. Converted stored procedure calls (EditUsingStoredProcedure, DeleteAuthorEmbeddedSql) to PostgreSQL function calls. Updated complex date function SQL (SelectAuthorsByHireYear) with PostgreSQL equivalents. Updated simple SELECT statement (FindAllAuthorsEmbeddedSql). Replaced all SqlParameter instances with NpgsqlParameter."
+    },
+    {
+      "file_path": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "statements_updated": 1,
+      "modifications": "Replaced 1 SQL Server stored procedure call (FindAllProducts) with PostgreSQL table-returning function call."
+    }
+  ],
+  "validation_report_reference": "sql_equivalency_validation_report.json",
+  "dms_issues_log_reference": "dms_conversion_issues.log",
+  "artifacts_generated": [
+    "extracted_statements.sql",
+    "converted_statements.sql",
+    "sql_equivalency_validation_report.json",
+    "dms_conversion_issues.log",
+    "final_migration_report.json",
+    "build.log"
+  ],
+  "exit_criteria_status": {
+    "all_sql_statements_processed_through_dms": true,
+    "comprehensive_catalog_exists": true,
+    "all_statement_pairs_validated": true,
+    "equivalency_validation_report_complete": true,
+    "no_agent_judgment_used_for_equivalency": true,
+    "application_compiles": true,
+    "all_sqlparameter_replaced_with_npgsqlparameter": true,
+    "no_tsql_syntax_remains": true
+  },
+  "statements_requiring_manual_review": [
+    {
+      "statement_id": 1,
+      "reason": "ERROR status - SQL Equivalency tool returned UNKNOWN for stored procedure conversion",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.usp_update_author_personal_info(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "testing_notes": "Verify PostgreSQL function bobsbookstore_dbo.usp_update_author_personal_info exists and returns correct results. Test with various parameter values."
+    },
+    {
+      "statement_id": 3,
+      "reason": "ERROR status - SQL Equivalency tool returned UNKNOWN for stored procedure conversion",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.usp_delete_author(@BusinessEntityID);",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "testing_notes": "Verify PostgreSQL function bobsbookstore_dbo.usp_delete_author exists and performs delete operation correctly. Ensure row count is returned."
+    },
+    {
+      "statement_id": 4,
+      "reason": "ERROR status - SQL Equivalency tool returned UNKNOWN for complex date function conversions",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(NOW(), BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "testing_notes": "Verify date formatting matches expected output. Test age calculation with various birth dates. Ensure EXTRACT(YEAR) filter works correctly."
+    },
+    {
+      "statement_id": 5,
+      "reason": "ERROR status - SQL Equivalency tool returned UNKNOWN for stored procedure conversion",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.usp_get_product_data();",
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "testing_notes": "Verify PostgreSQL function bobsbookstore_dbo.usp_get_product_data exists and returns all product data correctly."
+    }
+  ],
+  "migration_process_summary": {
+    "steps_completed": [
+      "Step 1: Identified and cataloged all database access code and SQL statements",
+      "Step 2: Converted all SQL statements (DMS MCP tool attempted, manual conversion applied)",
+      "Step 3: Validated SQL equivalency for all statement pairs using SQL Equivalency MCP tool",
+      "Step 4: Re-integrated converted SQL statements into source code",
+      "Step 5: Replaced SqlParameter with NpgsqlParameter",
+      "Step 6: Built and verified application compilation",
+      "Step 7: Generated final migration report and documentation"
+    ],
+    "key_findings": [
+      "5 SQL statements identified and processed",
+      "All 5 DMS MCP tool invocations failed with metadata model creation errors",
+      "All 5 statements manually converted following PostgreSQL best practices",
+      "1 of 5 statements (20%) validated as EQUIVALENT by SQL Equivalency tool",
+      "4 of 5 statements (80%) marked as ERROR due to UNKNOWN status from equivalency tool",
+      "Application compiles successfully with 0 errors after migration",
+      "All T-SQL syntax removed from codebase",
+      "All SqlParameter instances replaced with NpgsqlParameter"
+    ],
+    "challenges_encountered": [
+      {
+        "challenge": "DMS MCP tool metadata model creation failures",
+        "description": "All DMS MCP tool invocations failed with 'No objects were found according to the specified selection rules' error",
+        "resolution": "Applied manual PostgreSQL conversions per transformation definition guidance. Documented all DMS attempts and manual conversions in dms_conversion_issues.log"
+      },
+      {
+        "challenge": "SQL Equivalency tool limitations with stored procedures and date functions",
+        "description": "4 of 5 statements returned UNKNOWN status from SQL Equivalency tool (stored procedures and complex date functions)",
+        "resolution": "Marked UNKNOWN as ERROR per transformation definition. Flagged statements for manual testing. Provided detailed testing notes for each statement."
+      }
+    ],
+    "conversion_patterns_applied": [
+      "Stored Procedure Calls: EXEC [dbo].[proc] → SELECT schema.proc() or SELECT * FROM schema.proc()",
+      "DECLARE variables: Removed (not needed for PostgreSQL function calls)",
+      "Date Functions: FORMAT() → TO_CHAR(), DATEDIFF() → DATE_PART(AGE()), DATEPART() → EXTRACT(), GETDATE() → NOW()",
+      "Schema Names: [dbo].[name] → bobsbookstore_dbo.name (snake_case for functions)",
+      "Parameter Handling: SqlParameter → NpgsqlParameter, @ prefix maintained"
+    ]
+  },
+  "testing_recommendations": [
+    "Unit test all methods with converted SQL statements",
+    "Verify PostgreSQL stored procedures/functions exist in target database: usp_update_author_personal_info, usp_delete_author, usp_get_product_data",
+    "Test date function conversions with various date values to ensure accuracy",
+    "Verify stored procedure/function return values match expected behavior",
+    "Run integration tests with actual PostgreSQL database operations",
+    "Test error handling and transaction rollback scenarios",
+    "Verify parameter binding works correctly with NpgsqlParameter",
+    "Test with null values and edge cases for all parameters",
+    "Validate date formatting output matches application requirements",
+    "Perform load testing to ensure performance is acceptable"
+  ],
+  "known_issues_and_limitations": [
+    "4 of 5 statements could not be validated as equivalent by SQL Equivalency tool",
+    "PostgreSQL stored procedures/functions must be created separately (not part of code migration)",
+    "Date formatting may produce slightly different output (time zone handling)",
+    "Stored procedure return value semantics may differ between SQL Server and PostgreSQL"
+  ],
+  "next_steps": [
+    "Create PostgreSQL stored procedures/functions corresponding to SQL Server stored procedures",
+    "Update connection strings in appsettings.json to point to PostgreSQL database",
+    "Deploy application to test environment",
+    "Execute comprehensive integration testing",
+    "Verify all database operations work correctly",
+    "Monitor application logs for any database-related errors",
+    "Conduct performance testing and optimization if needed",
+    "Update deployment documentation",
+    "Train development team on PostgreSQL differences",
+    "Plan for production migration and rollback procedures"
+  ],
+  "transformation_compliance": {
+    "dms_tool_usage": "All 5 SQL statements were attempted through DMS MCP tool. Tool failed with metadata model creation errors. Manual conversions applied and documented per transformation definition requirements.",
+    "sql_equivalency_validation": "All 5 SQL statement pairs validated through SQL Equivalency MCP tool. Results captured exactly as returned by tool (1 EQUIVALENT, 4 ERROR due to UNKNOWN). No agent judgment used for equivalency determination.",
+    "completeness": "All SQL statements in codebase identified, converted, validated, and integrated. Complete traceability from original to converted to validated.",
+    "documentation": "Comprehensive artifacts generated: extracted_statements.sql, converted_statements.sql, dms_conversion_issues.log, sql_equivalency_validation_report.json, final_migration_report.json, build.log",
+    "code_quality": "Application compiles successfully. All API signatures preserved. No T-SQL syntax remains. All SqlParameter replaced with NpgsqlParameter."
+  }
+}
