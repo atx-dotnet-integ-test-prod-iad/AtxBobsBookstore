@@ -1,0 +1,92 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 2,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 3,
+  "statement_details": [
+    {
+      "statement_number": 1,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_tool_output": "Status: error, Error: Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\", Timestamp: 2026-01-06T08:02:41.380041",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"UNKNOWN\",\n  \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\",\n  \"validation_method\": \"formal_verification\",\n  \"timestamp\": \"2026-01-06T08:07:11.993811\"\n}",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_line": "159",
+      "source_method": "EditUsingStoredProcedure",
+      "notes": "Stored procedure call replaced with direct UPDATE statement. Original stored procedure performed simple UPDATE on Author table. Equivalency tool returned UNKNOWN which is marked as ERROR per plan requirements."
+    },
+    {
+      "statement_number": 2,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_tool_output": "Status: error, Error: Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\", Timestamp: 2026-01-06T08:03:29.220615",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"EQUIVALENT\",\n  \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\",\n  \"validation_method\": \"formal_verification\",\n  \"timestamp\": \"2026-01-06T08:07:24.809837\"\n}",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_line": "178",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "notes": "Statement was already PostgreSQL compatible. No conversion needed. Equivalency tool confirmed EQUIVALENT status."
+    },
+    {
+      "statement_number": 3,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_tool_output": "Status: error, Error: Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\", Timestamp: 2026-01-06T08:03:55.235838",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"UNKNOWN\",\n  \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\",\n  \"validation_method\": \"formal_verification\",\n  \"timestamp\": \"2026-01-06T08:07:40.989143\"\n}",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_line": "198",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "notes": "Stored procedure call replaced with direct DELETE statement. Original stored procedure performed simple DELETE on Author table. Equivalency tool returned UNKNOWN which is marked as ERROR per plan requirements."
+    },
+    {
+      "statement_number": 4,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_DATE, birthdate)) AS age FROM bobsbookstore_dbo.author WHERE DATE_PART('year', hiredate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_tool_output": "Status: error, Error: Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\", Timestamp: 2026-01-06T08:04:20.140598",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"UNKNOWN\",\n  \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\",\n  \"validation_method\": \"formal_verification\",\n  \"timestamp\": \"2026-01-06T08:07:58.804058\"\n}",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_line": "218",
+      "source_method": "SelectAuthorsByHireYear",
+      "notes": "Complex SELECT with multiple SQL Server date functions converted to PostgreSQL equivalents: FORMAT->TO_CHAR, DATEDIFF->DATE_PART/AGE, GETDATE->CURRENT_DATE, DATEPART->DATE_PART. Equivalency tool returned UNKNOWN which is marked as ERROR per plan requirements."
+    },
+    {
+      "statement_number": 5,
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT productid, name, productnumber, safetystocklevel FROM bobsbookstore_dbo.product;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_tool_output": "Status: error, Error: Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\", Timestamp: 2026-01-06T08:04:48.924197",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"EQUIVALENT\",\n  \"result_details\": \"Z3SqlSolverVerifier stage in formal methods proved equivalency\",\n  \"validation_method\": \"formal_verification\",\n  \"timestamp\": \"2026-01-06T08:08:13.462298\"\n}",
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_line": "31",
+      "source_method": "FindAllProducts",
+      "notes": "Cursor-based stored procedure replaced with direct SELECT. Original stored procedure returned cursor with same columns. Direct SELECT is more appropriate for ADO.NET SqlQueryRaw usage. Equivalency tool confirmed EQUIVALENT status."
+    }
+  ],
+  "summary": {
+    "all_statements_processed_through_dms": true,
+    "all_dms_conversions_failed": true,
+    "dms_failure_reason": "Metadata model creation failed for all statements",
+    "manual_conversion_applied_to_all": true,
+    "all_statement_pairs_validated": true,
+    "equivalency_tool_used_for_all": true,
+    "no_agent_judgment_for_equivalency": true,
+    "statements_by_equivalency_status": {
+      "EQUIVALENT": ["Statement 2: SELECT all authors", "Statement 5: Get product data"],
+      "ERROR": ["Statement 1: Update author procedure", "Statement 3: Delete author procedure", "Statement 4: Complex date functions SELECT"]
+    }
+  },
+  "critical_compliance": {
+    "every_statement_through_dms": "YES - All 5 statements attempted through DMS tool",
+    "every_statement_pair_validated": "YES - All 5 statement pairs validated through SQL Equivalency tool",
+    "no_agent_judgment_used": "YES - All equivalency determinations from tool output only",
+    "unknown_marked_as_error": "YES - All UNKNOWN results marked as ERROR per plan requirement"
+  }
+}

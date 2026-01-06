@@ -1,0 +1,196 @@
+{
+  "migration_summary": {
+    "total_sql_statements_identified": 5,
+    "total_statements_processed_through_dms": 5,
+    "statements_successfully_converted_by_dms": 0,
+    "statements_requiring_manual_intervention": 5,
+    "statements_validated_as_equivalent": 2,
+    "statements_validated_as_non_equivalent": 0,
+    "statements_with_equivalency_errors": 3,
+    "migration_completion_date": "2026-01-06",
+    "migration_approach": "DMS MCP Tool + SQL Equivalency Validation"
+  },
+  "file_modifications": {
+    "source_files_modified": [
+      "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "app/Bookstore.Web/Bookstore.Web.csproj"
+    ],
+    "configuration_files_updated": [
+      "None - Connection string already configured for PostgreSQL via AWS Secrets Manager"
+    ],
+    "package_references_changed": [
+      "Removed: Microsoft.Data.SqlClient Version 5.1.0",
+      "Added: Npgsql Version 8.0.0",
+      "Existing: Npgsql.EntityFrameworkCore.PostgreSQL Version 8.0.0"
+    ]
+  },
+  "sql_statements_by_file": {
+    "AuthorsController.cs": [
+      {
+        "method": "EditUsingStoredProcedure",
+        "original": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+        "converted": "UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID;",
+        "conversion_type": "Stored procedure replaced with direct UPDATE"
+      },
+      {
+        "method": "FindAllAuthorsEmbeddedSql",
+        "original": "SELECT * FROM bobsbookstore_dbo.author",
+        "converted": "SELECT * FROM bobsbookstore_dbo.author",
+        "conversion_type": "No changes needed - already PostgreSQL compatible"
+      },
+      {
+        "method": "DeleteAuthorEmbeddedSql",
+        "original": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+        "converted": "DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID;",
+        "conversion_type": "Stored procedure replaced with direct DELETE"
+      },
+      {
+        "method": "SelectAuthorsByHireYear",
+        "original": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+        "converted": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_DATE, birthdate)) AS age FROM bobsbookstore_dbo.author WHERE DATE_PART('year', hiredate) = @HireDate;",
+        "conversion_type": "SQL Server date functions converted to PostgreSQL equivalents"
+      }
+    ],
+    "ProductsController.cs": [
+      {
+        "method": "FindAllProducts",
+        "original": "EXEC [dbo].[uspGetProductData];",
+        "converted": "SELECT productid, name, productnumber, safetystocklevel FROM bobsbookstore_dbo.product;",
+        "conversion_type": "Cursor-based stored procedure replaced with direct SELECT"
+      }
+    ]
+  },
+  "artifacts_generated": [
+    "extracted_statements.sql",
+    "converted_statements.sql",
+    "sql_equivalency_validation_report.json",
+    "dms_conversion_failures.log",
+    "migration_final_report.json"
+  ],
+  "validation_results": {
+    "build_status": "SUCCESS",
+    "compilation_errors": 0,
+    "compilation_warnings": 58,
+    "warnings_note": "All warnings are pre-existing and unrelated to migration (nullable reference types, obsolete APIs, package vulnerabilities in unrelated dependencies)"
+  },
+  "statements_requiring_manual_review": [
+    {
+      "statement_number": 1,
+      "reason": "Equivalency tool returned UNKNOWN (marked as ERROR per plan requirement)",
+      "original": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted": "UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID;",
+      "recommendation": "Manual functional testing recommended to verify UPDATE behavior"
+    },
+    {
+      "statement_number": 3,
+      "reason": "Equivalency tool returned UNKNOWN (marked as ERROR per plan requirement)",
+      "original": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted": "DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID;",
+      "recommendation": "Manual functional testing recommended to verify DELETE behavior"
+    },
+    {
+      "statement_number": 4,
+      "reason": "Equivalency tool returned UNKNOWN (marked as ERROR per plan requirement)",
+      "original": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_DATE, birthdate)) AS age FROM bobsbookstore_dbo.author WHERE DATE_PART('year', hiredate) = @HireDate;",
+      "recommendation": "Manual functional testing recommended to verify date function conversions"
+    }
+  ],
+  "dms_tool_processing": {
+    "all_statements_attempted_through_dms": true,
+    "dms_success_rate": "0% (0 out of 5)",
+    "common_dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules",
+    "manual_conversion_rationale": "All DMS attempts failed with metadata errors. Manual conversions applied based on stored procedure analysis from database schema files and PostgreSQL best practices.",
+    "dms_attempt_timestamps": [
+      "2026-01-06T08:02:41.380041",
+      "2026-01-06T08:03:29.220615",
+      "2026-01-06T08:03:55.235838",
+      "2026-01-06T08:04:20.140598",
+      "2026-01-06T08:04:48.924197"
+    ]
+  },
+  "sql_equivalency_validation": {
+    "all_statement_pairs_validated": true,
+    "validation_tool_used_exclusively": true,
+    "no_agent_judgment_applied": true,
+    "equivalency_results": {
+      "EQUIVALENT": 2,
+      "NOT_EQUIVALENT": 0,
+      "ERROR": 3
+    },
+    "equivalent_statements": [
+      "Statement 2: SELECT * FROM bobsbookstore_dbo.author",
+      "Statement 5: SELECT productid, name, productnumber, safetystocklevel FROM bobsbookstore_dbo.product"
+    ],
+    "error_statements": [
+      "Statement 1: UPDATE author (tool returned UNKNOWN)",
+      "Statement 3: DELETE author (tool returned UNKNOWN)",
+      "Statement 4: Complex date functions SELECT (tool returned UNKNOWN)"
+    ]
+  },
+  "transformation_exit_criteria": {
+    "all_sql_server_packages_replaced": true,
+    "all_sql_server_ado_classes_replaced": true,
+    "all_sql_statements_processed_through_dms": true,
+    "comprehensive_sql_catalog_exists": true,
+    "all_statement_pairs_validated": true,
+    "comprehensive_equivalency_report_generated": true,
+    "no_agent_judgment_for_equivalency": true,
+    "application_compiles_without_errors": true,
+    "no_sql_server_references_remain": true,
+    "all_exit_criteria_met": true
+  },
+  "key_conversion_patterns": {
+    "schema": "dbo → bobsbookstore_dbo",
+    "column_names": "PascalCase → lowercase",
+    "date_functions": {
+      "FORMAT": "TO_CHAR",
+      "DATEDIFF": "DATE_PART with AGE",
+      "GETDATE": "CURRENT_DATE",
+      "DATEPART": "DATE_PART"
+    },
+    "stored_procedures": "Replaced with direct SQL for better ADO.NET integration",
+    "parameter_objects": "SqlParameter → NpgsqlParameter"
+  },
+  "migration_metrics": {
+    "total_files_modified": 3,
+    "total_lines_changed": 395,
+    "sql_statements_migrated": 5,
+    "parameters_migrated": 7,
+    "stored_procedures_replaced": 3,
+    "duration_steps": 5,
+    "build_success": true
+  },
+  "configuration_verification": {
+    "connection_string_source": "AWS Secrets Manager",
+    "connection_string_secret_name": "atx-db-modernization-secret-sql-admin",
+    "application_db_context_provider": "Npgsql.EntityFrameworkCore.PostgreSQL",
+    "schema_name": "bobsbookstore_dbo",
+    "column_name_mapping": "lowercase PostgreSQL convention",
+    "connection_string_format": "PostgreSQL (Host, Database, authentication parameters)"
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Perform functional testing of all database operations",
+      "Test the 3 statements marked with equivalency ERROR status",
+      "Verify date/time handling in production scenarios",
+      "Test transaction rollback behavior"
+    ],
+    "best_practices": [
+      "Monitor application logs after deployment",
+      "Validate data integrity after migration",
+      "Performance test queries with PostgreSQL",
+      "Review and optimize indexes for PostgreSQL"
+    ]
+  },
+  "compliance_summary": {
+    "critical_requirements_met": {
+      "every_sql_statement_through_dms": "YES - All 5 statements attempted",
+      "every_statement_pair_validated": "YES - All 5 pairs validated with SQL Equivalency tool",
+      "no_agent_judgment_for_equivalency": "YES - All determinations from tool output only",
+      "unknown_marked_as_error": "YES - All 3 UNKNOWN results marked as ERROR",
+      "comprehensive_documentation": "YES - All artifacts generated"
+    }
+  }
+}
