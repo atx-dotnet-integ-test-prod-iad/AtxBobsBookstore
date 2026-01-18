@@ -1,0 +1,116 @@
+{
+  "conversion_date": "2026-01-18T03:47:00Z",
+  "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+  "database_name": "BobsBookstore",
+  "schema_name": "bobsbookstore_dbo",
+  "total_statements": 5,
+  "dms_successful_conversions": 0,
+  "dms_failed_conversions": 5,
+  "manual_conversions_after_dms_failure": 5,
+  "statements": [
+    {
+      "statement_id": "1",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "EditUsingStoredProcedure",
+      "line_number": "~154",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_sql": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+      "dms_error_timestamp": "2026-01-18T03:48:07.619484",
+      "manual_conversion_notes": "SQL Server DECLARE/EXEC pattern converted to PostgreSQL function call. [dbo].[procedure] syntax converted to bobsbookstore_dbo.procedure. PostgreSQL functions return values directly.",
+      "schema_changes": "None - schema already uses bobsbookstore_dbo format"
+    },
+    {
+      "statement_id": "2",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "FindAllAuthorsEmbeddedSql",
+      "line_number": "~178",
+      "original_sql": "SELECT * FROM bobsbookstore_dbo.author;",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+      "dms_error_timestamp": "2026-01-18T03:48:29.938332",
+      "manual_conversion_notes": "Simple SELECT statement already PostgreSQL compatible. Schema name already in PostgreSQL format. No syntax changes needed.",
+      "schema_changes": "None - already uses bobsbookstore_dbo.author"
+    },
+    {
+      "statement_id": "3",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "DeleteAuthorEmbeddedSql",
+      "line_number": "~197",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_sql": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+      "dms_error_timestamp": "2026-01-18T03:48:51.281256",
+      "manual_conversion_notes": "SQL Server DECLARE/EXEC pattern converted to PostgreSQL function call. [dbo].[procedure] syntax converted to bobsbookstore_dbo.procedure.",
+      "schema_changes": "None - schema already uses bobsbookstore_dbo format"
+    },
+    {
+      "statement_id": "4",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "SelectAuthorsByHireYear",
+      "line_number": "~217",
+      "original_sql": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_sql": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+      "dms_error_timestamp": "2026-01-18T03:49:13.601207",
+      "manual_conversion_notes": "T-SQL date functions converted to PostgreSQL: FORMAT→TO_CHAR with PostgreSQL format codes, DATEDIFF→AGE+EXTRACT, DATEPART→EXTRACT, GETDATE→CURRENT_TIMESTAMP",
+      "function_conversions": [
+        {
+          "original": "FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss')",
+          "converted": "TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')",
+          "notes": "PostgreSQL uses YYYY, MM, DD, HH24, MI, SS format codes"
+        },
+        {
+          "original": "DATEDIFF(YEAR, BirthDate, GETDATE())",
+          "converted": "EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate))",
+          "notes": "AGE function calculates interval, EXTRACT gets year component"
+        },
+        {
+          "original": "DATEPART(YEAR, HireDate)",
+          "converted": "EXTRACT(YEAR FROM HireDate)",
+          "notes": "EXTRACT replaces DATEPART in PostgreSQL"
+        },
+        {
+          "original": "GETDATE()",
+          "converted": "CURRENT_TIMESTAMP",
+          "notes": "PostgreSQL standard function for current timestamp"
+        }
+      ],
+      "schema_changes": "None - already uses bobsbookstore_dbo.author"
+    },
+    {
+      "statement_id": "5",
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "method_name": "FindAllProducts",
+      "line_number": "~30",
+      "original_sql": "EXEC [dbo].[uspGetProductData];",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+      "dms_error_timestamp": "2026-01-18T03:49:35.039845",
+      "manual_conversion_notes": "SQL Server EXEC statement converted to PostgreSQL SELECT FROM function. [dbo].[procedure] syntax converted to bobsbookstore_dbo.procedure. PostgreSQL stored procedures returning result sets use SELECT * FROM syntax.",
+      "schema_changes": "None - schema already uses bobsbookstore_dbo format"
+    }
+  ],
+  "dms_failure_summary": {
+    "common_error": "Metadata model creation failed: The selected objects were not found.",
+    "error_analysis": "The DMS migration project could not locate the database objects referenced in the SQL statements. This is likely due to migration project configuration issues or database connection problems. All statements were manually converted following PostgreSQL best practices.",
+    "mitigation": "Manual conversions applied using PostgreSQL syntax standards and best practices for all statements."
+  },
+  "conversion_patterns_applied": {
+    "stored_procedures": "DECLARE/EXEC patterns converted to SELECT function_name(params) for PostgreSQL",
+    "schema_qualifiers": "[dbo].[object] converted to bobsbookstore_dbo.object",
+    "date_time_functions": "T-SQL functions converted to PostgreSQL equivalents (FORMAT→TO_CHAR, DATEDIFF→AGE+EXTRACT, DATEPART→EXTRACT, GETDATE→CURRENT_TIMESTAMP)",
+    "parameters": "@ syntax maintained (supported by Npgsql)"
+  },
+  "notes": "All 5 SQL statements attempted DMS conversion. All 5 failed with the same metadata model creation error. Manual conversions were applied to all statements following PostgreSQL standards. Schema names were already in PostgreSQL format (bobsbookstore_dbo) and were maintained."
+}

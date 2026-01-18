@@ -1,0 +1,266 @@
+================================================================================
+CODE INTEGRATION LOG - SQL SERVER TO POSTGRESQL MIGRATION
+Bob's Bookstore Application
+Integration Date: 2026-01-18
+================================================================================
+
+This log documents all SQL statement replacements made during the re-integration
+phase of the SQL Server to PostgreSQL migration. Each change includes the source
+file location, method name, original SQL Server statement, and converted PostgreSQL
+statement.
+
+================================================================================
+CHANGE 1: EditUsingStoredProcedure Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: EditUsingStoredProcedure
+Line Number: ~154
+Statement ID: 1
+
+Original SQL Server Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Conversion Type: DECLARE/EXEC Pattern → PostgreSQL Function Call
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Schema Changes: [dbo].[procedure] → bobsbookstore_dbo.procedure
+
+Key Changes Made:
+- Removed DECLARE @rowsAffected INT statement
+- Converted EXEC @rowsAffected = [dbo].[procedure] pattern to SELECT schema.procedure() pattern
+- Updated schema qualifier from [dbo].[uspUpdateAuthorPersonalInfo] to bobsbookstore_dbo.uspUpdateAuthorPersonalInfo
+- Removed final SELECT @rowsAffected (PostgreSQL function returns value directly)
+- Maintained @ parameter syntax (supported by Npgsql)
+- Preserved all parameter bindings (NpgsqlParameter objects)
+
+Code Context:
+- Method signature unchanged
+- Return type unchanged (async Task<bool>)
+- Error handling preserved
+- Parameter binding preserved (NpgsqlParameter with ToUniversalTime() for DateTime)
+
+Manual Adjustments: None required beyond conversion
+
+================================================================================
+CHANGE 2: FindAllAuthorsEmbeddedSql Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: FindAllAuthorsEmbeddedSql
+Line Number: ~178
+Statement ID: 2
+
+Original SQL Server Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Type: No Changes (Already PostgreSQL Compatible)
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Schema Changes: None (already using bobsbookstore_dbo schema)
+Equivalency Status: EQUIVALENT (verified by SQL Equivalency tool)
+
+Key Changes Made:
+- No changes required - statement is identical for both SQL Server and PostgreSQL
+- Schema already in PostgreSQL format (bobsbookstore_dbo.author)
+
+Code Context:
+- Method signature unchanged
+- Return type unchanged (async Task<List<Author>>)
+- Error handling preserved
+- No parameters required
+
+Manual Adjustments: None required (statement unchanged)
+
+================================================================================
+CHANGE 3: DeleteAuthorEmbeddedSql Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: DeleteAuthorEmbeddedSql
+Line Number: ~197
+Statement ID: 3
+
+Original SQL Server Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);
+
+Conversion Type: DECLARE/EXEC Pattern → PostgreSQL Function Call
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Schema Changes: [dbo].[procedure] → bobsbookstore_dbo.procedure
+
+Key Changes Made:
+- Removed DECLARE @rowsAffected INT statement
+- Converted EXEC @rowsAffected = [dbo].[procedure] pattern to SELECT schema.procedure() pattern
+- Updated schema qualifier from [dbo].[uspDeleteAuthor] to bobsbookstore_dbo.uspDeleteAuthor
+- Removed final SELECT @rowsAffected (PostgreSQL function returns value directly)
+- Maintained @ parameter syntax (supported by Npgsql)
+- Preserved parameter binding (NpgsqlParameter for @BusinessEntityID)
+
+Code Context:
+- Method signature unchanged
+- Return type unchanged (async Task<bool>)
+- Error handling preserved
+- Parameter binding preserved (NpgsqlParameter object)
+
+Manual Adjustments: None required beyond conversion
+
+================================================================================
+CHANGE 4: SelectAuthorsByHireYear Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: SelectAuthorsByHireYear
+Line Number: ~217
+Statement ID: 4
+
+Original SQL Server Statement:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+Converted PostgreSQL Statement:
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+Conversion Type: T-SQL Date/Time Functions → PostgreSQL Equivalents
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Schema Changes: None (already using bobsbookstore_dbo.author)
+
+Key Changes Made:
+
+1. FORMAT Function Conversion:
+   - Original: FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss')
+   - Converted: TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+   - Notes: PostgreSQL uses different format codes
+     * YYYY for 4-digit year (was yyyy)
+     * MM for month (same)
+     * DD for day (same)
+     * HH24 for 24-hour format (was HH)
+     * MI for minutes (was mm)
+     * SS for seconds (was ss)
+
+2. DATEDIFF Function Conversion:
+   - Original: DATEDIFF(YEAR, BirthDate, GETDATE())
+   - Converted: EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate))
+   - Notes: 
+     * AGE(date2, date1) calculates interval between dates
+     * EXTRACT(YEAR FROM interval) gets year component
+     * CURRENT_TIMESTAMP replaces GETDATE()
+
+3. DATEPART Function Conversion:
+   - Original: DATEPART(YEAR, HireDate)
+   - Converted: EXTRACT(YEAR FROM HireDate)
+   - Notes: EXTRACT directly gets date parts in PostgreSQL
+
+4. GETDATE Function Conversion:
+   - Original: GETDATE()
+   - Converted: CURRENT_TIMESTAMP
+   - Notes: PostgreSQL standard function for current timestamp
+
+Code Context:
+- Method signature unchanged
+- Return type unchanged (async Task<List<AuthorAgeResult>>)
+- Error handling preserved
+- Parameter binding preserved (NpgsqlParameter for @HireDate)
+- Column aliases unchanged (FormattedModifiedDate, Age)
+
+Manual Adjustments: None required beyond conversion
+
+Notes:
+- Date format conversions need manual testing to verify identical output
+- Age calculation may have subtle differences in leap year handling
+- Recommended to test with sample data covering edge cases
+
+================================================================================
+CHANGE 5: FindAllProducts Method
+================================================================================
+File: app/Bookstore.Web/Controllers/ProductsController.cs
+Method: FindAllProducts
+Line Number: ~30
+Statement ID: 5
+
+Original SQL Server Statement:
+EXEC [dbo].[uspGetProductData];
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.uspGetProductData();
+
+Conversion Type: EXEC Stored Procedure → PostgreSQL Function Call
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Schema Changes: [dbo].[procedure] → bobsbookstore_dbo.procedure
+
+Key Changes Made:
+- Converted EXEC [dbo].[procedure] pattern to SELECT * FROM schema.procedure() pattern
+- Updated schema qualifier from [dbo].[uspGetProductData] to bobsbookstore_dbo.uspGetProductData
+- Added () to function call (required in PostgreSQL)
+- Added SELECT * FROM to retrieve result set (PostgreSQL stored functions return table)
+
+Code Context:
+- Method signature unchanged
+- Return type unchanged (async Task<List<Product>>)
+- Error handling preserved
+- No parameters required
+- Empty list returned on error
+
+Manual Adjustments: None required beyond conversion
+
+Notes:
+- PostgreSQL stored procedures returning result sets must be called with SELECT * FROM
+- Function must exist in PostgreSQL database with correct signature
+
+================================================================================
+INTEGRATION SUMMARY
+================================================================================
+
+Total Files Modified: 2
+- app/Bookstore.Web/Controllers/AuthorsController.cs (4 statements modified)
+- app/Bookstore.Web/Controllers/ProductsController.cs (1 statement modified)
+
+Total Statements Modified: 5
+
+Conversion Breakdown:
+- DECLARE/EXEC to SELECT function: 3 statements (1, 3, 5)
+- T-SQL date/time functions to PostgreSQL: 1 statement (4)
+- No changes required: 1 statement (2)
+
+Schema Object Updates:
+- All [dbo].[object] references converted to bobsbookstore_dbo.object
+- No schema object name changes from DMS (DMS failed, manual conversion applied)
+
+Code Integrity Maintained:
+✓ All method signatures unchanged
+✓ All return types unchanged
+✓ All error handling preserved
+✓ All parameter bindings preserved (NpgsqlParameter objects)
+✓ All date conversions maintain .ToUniversalTime() calls
+✓ All column aliases unchanged
+✓ All transaction logic preserved (no transaction blocks in modified code)
+
+No Breaking Changes:
+- Public API completely unchanged
+- Method contracts unchanged
+- Exception handling unchanged
+- Logging unchanged
+
+Post-Integration Validation Required:
+1. Manual testing of all stored procedure calls (statements 1, 3, 5)
+2. Manual testing of date/time function conversions (statement 4)
+3. Verification that stored procedures exist in PostgreSQL database:
+   - bobsbookstore_dbo.uspUpdateAuthorPersonalInfo
+   - bobsbookstore_dbo.uspDeleteAuthor
+   - bobsbookstore_dbo.uspGetProductData
+4. Testing with edge cases (leap years, timezone handling, null dates)
+
+================================================================================
+VERIFICATION STATUS
+================================================================================
+
+Code Changes Complete: YES
+Build Verification: PENDING (to be verified in verification step)
+Syntax Errors: None detected during integration
+Guardrail Compliance: To be verified
+
+Integration completed successfully. All SQL Server statements have been replaced
+with PostgreSQL equivalents. Build verification and testing required.
+
+================================================================================

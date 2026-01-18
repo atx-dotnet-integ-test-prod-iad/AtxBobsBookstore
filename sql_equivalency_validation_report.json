@@ -1,0 +1,127 @@
+{
+  "report_metadata": {
+    "report_date": "2026-01-18T03:52:00Z",
+    "migration_project": "Bob's Bookstore SQL Server to PostgreSQL Migration",
+    "validation_tool": "sql-equivalency___validate_sql_equivalence",
+    "validation_method": "formal_verification"
+  },
+  "summary": {
+    "number_of_statements_processed": 5,
+    "number_of_statements_equivalent": 1,
+    "number_of_statements_non_equivalent": 0,
+    "number_of_statements_with_equivalency_error": 4
+  },
+  "statement_details": [
+    {
+      "statement_id": "1",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "EditUsingStoredProcedure",
+      "line_number": "~154",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-18T03:52:40.347263\"}",
+      "notes": "Tool returned UNKNOWN status, which per transformation definition is marked as ERROR. The stored procedure conversion from DECLARE/EXEC pattern to PostgreSQL function call could not be formally verified. This is expected for stored procedure calls as the tool cannot verify the procedure implementation itself."
+    },
+    {
+      "statement_id": "2",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "FindAllAuthorsEmbeddedSql",
+      "line_number": "~178",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-18T03:52:50.456283\"}",
+      "notes": "Tool successfully verified equivalency. Simple SELECT statement is identical in both SQL Server and PostgreSQL, with only schema already in PostgreSQL format."
+    },
+    {
+      "statement_id": "3",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "DeleteAuthorEmbeddedSql",
+      "line_number": "~197",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-18T03:53:01.216173\"}",
+      "notes": "Tool returned UNKNOWN status, which per transformation definition is marked as ERROR. The stored procedure conversion from DECLARE/EXEC pattern to PostgreSQL function call could not be formally verified. This is expected for stored procedure calls."
+    },
+    {
+      "statement_id": "4",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "SelectAuthorsByHireYear",
+      "line_number": "~217",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-18T03:53:13.441688\"}",
+      "notes": "Tool returned UNKNOWN status, which per transformation definition is marked as ERROR. Complex date/time function conversions (FORMAT→TO_CHAR, DATEDIFF→AGE+EXTRACT, DATEPART→EXTRACT, GETDATE→CURRENT_TIMESTAMP) could not be formally verified by the solver. Manual review recommended to verify date function conversions produce equivalent results."
+    },
+    {
+      "statement_id": "5",
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "method_name": "FindAllProducts",
+      "line_number": "~30",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-18T03:53:24.154103\"}",
+      "notes": "Tool returned UNKNOWN status, which per transformation definition is marked as ERROR. The stored procedure conversion from EXEC to SELECT FROM function call could not be formally verified. This is expected for stored procedure calls."
+    }
+  ],
+  "validation_notes": {
+    "critical_points": [
+      "ALL 5 statement pairs were validated through the SQL Equivalency tool as required by the transformation definition.",
+      "Equivalency status for ALL statements comes directly from the tool output, NOT from agent judgment.",
+      "UNKNOWN results from the tool are marked as ERROR per transformation definition requirements.",
+      "Only 1 statement (Statement 2 - simple SELECT) was verified as EQUIVALENT by the tool.",
+      "4 statements (Statements 1, 3, 4, 5) received UNKNOWN status from the tool, marked as ERROR.",
+      "No agent judgment was used to determine equivalency - all statuses come from tool output."
+    ],
+    "tool_limitations_observed": [
+      "The Z3SqlSolverVerifier cannot formally verify stored procedure calls, as it cannot access the procedure implementation.",
+      "Complex date/time function conversions could not be proven equivalent by formal verification methods.",
+      "Structural equivalence verification works well for simple SELECT statements."
+    ],
+    "statements_requiring_manual_review": [
+      {
+        "statement_id": "1",
+        "reason": "Stored procedure call - tool cannot verify procedure implementation. Manual testing of uspUpdateAuthorPersonalInfo required.",
+        "risk_level": "medium"
+      },
+      {
+        "statement_id": "3",
+        "reason": "Stored procedure call - tool cannot verify procedure implementation. Manual testing of uspDeleteAuthor required.",
+        "risk_level": "medium"
+      },
+      {
+        "statement_id": "4",
+        "reason": "Complex date/time function conversions - formal verification could not prove equivalency. Manual testing with sample data recommended to verify FORMAT→TO_CHAR, DATEDIFF→AGE+EXTRACT conversions.",
+        "risk_level": "medium"
+      },
+      {
+        "statement_id": "5",
+        "reason": "Stored procedure call - tool cannot verify procedure implementation. Manual testing of uspGetProductData required.",
+        "risk_level": "medium"
+      }
+    ],
+    "recommendations": [
+      "Perform manual testing of all stored procedure calls (Statements 1, 3, 5) against actual PostgreSQL database with migrated procedures.",
+      "Test date/time function conversions (Statement 4) with sample data to verify FORMAT, DATEDIFF, DATEPART, and GETDATE conversions produce identical results.",
+      "Ensure all stored procedures exist in PostgreSQL database with correct signatures before deployment.",
+      "Statement 2 is verified as equivalent and requires no additional manual testing."
+    ]
+  },
+  "compliance_verification": {
+    "all_statements_validated": true,
+    "validation_count_matches_conversion_count": true,
+    "no_agent_judgment_used": true,
+    "tool_output_documented_for_all": true,
+    "unknown_marked_as_error": true,
+    "transformation_definition_followed": true
+  }
+}
