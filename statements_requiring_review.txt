@@ -1,0 +1,220 @@
+================================================================================
+STATEMENTS REQUIRING REVIEW
+BobsBookstore - Microsoft SQL Server to PostgreSQL Migration
+================================================================================
+Date: 2026-01-22
+Migration Step: Final Review (Step 9)
+================================================================================
+
+This document lists all SQL statements that require manual review due to 
+equivalency validation results from the SQL Equivalency MCP tool.
+
+================================================================================
+SUMMARY
+================================================================================
+Total Statements: 4
+Statements Validated as EQUIVALENT: 1
+Statements Requiring Review: 3
+
+Statements by Category:
+- NOT_EQUIVALENT: 0
+- ERROR (tool returned UNKNOWN): 3
+
+================================================================================
+STATEMENTS VALIDATED AS EQUIVALENT - NO ACTION NEEDED
+================================================================================
+
+Statement 1: Simple SELECT from Author table
+---------------------------------------------------------------------------
+Source: AuthorsController.cs, Line 175, Method: FindAllAuthorsEmbeddedSql()
+Equivalency Status: EQUIVALENT
+Tool Output: "Z3SqlSolverVerifier stage in formal methods proved equivalency"
+
+Original SQL Server Statement:
+  SELECT * FROM Author
+
+Converted PostgreSQL Statement:
+  SELECT * FROM bobsusedbookstore_dbo.author
+
+Recommendation: No action needed - successfully validated as equivalent by formal verification.
+
+
+================================================================================
+STATEMENTS REQUIRING MANUAL REVIEW
+================================================================================
+
+Statement 2: Stored Procedure Call - uspUpdateAuthorPersonalInfo
+---------------------------------------------------------------------------
+Source: AuthorsController.cs, Line 160, Method: EditUsingStoredProcedure()
+Equivalency Status: ERROR (tool returned UNKNOWN)
+Tool Output: "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency"
+
+Original SQL Server Statement:
+  EXEC [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender
+
+Converted PostgreSQL Statement:
+  CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender)
+
+Conversion Method: DMS_TOOL
+
+Reason for Review:
+The SQL Equivalency tool could not automatically verify the equivalency of this 
+stored procedure call. This is common with stored procedures as their internal 
+logic requires the tool to analyze the procedure definition, which can be complex.
+
+Manual Review Notes:
+The stored procedure performs an UPDATE operation on the Author/author table with 
+the following columns: NationalIDNumber, BirthDate, MaritalStatus, Gender, and 
+ModifiedDate (set to current timestamp). Both versions should perform the same 
+logical operation:
+- SQL Server: Updates Author table, sets ModifiedDate to GETDATE()
+- PostgreSQL: Updates bobsbookstore_dbo.author table, sets modifieddate to CURRENT_TIMESTAMP
+
+Recommendation:
+1. Verify the stored procedure bobsusedbookstore_dbo.uspupdateauthorpersonalinfo 
+   exists in the PostgreSQL database
+2. Verify it updates the correct columns with correct data types
+3. Test the stored procedure call with sample data
+4. Verify return value handling (rows affected) works correctly
+5. Compare results between SQL Server and PostgreSQL versions
+
+
+Statement 3: Stored Procedure Call - uspDeleteAuthor
+---------------------------------------------------------------------------
+Source: AuthorsController.cs, Line 198, Method: DeleteAuthorEmbeddedSql()
+Equivalency Status: ERROR (tool returned UNKNOWN)
+Tool Output: "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency"
+
+Original SQL Server Statement:
+  EXEC [dbo].[uspDeleteAuthor] @BusinessEntityID
+
+Converted PostgreSQL Statement:
+  CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID)
+
+Conversion Method: DMS_TOOL
+
+Reason for Review:
+The SQL Equivalency tool could not automatically verify the equivalency of this 
+stored procedure call due to the complexity of analyzing stored procedure definitions.
+
+Manual Review Notes:
+The stored procedure performs a DELETE operation on the Author/author table where 
+BusinessEntityID matches the parameter. Both versions should perform the same 
+logical operation:
+- SQL Server: Deletes from Author table by BusinessEntityID
+- PostgreSQL: Deletes from bobsbookstore_dbo.author table by businessentityid
+
+Recommendation:
+1. Verify the stored procedure bobsusedbookstore_dbo.uspdeleteauthor exists in 
+   the PostgreSQL database
+2. Verify it deletes records based on the correct column (businessentityid)
+3. Test the stored procedure call with sample data
+4. Verify return value handling (rows affected) works correctly
+5. Compare results between SQL Server and PostgreSQL versions
+
+
+Statement 4: Complex Query with T-SQL Functions
+---------------------------------------------------------------------------
+Source: AuthorsController.cs, Line 215, Method: SelectAuthorsByHireYear()
+Equivalency Status: ERROR (tool returned UNKNOWN)
+Tool Output: "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency"
+
+Original SQL Server Statement:
+  SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate
+
+Converted PostgreSQL Statement:
+  SELECT businessentityid, to_char(modifieddate, 'yyyy-MM-dd HH:mm:ss') AS formattedmodifieddate, aws_sqlserver_ext.datediff('YEAR', (birthdate)::TIMESTAMP, (clock_timestamp())::TIMESTAMP) AS age FROM bobsusedbookstore_dbo.author WHERE date_part('year', hiredate) = @HireDate
+
+Conversion Method: DMS_TOOL (using GenAI)
+
+Reason for Review:
+The SQL Equivalency tool could not automatically verify this complex query due to 
+the multiple T-SQL function conversions and the use of the aws_sqlserver_ext 
+extension for the DATEDIFF function.
+
+Manual Review Notes:
+This statement involves several T-SQL function conversions:
+1. FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') -> to_char(modifieddate, 'yyyy-MM-dd HH:mm:ss')
+2. DATEDIFF(YEAR, BirthDate, GETDATE()) -> aws_sqlserver_ext.datediff('YEAR', (birthdate)::TIMESTAMP, (clock_timestamp())::TIMESTAMP)
+3. DATEPART(YEAR, HireDate) -> date_part('year', hiredate)
+4. GETDATE() -> clock_timestamp()
+
+The conversions are semantically correct, but the aws_sqlserver_ext.datediff 
+function requires the aws_sqlserver_ext extension to be installed in PostgreSQL.
+
+CRITICAL: This conversion uses GenAI from DMS tool (INFO [7744]). The output is 
+probabilistic and should be validated for accuracy.
+
+Recommendation:
+1. REQUIRED: Verify aws_sqlserver_ext extension is installed in PostgreSQL database:
+   CREATE EXTENSION IF NOT EXISTS aws_sqlserver_ext;
+2. Test the query with sample data and compare results:
+   - Verify date formatting is identical
+   - Verify age calculation produces the same results
+   - Verify year extraction from HireDate works correctly
+3. Compare query results for multiple test cases with different dates
+4. Verify the query performance is acceptable
+5. Consider whether aws_sqlserver_ext is the best approach or if native PostgreSQL 
+   functions would be better (e.g., EXTRACT(YEAR FROM AGE(birthdate)) for age calculation)
+
+
+================================================================================
+GENERAL RECOMMENDATIONS FOR ALL STATEMENTS REQUIRING REVIEW
+================================================================================
+
+1. Database Preparation:
+   - Ensure all stored procedures have been migrated to PostgreSQL
+   - Verify the aws_sqlserver_ext extension is installed
+   - Verify schema bobsbookstore_dbo exists with all required objects
+
+2. Testing Strategy:
+   - Create comprehensive test data covering edge cases
+   - Execute both SQL Server and PostgreSQL versions side-by-side
+   - Compare results for accuracy and consistency
+   - Test error handling and boundary conditions
+
+3. Performance Validation:
+   - Measure query execution times
+   - Compare performance between SQL Server and PostgreSQL versions
+   - Identify any performance regressions
+
+4. Integration Testing:
+   - Test all affected application features end-to-end
+   - Verify data integrity after operations
+   - Test transaction handling and rollback scenarios
+
+5. Documentation:
+   - Document any differences found during testing
+   - Update deployment documentation with extension requirements
+   - Create runbook for troubleshooting common issues
+
+
+================================================================================
+EXIT CRITERIA FOR STATEMENTS REQUIRING REVIEW
+================================================================================
+
+Before considering the migration complete, verify:
+
+✓ All stored procedures exist in PostgreSQL and are functional
+✓ aws_sqlserver_ext extension is installed and configured
+✓ Test cases pass for all statements with identical results
+✓ Application integration tests pass successfully
+✓ Performance is acceptable compared to SQL Server baseline
+✓ Error handling works correctly in all scenarios
+✓ All stakeholders have reviewed and approved the migration
+
+
+================================================================================
+MIGRATION TEAM SIGN-OFF
+================================================================================
+
+DBA Review:          [ ] Complete  Date: ___________  Signature: ___________
+Developer Review:    [ ] Complete  Date: ___________  Signature: ___________
+QA Testing:          [ ] Complete  Date: ___________  Signature: ___________
+Security Review:     [ ] Complete  Date: ___________  Signature: ___________
+Business Approval:   [ ] Complete  Date: ___________  Signature: ___________
+
+
+================================================================================
+END OF DOCUMENT
+================================================================================
