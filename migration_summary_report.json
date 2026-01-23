@@ -1,0 +1,230 @@
+{
+  "migration_summary": {
+    "migration_date": "2025-01-23",
+    "migration_type": "Microsoft SQL Server to PostgreSQL",
+    "application_name": "BobsBookstore ADO.NET Application",
+    "migration_status": "COMPLETED",
+    "build_status": "SUCCESS",
+    "build_errors": 0,
+    "build_warnings": 64
+  },
+  "sql_statement_processing": {
+    "total_statements_processed": 5,
+    "statements_extracted": 5,
+    "statements_converted": 5,
+    "dms_tool_successes": 0,
+    "dms_tool_failures": 5,
+    "manual_conversions_after_dms_failure": 5,
+    "statement_details": [
+      {
+        "statement_id": 1,
+        "statement_name": "Update Author Personal Info (Stored Procedure Call)",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "method_name": "EditUsingStoredProcedure",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "dms_status": "ERROR",
+        "dms_error": "Metadata model creation failed: The selected objects were not found",
+        "requires_manual_review": true,
+        "notes": "SQL Server stored procedure EXEC converted to PostgreSQL function call with type casting"
+      },
+      {
+        "statement_id": 2,
+        "statement_name": "Find All Authors",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "method_name": "FindAllAuthorsEmbeddedSql",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "dms_status": "ERROR",
+        "dms_error": "Metadata model creation failed: The selected objects were not found",
+        "requires_manual_review": false,
+        "notes": "Statement already PostgreSQL-compatible, no changes needed"
+      },
+      {
+        "statement_id": 3,
+        "statement_name": "Delete Author (Stored Procedure Call)",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "method_name": "DeleteAuthorEmbeddedSql",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "dms_status": "ERROR",
+        "dms_error": "Metadata model creation failed: The selected objects were not found",
+        "requires_manual_review": true,
+        "notes": "SQL Server stored procedure EXEC converted to PostgreSQL function call with type casting"
+      },
+      {
+        "statement_id": 4,
+        "statement_name": "Select Authors By Hire Year with Age Calculation",
+        "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+        "method_name": "SelectAuthorsByHireYear",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "dms_status": "ERROR",
+        "dms_error": "Metadata model creation failed: The selected objects were not found",
+        "requires_manual_review": true,
+        "notes": "Complex function conversions: FORMAT→TO_CHAR, DATEDIFF→EXTRACT(AGE), GETDATE→CURRENT_TIMESTAMP, DATEPART→EXTRACT"
+      },
+      {
+        "statement_id": 5,
+        "statement_name": "Get All Products (Stored Procedure Call)",
+        "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+        "method_name": "FindAllProducts",
+        "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+        "dms_status": "ERROR",
+        "dms_error": "Metadata model creation failed: The selected objects were not found",
+        "requires_manual_review": true,
+        "notes": "SQL Server stored procedure EXEC converted to PostgreSQL function call"
+      }
+    ]
+  },
+  "equivalency_validation": {
+    "total_statement_pairs_validated": 5,
+    "equivalent_statements": 1,
+    "non_equivalent_statements": 0,
+    "equivalency_errors": 4,
+    "equivalency_tool_used": "sql-equivalency___validate_sql_equivalence",
+    "validation_summary": {
+      "statement_1": "ERROR (tool returned UNKNOWN)",
+      "statement_2": "EQUIVALENT",
+      "statement_3": "ERROR (tool returned UNKNOWN)",
+      "statement_4": "ERROR (tool returned UNKNOWN)",
+      "statement_5": "ERROR (tool returned UNKNOWN)"
+    },
+    "notes": [
+      "All statement pairs processed through SQL Equivalency MCP tool",
+      "No agent judgment used for equivalency determination",
+      "UNKNOWN results marked as ERROR per transformation definition",
+      "Stored procedure conversions and complex function transformations could not be automatically verified",
+      "Statements marked as ERROR require manual verification during integration testing"
+    ]
+  },
+  "code_transformation": {
+    "sqlparameter_replacements": 7,
+    "sqlconnection_removed": 0,
+    "sqlcommand_removed": 0,
+    "sqldatareader_removed": 0,
+    "npgsqlparameter_added": 7,
+    "sql_server_functions_replaced": {
+      "EXEC": 3,
+      "FORMAT": 1,
+      "DATEDIFF": 1,
+      "GETDATE": 1,
+      "DATEPART": 1
+    },
+    "postgresql_functions_added": {
+      "TO_CHAR": 1,
+      "EXTRACT": 3,
+      "CURRENT_TIMESTAMP": 1,
+      "AGE": 1,
+      "function_calls": 3
+    },
+    "files_modified": [
+      "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "app/Bookstore.Web/Controllers/ProductsController.cs"
+    ]
+  },
+  "transformation_artifacts": {
+    "extracted_statements_sql": {
+      "path": "extracted_statements.sql",
+      "exists": true,
+      "size": "3.6K",
+      "statement_count": 5,
+      "description": "Complete catalog of original SQL Server statements"
+    },
+    "converted_statements_sql": {
+      "path": "converted_statements.sql",
+      "exists": true,
+      "size": "5.0K",
+      "statement_count": 5,
+      "description": "Complete catalog of PostgreSQL-converted statements"
+    },
+    "dms_conversion_log_txt": {
+      "path": "dms_conversion_log.txt",
+      "exists": true,
+      "size": "7.9K",
+      "description": "Detailed DMS MCP tool outputs for all statements"
+    },
+    "sql_equivalency_validation_report_json": {
+      "path": "sql_equivalency_validation_report.json",
+      "exists": true,
+      "size": "6.0K",
+      "description": "Comprehensive equivalency validation results for all statement pairs"
+    },
+    "migration_summary_report_json": {
+      "path": "migration_summary_report.json",
+      "exists": true,
+      "description": "This comprehensive migration summary report"
+    }
+  },
+  "validation_results": {
+    "build_successful": true,
+    "build_errors": 0,
+    "all_sqlparameter_replaced": true,
+    "all_sql_statements_converted": true,
+    "no_sql_server_syntax_remaining": true,
+    "all_artifacts_present": true,
+    "verification_details": {
+      "sqlconnection_instances": 0,
+      "sqlcommand_instances": 0,
+      "sqldatareader_instances": 0,
+      "sqlparameter_instances": 0,
+      "npgsqlparameter_instances": 7,
+      "sql_server_exec_statements": 0,
+      "sql_server_datediff_calls": 0,
+      "sql_server_getdate_calls": 0,
+      "sql_server_format_calls": 0,
+      "sql_server_datepart_calls": 0
+    }
+  },
+  "statements_requiring_manual_review": [
+    {
+      "statement_id": 1,
+      "statement_name": "Update Author Personal Info",
+      "reason": "DMS conversion failed, manual conversion applied. Equivalency tool returned UNKNOWN.",
+      "review_priority": "HIGH",
+      "testing_recommendation": "Verify stored procedure/function exists in PostgreSQL database and test with sample data"
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "Delete Author",
+      "reason": "DMS conversion failed, manual conversion applied. Equivalency tool returned UNKNOWN.",
+      "review_priority": "HIGH",
+      "testing_recommendation": "Verify stored procedure/function exists in PostgreSQL database and test with sample data"
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "Select Authors By Hire Year",
+      "reason": "DMS conversion failed, manual conversion applied with complex function transformations. Equivalency tool returned UNKNOWN.",
+      "review_priority": "MEDIUM",
+      "testing_recommendation": "Test with various date inputs to verify FORMAT→TO_CHAR and DATEDIFF→AGE/EXTRACT conversions produce correct results"
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "Get All Products",
+      "reason": "DMS conversion failed, manual conversion applied. Equivalency tool returned UNKNOWN.",
+      "review_priority": "HIGH",
+      "testing_recommendation": "Verify stored procedure/function exists in PostgreSQL database and test with sample data"
+    }
+  ],
+  "next_steps": [
+    "Deploy PostgreSQL database schema and stored procedures/functions",
+    "Update application connection strings to point to PostgreSQL database",
+    "Perform integration testing for all 5 SQL statements",
+    "Pay special attention to stored procedure/function calls (statements 1, 3, 5)",
+    "Verify date/time function conversions produce expected results (statement 4)",
+    "Conduct end-to-end testing of author and product management features",
+    "Monitor application logs for any database-related errors",
+    "Validate data integrity after migration"
+  ],
+  "migration_compliance": {
+    "all_statements_through_dms_tool": true,
+    "all_statements_through_equivalency_tool": true,
+    "no_agent_judgment_for_equivalency": true,
+    "comprehensive_artifacts_generated": true,
+    "transformation_definition_followed": true,
+    "guardrails_respected": true
+  },
+  "references": {
+    "extracted_statements": "extracted_statements.sql",
+    "converted_statements": "converted_statements.sql",
+    "dms_conversion_log": "dms_conversion_log.txt",
+    "equivalency_validation_report": "sql_equivalency_validation_report.json",
+    "worklog": "~/.aws/atx/custom/20260123_152724_34c6eaef/artifacts/worklog.log"
+  }
+}

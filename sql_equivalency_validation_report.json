@@ -1,0 +1,97 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 4,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "Update Author Personal Info (Stored Procedure Call)",
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT public.uspupdateauthorpersonalinfo(\n    @BusinessEntityID::integer,\n    @NationalIDNumber::varchar,\n    @BirthDate::timestamp,\n    @MaritalStatus::char,\n    @Gender::char\n) AS rows_affected;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-01-23T15:41:57.666857"
+      },
+      "notes": "Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition. Stored procedure conversion from SQL Server EXEC to PostgreSQL function call."
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "Find All Authors",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": {
+        "equivalence_status": "EQUIVALENT",
+        "result_details": "StructuralEquivalenceVerifier stage in formal methods proved equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-01-23T15:41:27.391453"
+      },
+      "notes": "Successfully validated as EQUIVALENT. Schema name already PostgreSQL-compatible, no changes needed."
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "Delete Author (Stored Procedure Call)",
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT public.uspdeleteauthor(@BusinessEntityID::integer) AS rows_affected;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-01-23T15:42:09.744930"
+      },
+      "notes": "Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition. Stored procedure conversion from SQL Server EXEC to PostgreSQL function call."
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "Select Authors By Hire Year with Age Calculation",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate",
+      "converted_statement": "SELECT \n    BusinessEntityID, \n    TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, \n    EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age \nFROM bobsbookstore_dbo.author \nWHERE EXTRACT(YEAR FROM HireDate) = @HireDate",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-01-23T15:41:41.974241"
+      },
+      "notes": "Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition. Complex function conversions: FORMAT→TO_CHAR, DATEDIFF→EXTRACT(AGE), GETDATE→CURRENT_TIMESTAMP, DATEPART→EXTRACT."
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "Get All Products (Stored Procedure Call)",
+      "original_statement": "EXEC [dbo].[uspGetProductData]",
+      "converted_statement": "SELECT * FROM public.uspgetproductdata()",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-01-23T15:42:20.868791"
+      },
+      "notes": "Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition. Stored procedure execution replaced with PostgreSQL function call."
+    }
+  ],
+  "summary": {
+    "validation_date": "2025-01-23",
+    "validation_method": "sql-equivalency___validate_sql_equivalence MCP tool",
+    "critical_notes": [
+      "ALL statement pairs processed through SQL Equivalency MCP tool as required",
+      "NO agent judgment used for equivalency determination - all statuses from tool output",
+      "UNKNOWN results marked as ERROR per transformation definition",
+      "1 statement validated as EQUIVALENT by the tool",
+      "4 statements returned UNKNOWN (marked as ERROR) - require manual verification during testing",
+      "All stored procedure conversions returned UNKNOWN due to complexity of procedure/function comparison",
+      "Complex function transformations (FORMAT, DATEDIFF, GETDATE, DATEPART) returned UNKNOWN"
+    ],
+    "recommendation": "The 4 statements marked as ERROR (UNKNOWN from tool) should be manually verified during integration testing. The conversions follow PostgreSQL best practices but the formal verification tool could not prove equivalency automatically."
+  }
+}

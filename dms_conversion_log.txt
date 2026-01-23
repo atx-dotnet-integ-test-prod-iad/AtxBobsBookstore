@@ -1,0 +1,226 @@
+=============================================
+DMS MCP Tool Conversion Log
+BobsBookstore SQL Server to PostgreSQL Migration
+Date: 2025-01-23
+=============================================
+
+SUMMARY:
+- Total Statements Processed: 5
+- DMS Tool Successes: 0
+- DMS Tool Failures: 5
+- Manual Conversions Applied: 5
+
+All statements encountered the same DMS error: "Metadata model creation failed: The selected objects were not found"
+This indicates the DMS migration project does not have metadata for the BobsBookstore database objects.
+Per transformation definition, manual conversion was applied after documenting DMS failures.
+
+=============================================
+Statement 1: Update Author Personal Info
+=============================================
+Input SQL: 
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+SELECT @rowsAffected;
+
+Schema Name: dbo
+Conversion Timestamp: 2026-01-23T15:37:10.992008
+
+DMS Tool Output:
+{
+  "conversion_timestamp": "2026-01-23T15:37:10.992008",
+  "input": {
+    "sql_text": "DECLARE @rowsAffected INT;\\nEXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;\\nSELECT @rowsAffected;",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-01-23T15:37:12.762777",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-23T15:37:25.298040"
+}
+
+Manual Conversion Applied:
+SELECT public.uspupdateauthorpersonalinfo(
+    @BusinessEntityID::integer,
+    @NationalIDNumber::varchar,
+    @BirthDate::timestamp,
+    @MaritalStatus::char,
+    @Gender::char
+) AS rows_affected;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+=============================================
+Statement 2: Find All Authors
+=============================================
+Input SQL: 
+SELECT * FROM bobsbookstore_dbo.author
+
+Schema Name: bobsbookstore_dbo
+Conversion Timestamp: 2026-01-23T15:37:36.768304
+
+DMS Tool Output:
+{
+  "conversion_timestamp": "2026-01-23T15:37:36.768304",
+  "input": {
+    "sql_text": "SELECT * FROM bobsbookstore_dbo.author",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-01-23T15:37:38.395003",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-23T15:37:50.788720"
+}
+
+Manual Conversion Applied:
+SELECT * FROM bobsbookstore_dbo.author;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Note: Schema name remains the same as it's already PostgreSQL-compatible
+
+=============================================
+Statement 3: Delete Author
+=============================================
+Input SQL: 
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+SELECT @rowsAffected;
+
+Schema Name: dbo
+Conversion Timestamp: 2026-01-23T15:38:02.884780
+
+DMS Tool Output:
+{
+  "conversion_timestamp": "2026-01-23T15:38:02.884780",
+  "input": {
+    "sql_text": "DECLARE @rowsAffected INT;\\nEXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;\\nSELECT @rowsAffected;",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-01-23T15:38:04.568837",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-23T15:38:16.911647"
+}
+
+Manual Conversion Applied:
+SELECT public.uspdeleteauthor(@BusinessEntityID::integer) AS rows_affected;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+=============================================
+Statement 4: Select Authors By Hire Year
+=============================================
+Input SQL: 
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate
+
+Schema Name: bobsbookstore_dbo
+Conversion Timestamp: 2026-01-23T15:38:25.733307
+
+DMS Tool Output:
+{
+  "conversion_timestamp": "2026-01-23T15:38:25.733307",
+  "input": {
+    "sql_text": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-01-23T15:38:27.418634",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-23T15:38:39.808023"
+}
+
+Manual Conversion Applied:
+SELECT 
+    BusinessEntityID, 
+    TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, 
+    EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age 
+FROM bobsbookstore_dbo.author 
+WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Conversion Notes:
+- FORMAT(date, pattern) → TO_CHAR(date, pattern)
+- DATEDIFF(YEAR, date1, date2) → EXTRACT(YEAR FROM AGE(date2, date1))
+- GETDATE() → CURRENT_TIMESTAMP
+- DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+
+=============================================
+Statement 5: Get All Products
+=============================================
+Input SQL: 
+EXEC [dbo].[uspGetProductData]
+
+Schema Name: dbo
+Conversion Timestamp: 2026-01-23T15:38:48.113315
+
+DMS Tool Output:
+{
+  "conversion_timestamp": "2026-01-23T15:38:48.113315",
+  "input": {
+    "sql_text": "EXEC [dbo].[uspGetProductData]",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-01-23T15:38:49.800682",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-23T15:39:02.100357"
+}
+
+Manual Conversion Applied:
+SELECT * FROM public.uspgetproductdata();
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Note: Stored procedure execution replaced with function call
+
+=============================================
+End of DMS Conversion Log
+=============================================
