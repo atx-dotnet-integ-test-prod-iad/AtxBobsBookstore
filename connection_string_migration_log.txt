@@ -1,0 +1,48 @@
+========================================================================
+CONNECTION STRING MIGRATION LOG
+SQL Server to PostgreSQL Connection String Format Update
+Date: 2026-01-27
+========================================================================
+
+FILE MODIFIED: app/Bookstore.Web/Startup/ServicesSetup.cs
+METHOD: GetDatabaseConnectionString
+LINE NUMBER: Approximately 95
+
+ORIGINAL SQL SERVER CONNECTION STRING FORMAT:
+Server={dbSecrets.Host},{dbSecrets.Port}; Initial Catalog=BobsUsedBookStore;MultipleActiveResultSets=true; Integrated Security=false;TrustServerCertificate=True
+
+NEW POSTGRESQL CONNECTION STRING FORMAT:
+Host={dbSecrets.Host};Port={dbSecrets.Port};Database=BobsUsedBookStore;SSL Mode=Prefer
+
+PARAMETER MAPPINGS:
+✓ Server={host},{port} → Host={host};Port={port}
+  - Changed parameter name: Server → Host
+  - Changed separator: comma → semicolon
+
+✓ Initial Catalog=BobsUsedBookStore → Database=BobsUsedBookStore
+  - SQL Server uses "Initial Catalog"
+  - PostgreSQL uses "Database"
+
+✓ MultipleActiveResultSets=true → REMOVED
+  - Not applicable to PostgreSQL
+  - PostgreSQL doesn't need this setting
+
+✓ Integrated Security=false → REMOVED
+  - Not needed in base connection string
+  - Username/Password handled by NpgsqlConnectionStringBuilder
+
+✓ TrustServerCertificate=True → SSL Mode=Prefer
+  - PostgreSQL uses SSL Mode for certificate handling
+  - Options: Disable, Prefer, Require, VerifyCA, VerifyFull
+  - "Prefer" chosen for compatibility (attempts SSL but falls back)
+
+BUILD VERIFICATION:
+✓ dotnet build: Success (0 Errors)
+✓ Connection string format valid for Npgsql
+✓ NpgsqlConnectionStringBuilder accepts new format
+
+NOTES:
+- Username and Password still set via NpgsqlConnectionStringBuilder properties
+- SSL Mode set to "Prefer" for flexibility
+- For production AWS RDS PostgreSQL, consider "SSL Mode=Require"
+- Secrets Manager integration unchanged (dbsecretsname parameter)

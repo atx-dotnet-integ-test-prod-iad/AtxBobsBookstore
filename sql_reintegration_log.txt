@@ -1,0 +1,234 @@
+========================================================================
+SQL REINTEGRATION LOG
+Microsoft SQL Server to PostgreSQL Migration
+Date: 2026-01-27
+========================================================================
+
+This log documents all SQL statements that were re-integrated into the
+source code, including the file locations, line numbers, original SQL,
+converted SQL, and schema mappings applied.
+
+========================================================================
+FILE 1: app/Bookstore.Web/Controllers/AuthorsController.cs
+========================================================================
+
+------------------------------------------------------------------------
+STATEMENT 1: EditUsingStoredProcedure
+------------------------------------------------------------------------
+Method: EditUsingStoredProcedure(int businessEntityId, string nationalIdNumber, DateTime birthDate, string maritalStatus, string gender)
+Approximate Line Number: 160-175 (method body)
+Status: UPDATED
+
+ORIGINAL SQL (SQL Server):
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+CONVERTED SQL (PostgreSQL):
+SELECT public.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+SCHEMA MAPPINGS:
+- [dbo].[uspUpdateAuthorPersonalInfo] → public.uspUpdateAuthorPersonalInfo
+- Removed DECLARE @rowsAffected INT (not needed)
+- EXEC @rowsAffected = ... → SELECT function(...)
+- Removed final SELECT @rowsAffected (ExecuteSqlRawAsync handles return)
+
+PARAMETER HANDLING:
+- 5 SqlParameter instances remain (to be updated in Step 5)
+- Parameter names: @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender
+- Parameter syntax preserved (Npgsql compatible)
+
+COMMENT ADDED:
+// PostgreSQL: Converted stored procedure call from SQL Server EXEC to SELECT function
+
+------------------------------------------------------------------------
+STATEMENT 2: FindAllAuthorsEmbeddedSql
+------------------------------------------------------------------------
+Method: FindAllAuthorsEmbeddedSql()
+Approximate Line Number: 178-191 (method body)
+Status: UPDATED (comment only)
+
+ORIGINAL SQL (SQL Server):
+SELECT * FROM bobsbookstore_dbo.author
+
+CONVERTED SQL (PostgreSQL):
+SELECT * FROM bobsbookstore_dbo.author
+
+SCHEMA MAPPINGS:
+- No schema changes (bobsbookstore_dbo preserved)
+- Schema name remains: bobsbookstore_dbo.author
+
+PARAMETER HANDLING:
+- No parameters
+
+COMMENT UPDATED:
+// PostgreSQL: No changes needed - schema and table name remain the same
+
+NOTES:
+- Minimal changes - simple SELECT statement works in both databases
+- Schema name bobsbookstore_dbo preserved as per DMS conversion guidance
+- Comment updated to reflect PostgreSQL migration
+
+------------------------------------------------------------------------
+STATEMENT 3: DeleteAuthorEmbeddedSql
+------------------------------------------------------------------------
+Method: DeleteAuthorEmbeddedSql(int businessEntityId)
+Approximate Line Number: 195-208 (method body)
+Status: UPDATED
+
+ORIGINAL SQL (SQL Server):
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+CONVERTED SQL (PostgreSQL):
+SELECT public.uspDeleteAuthor(@BusinessEntityID);
+
+SCHEMA MAPPINGS:
+- [dbo].[uspDeleteAuthor] → public.uspDeleteAuthor
+- Removed DECLARE @rowsAffected INT (not needed)
+- EXEC @rowsAffected = ... → SELECT function(...)
+- Removed final SELECT @rowsAffected (ExecuteSqlRawAsync handles return)
+
+PARAMETER HANDLING:
+- 1 SqlParameter instance remains (to be updated in Step 5)
+- Parameter name: @BusinessEntityID
+- Parameter syntax preserved (Npgsql compatible)
+
+COMMENT ADDED:
+// PostgreSQL: Converted stored procedure call from SQL Server EXEC to SELECT function
+
+------------------------------------------------------------------------
+STATEMENT 4: SelectAuthorsByHireYear
+------------------------------------------------------------------------
+Method: SelectAuthorsByHireYear(int hireYear)
+Approximate Line Number: 210-223 (method body)
+Status: UPDATED
+
+ORIGINAL SQL (SQL Server):
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+CONVERTED SQL (PostgreSQL):
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+SCHEMA MAPPINGS:
+- No schema changes (bobsbookstore_dbo preserved)
+- Schema name remains: bobsbookstore_dbo.author
+
+FUNCTION TRANSFORMATIONS:
+1. FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') 
+   → TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+   - Changed function name: FORMAT → TO_CHAR
+   - Updated format string: 'yyyy-MM-dd HH:mm:ss' → 'YYYY-MM-DD HH24:MI:SS'
+   - PostgreSQL uses uppercase YYYY and HH24 for 24-hour format
+
+2. DATEDIFF(YEAR, BirthDate, GETDATE()) 
+   → EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate))
+   - SQL Server DATEDIFF calculates difference in specified unit
+   - PostgreSQL AGE() returns interval between dates
+   - EXTRACT gets the year component from the interval
+
+3. DATEPART(YEAR, HireDate) 
+   → EXTRACT(YEAR FROM HireDate)
+   - SQL Server DATEPART extracts date parts
+   - PostgreSQL EXTRACT performs same operation
+
+4. GETDATE() 
+   → CURRENT_TIMESTAMP
+   - SQL Server GETDATE() returns current datetime
+   - PostgreSQL CURRENT_TIMESTAMP is standard SQL equivalent
+
+PARAMETER HANDLING:
+- 1 SqlParameter instance remains (to be updated in Step 5)
+- Parameter name: @HireDate
+- Parameter syntax preserved (Npgsql compatible)
+
+COMMENT ADDED:
+// PostgreSQL: Converted date functions from SQL Server to PostgreSQL
+// FORMAT -> TO_CHAR, DATEDIFF -> AGE+EXTRACT, DATEPART -> EXTRACT, GETDATE -> CURRENT_TIMESTAMP
+
+========================================================================
+FILE 2: app/Bookstore.Web/Controllers/ProductsController.cs
+========================================================================
+
+------------------------------------------------------------------------
+STATEMENT 5: FindAllProducts
+------------------------------------------------------------------------
+Method: FindAllProducts()
+Approximate Line Number: 28-40 (method body)
+Status: UPDATED
+
+ORIGINAL SQL (SQL Server):
+EXEC [dbo].[uspGetProductData];
+
+CONVERTED SQL (PostgreSQL):
+SELECT * FROM public.uspGetProductData();
+
+SCHEMA MAPPINGS:
+- [dbo].[uspGetProductData] → public.uspGetProductData
+- EXEC [dbo].[procedure] → SELECT * FROM public.function()
+- PostgreSQL requires SELECT * FROM for functions returning result sets
+
+PARAMETER HANDLING:
+- No parameters
+
+COMMENT ADDED:
+// PostgreSQL: Converted stored procedure call from SQL Server EXEC to SELECT * FROM function
+
+========================================================================
+REINTEGRATION SUMMARY
+========================================================================
+
+Files Modified: 2
+- app/Bookstore.Web/Controllers/AuthorsController.cs (4 statements updated)
+- app/Bookstore.Web/Controllers/ProductsController.cs (1 statement updated)
+
+Total Statements Re-integrated: 5
+
+Schema Mapping Summary:
+- [dbo].uspUpdateAuthorPersonalInfo → public.uspUpdateAuthorPersonalInfo
+- [dbo].uspDeleteAuthor → public.uspDeleteAuthor
+- [dbo].uspGetProductData → public.uspGetProductData
+- bobsbookstore_dbo.author → bobsbookstore_dbo.author (no change)
+
+Syntax Transformations Applied:
+1. EXEC stored_proc → SELECT function() or SELECT * FROM function()
+2. FORMAT() → TO_CHAR()
+3. DATEDIFF(YEAR, date1, date2) → EXTRACT(YEAR FROM AGE(date2, date1))
+4. DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+5. GETDATE() → CURRENT_TIMESTAMP
+6. [schema].[object] → schema.object (PostgreSQL notation)
+
+Code Structure Preservation:
+✓ All try-catch blocks maintained
+✓ All async/await patterns preserved
+✓ All method signatures unchanged
+✓ All return types preserved
+✓ All error handling logic intact
+
+Parameter Handling:
+✓ All SqlParameter instances preserved (to be replaced in Step 5)
+✓ Parameter names unchanged (@parameter syntax)
+✓ Parameter data types compatible with PostgreSQL
+✓ All parameter bindings verified
+
+Comments Added:
+✓ Each updated method includes PostgreSQL migration comment
+✓ Complex transformations documented inline
+✓ Schema mappings noted
+
+Verification Checklist:
+✓ All 5 SQL statements re-integrated
+✓ All original code structure preserved
+✓ All async/await patterns maintained
+✓ Schema name changes from DMS respected (public for stored procedures)
+✓ Table schema names preserved (bobsbookstore_dbo)
+✓ Comments added for clarity
+✓ Code ready for Step 5 (SqlParameter → NpgsqlParameter)
+
+CRITICAL NOTES:
+- DMS conversion specified public schema for stored procedures
+- Table references maintained bobsbookstore_dbo schema
+- All schema name changes RESPECTED as required by transformation definition
+- SqlParameter will be replaced with NpgsqlParameter in Step 5
+- Stored procedures must exist in PostgreSQL database before runtime
+
+========================================================================
+END OF SQL REINTEGRATION LOG
+========================================================================

@@ -1,0 +1,31 @@
+========================================================================
+PACKAGE UPDATE LOG - SQL Server to PostgreSQL Migration
+Date: 2026-01-27
+========================================================================
+
+FILES MODIFIED:
+1. app/Bookstore.Data/Bookstore.Data.csproj
+2. app/Bookstore.Web/Bookstore.Web.csproj
+
+PACKAGES REMOVED:
+- Bookstore.Data.csproj:
+  * Microsoft.EntityFrameworkCore.SqlServer Version 6.0.6 (REMOVED)
+  * Microsoft.EntityFrameworkCore.Tools Version 6.0.6 (REMOVED - duplicate, upgraded to 8.0.10)
+
+- Bookstore.Web.csproj:
+  * Microsoft.EntityFrameworkCore.SqlServer Version 8.0.10 (REMOVED)
+
+PACKAGES KEPT/VERIFIED:
+- Npgsql.EntityFrameworkCore.PostgreSQL Version 8.0.0 (VERIFIED in both projects)
+- Microsoft.EntityFrameworkCore.Tools Version 8.0.10 (KEPT - consolidated to single version)
+- Microsoft.EntityFrameworkCore Version 8.0.10 (KEPT)
+- Microsoft.EntityFrameworkCore.Design Version 8.0.10 (KEPT)
+
+BUILD VERIFICATION:
+✓ dotnet restore: Success
+✓ dotnet build: Success (0 Errors, 65 warnings - unrelated to migration)
+✓ No SqlServer packages remain
+✓ Npgsql packages verified in both Data and Web projects
+✓ All package versions compatible
+
+NEXT: Step 7 - Update connection string format for PostgreSQL

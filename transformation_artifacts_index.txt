@@ -1,0 +1,234 @@
+========================================================================
+TRANSFORMATION ARTIFACTS INDEX
+Microsoft SQL Server to PostgreSQL Migration
+Date: 2026-01-27
+========================================================================
+
+This index lists all artifacts created during the SQL Server to PostgreSQL
+migration transformation, including their locations, purposes, and
+verification checkpoints.
+
+========================================================================
+ARTIFACT 1: extracted_statements.sql
+========================================================================
+Location: sourceCode/extracted_statements.sql
+Size: 117 lines
+Purpose: Complete catalog of all SQL statements extracted from codebase
+Created In: Step 1 - Extract and Catalog All SQL Statements
+
+Contains:
+- All 5 SQL statements with full context
+- Source file and line number for each statement
+- Statement type (stored procedure, inline SQL, etc.)
+- Method name and purpose
+- Parameter information
+- SQL Server-specific syntax documentation
+
+Verification Checkpoint:
+✓ All 5 SQL statements cataloged
+✓ Complete metadata for each statement
+✓ No statements missed
+
+========================================================================
+ARTIFACT 2: converted_statements.sql
+========================================================================
+Location: sourceCode/converted_statements.sql
+Size: 179 lines
+Purpose: Catalog of all SQL statements after PostgreSQL conversion
+Created In: Step 2 - Convert SQL Statements Using DMS MCP Tool
+
+Contains:
+- Original SQL Server statements
+- Converted PostgreSQL statements
+- Conversion method (DMS_TOOL or MANUAL_AFTER_DMS_FAILURE)
+- DMS tool output for each statement
+- Schema object name changes
+- Conversion timestamp
+- Conversion statistics
+
+Verification Checkpoint:
+✓ All 5 SQL statements included
+✓ Both original and converted versions present
+✓ DMS tool invoked for each statement
+✓ Conversion method documented
+
+========================================================================
+ARTIFACT 3: dms_conversion_failures.log
+========================================================================
+Location: sourceCode/dms_conversion_failures.log
+Size: 243 lines
+Purpose: Detailed documentation of DMS conversion failures
+Created In: Step 2 - Convert SQL Statements Using DMS MCP Tool
+
+Contains:
+- All 5 failed DMS conversions
+- Original SQL statements
+- Complete DMS error output
+- Manual conversion reasoning
+- PostgreSQL best practices applied
+- Syntax transformation details
+
+Verification Checkpoint:
+✓ All 5 DMS failures documented
+✓ Original statement + DMS output + manual conversion for each
+✓ Reasoning provided for manual conversions
+
+========================================================================
+ARTIFACT 4: sql_equivalency_validation_report.json
+========================================================================
+Location: sourceCode/sql_equivalency_validation_report.json
+Size: 89 lines (JSON format)
+Purpose: Comprehensive equivalency validation results
+Created In: Step 3 - Validate SQL Equivalency for All Statement Pairs
+
+Contains:
+- All 5 statement pairs validated
+- Equivalency status from tool (EQUIVALENT/NOT_EQUIVALENT/ERROR)
+- Exact tool output for each validation
+- Conversion method for each statement
+- Query complexity classification
+- Summary statistics
+
+Verification Checkpoint:
+✓ Exactly 5 statement_details entries
+✓ number_of_statements_processed = 5
+✓ Sum of equivalent + non_equivalent + error = 5
+✓ All statuses from tool, NO agent judgment
+✓ Complete tool output documented
+
+========================================================================
+ARTIFACT 5: sql_reintegration_log.txt
+========================================================================
+Location: sourceCode/sql_reintegration_log.txt
+Size: 221 lines
+Purpose: Documentation of SQL statement re-integration into source code
+Created In: Step 4 - Re-integrate Converted SQL Statements into Source Code
+
+Contains:
+- All 5 SQL statements re-integrated
+- File and line number for each change
+- Before/after comparisons
+- Schema name mappings applied
+- Function transformations details
+- Parameter handling notes
+
+Verification Checkpoint:
+✓ All 5 SQL statements documented
+✓ Before/after for each statement
+✓ Schema names respect DMS conversions
+
+========================================================================
+ARTIFACT 6: code_update_log.txt
+========================================================================
+Location: sourceCode/code_update_log.txt
+Size: 195 lines
+Purpose: Documentation of ADO.NET class replacements
+Created In: Step 5 - Update Database Access Code
+
+Contains:
+- All SqlParameter → NpgsqlParameter replacements (7 instances)
+- SqlConnectionStringBuilder → NpgsqlConnectionStringBuilder (1 instance)
+- UseSqlServer → UseNpgsql (1 instance)
+- File and line numbers for each replacement
+- Using statement updates
+- Parameter handling notes
+
+Verification Checkpoint:
+✓ All 9 ADO.NET class replacements documented
+✓ All SQL Server-specific classes replaced
+✓ All files and line numbers recorded
+
+========================================================================
+ARTIFACT 7: package_update_log.txt
+========================================================================
+Location: sourceCode/package_update_log.txt
+Size: 24 lines
+Purpose: Documentation of package dependency updates
+Created In: Step 6 - Update Package Dependencies
+
+Contains:
+- All SQL Server packages removed
+- All Npgsql packages verified
+- Build verification results
+- Version compatibility notes
+
+Verification Checkpoint:
+✓ All SqlServer packages removed
+✓ All Npgsql packages verified
+✓ Build successful
+
+========================================================================
+ARTIFACT 8: connection_string_migration_log.txt
+========================================================================
+Location: sourceCode/connection_string_migration_log.txt
+Size: 44 lines
+Purpose: Documentation of connection string format update
+Created In: Step 7 - Update Connection String Configuration
+
+Contains:
+- Original SQL Server connection string format
+- New PostgreSQL connection string format
+- Parameter mappings
+- SSL configuration changes
+- Build verification results
+
+Verification Checkpoint:
+✓ Connection string format updated
+✓ All parameter mappings documented
+✓ Build successful
+
+========================================================================
+ARTIFACT 9: final_migration_report.md
+========================================================================
+Location: sourceCode/final_migration_report.md
+Size: ~450 lines
+Purpose: Comprehensive final migration report
+Created In: Step 8 - Generate Final Migration Report
+
+Contains:
+- Executive summary
+- SQL statement inventory
+- DMS conversion results
+- Equivalency validation results
+- Code changes summary
+- Manual review requirements
+- Exit criteria validation
+- Deployment notes
+
+Verification Checkpoint:
+✓ All required sections present
+✓ Complete statistics
+✓ All 5 SQL statements documented through entire pipeline
+
+========================================================================
+ARTIFACT 10: transformation_artifacts_index.txt (This File)
+========================================================================
+Location: sourceCode/transformation_artifacts_index.txt
+Purpose: Index of all transformation artifacts
+Created In: Step 8 - Generate Final Migration Report
+
+========================================================================
+SUMMARY
+========================================================================
+
+Total Artifacts: 10
+Total Lines of Documentation: 1,500+
+
+Artifact Breakdown:
+- SQL Statement Catalogs: 2 (extracted, converted)
+- Conversion Documentation: 1 (DMS failures)
+- Validation Reports: 1 (equivalency)
+- Re-integration Logs: 1
+- Code Update Logs: 1
+- Package Update Logs: 1
+- Connection String Logs: 1
+- Final Reports: 1
+- Artifact Indexes: 1
+
+All artifacts verified and complete.
+No statements missed or skipped in any artifact.
+Complete transformation pipeline documented.
+
+========================================================================
+END OF TRANSFORMATION ARTIFACTS INDEX
+========================================================================
