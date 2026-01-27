@@ -1,0 +1,116 @@
+-- ============================================================================
+-- CONVERTED SQL STATEMENTS - PostgreSQL Syntax
+-- Microsoft SQL Server to PostgreSQL Migration
+-- ============================================================================
+-- This file contains all SQL statements converted from MS SQL Server syntax
+-- to PostgreSQL syntax. All statements were processed through the DMS MCP tool
+-- but required manual conversion due to metadata model creation failures.
+-- ============================================================================
+
+-- ============================================================================
+-- STATEMENT 1: Edit Author Using Stored Procedure
+-- ============================================================================
+-- Source File: app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: EditUsingStoredProcedure
+-- Line: 163
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- 
+-- Original MS SQL:
+-- DECLARE @rowsAffected INT;
+-- EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+-- SELECT @rowsAffected;
+--
+-- Converted PostgreSQL:
+-- ============================================================================
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+-- ============================================================================
+-- STATEMENT 2: Find All Authors
+-- ============================================================================
+-- Source File: app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: FindAllAuthorsEmbeddedSql
+-- Line: 187
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE (No changes needed)
+--
+-- Original MS SQL:
+-- SELECT * FROM bobsbookstore_dbo.author;
+--
+-- Converted PostgreSQL:
+-- ============================================================================
+SELECT * FROM bobsbookstore_dbo.author;
+
+-- ============================================================================
+-- STATEMENT 3: Delete Author Using Stored Procedure
+-- ============================================================================
+-- Source File: app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: DeleteAuthorEmbeddedSql
+-- Line: 208
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+--
+-- Original MS SQL:
+-- DECLARE @rowsAffected INT;
+-- EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+-- SELECT @rowsAffected;
+--
+-- Converted PostgreSQL:
+-- ============================================================================
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+-- ============================================================================
+-- STATEMENT 4: Select Authors By Hire Year
+-- ============================================================================
+-- Source File: app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: SelectAuthorsByHireYear
+-- Line: 228
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+--
+-- Original MS SQL:
+-- SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, 
+-- DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author 
+-- WHERE DATEPART(YEAR, HireDate) = @HireDate;
+--
+-- Converted PostgreSQL:
+-- ============================================================================
+SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+-- ============================================================================
+-- STATEMENT 5: Get Product Data Using Stored Procedure
+-- ============================================================================
+-- Source File: app/Bookstore.Web/Controllers/ProductsController.cs
+-- Method: FindAllProducts
+-- Line: 34
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+--
+-- Original MS SQL:
+-- EXEC [dbo].[uspGetProductData];
+--
+-- Converted PostgreSQL:
+-- ============================================================================
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+-- ============================================================================
+-- CONVERSION SUMMARY
+-- ============================================================================
+-- Total Statements: 5
+-- DMS Tool Successful Conversions: 0
+-- Manual Conversions After DMS Failure: 5
+-- 
+-- Key Conversions Applied:
+-- 1. EXEC stored_procedure → SELECT schema.function()
+-- 2. DECLARE @variable INT; EXEC @variable = ... → SELECT schema.function()
+-- 3. FORMAT(date, pattern) → TO_CHAR(date, pattern)
+-- 4. DATEDIFF(YEAR, date1, date2) → DATE_PART('year', AGE(date2, date1))
+-- 5. GETDATE() → CURRENT_TIMESTAMP
+-- 6. DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+-- 7. [schema].[object] → schema.object
+-- 8. PascalCase column names → lowercase column names
+-- 9. Function names → lowercase (PostgreSQL convention)
+--
+-- Schema Object Name Changes:
+-- - uspUpdateAuthorPersonalInfo → uspupdateauthorpersonalinfo
+-- - uspDeleteAuthor → uspdeleteauthor
+-- - uspGetProductData → uspgetproductdata
+-- - Column names lowercased in Statement 4
+--
+-- All converted statements maintain @parameter syntax (compatible with Npgsql)
+-- ============================================================================

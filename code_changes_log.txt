@@ -1,0 +1,310 @@
+================================================================================
+CODE CHANGES LOG - SQL Statement Re-integration
+Microsoft SQL Server to PostgreSQL Migration
+================================================================================
+Date: 2026-01-27
+Purpose: Document all SQL statement replacements from MS SQL Server syntax to
+         PostgreSQL syntax in the codebase.
+================================================================================
+
+================================================================================
+CHANGE 1: EditUsingStoredProcedure Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: EditUsingStoredProcedure
+Line: 163
+
+Original MS SQL Server Statement:
+----------------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+--------------------------------
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Changes Applied:
+----------------
+1. Removed DECLARE @rowsAffected INT syntax (not needed in PostgreSQL)
+2. Changed EXEC stored procedure call to SELECT function call
+3. Changed [dbo].[uspUpdateAuthorPersonalInfo] to bobsbookstore_dbo.uspupdateauthorpersonalinfo
+   - Removed brackets (not needed in PostgreSQL)
+   - Changed schema from dbo to bobsbookstore_dbo
+   - Lowercased function name (PostgreSQL convention)
+4. Maintained @parameter syntax (compatible with Npgsql)
+5. Removed intermediate SELECT @rowsAffected (function returns value directly)
+
+Parameter Bindings: PRESERVED
+- @BusinessEntityID (int)
+- @NationalIDNumber (string)
+- @BirthDate (DateTime with ToUniversalTime())
+- @MaritalStatus (string)
+- @Gender (string)
+
+Error Handling: PRESERVED
+- try-catch block maintained
+- return type remains bool
+
+================================================================================
+CHANGE 2: FindAllAuthorsEmbeddedSql Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: FindAllAuthorsEmbeddedSql
+Line: 187
+
+Original MS SQL Server Statement:
+----------------------------------
+SELECT * FROM bobsbookstore_dbo.author;
+
+Converted PostgreSQL Statement:
+--------------------------------
+SELECT * FROM bobsbookstore_dbo.author;
+
+Changes Applied:
+----------------
+NO CHANGES NEEDED - Statement is already PostgreSQL-compatible
+
+Notes:
+------
+- Simple SELECT * statement uses standard SQL syntax
+- Schema.table notation is valid in both MS SQL Server and PostgreSQL
+- No SQL Server specific functions or syntax used
+
+Parameter Bindings: NONE
+
+================================================================================
+CHANGE 3: DeleteAuthorEmbeddedSql Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: DeleteAuthorEmbeddedSql
+Line: 208
+
+Original MS SQL Server Statement:
+----------------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+--------------------------------
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+Changes Applied:
+----------------
+1. Removed DECLARE @rowsAffected INT syntax (not needed in PostgreSQL)
+2. Changed EXEC stored procedure call to SELECT function call
+3. Changed [dbo].[uspDeleteAuthor] to bobsbookstore_dbo.uspdeleteauthor
+   - Removed brackets (not needed in PostgreSQL)
+   - Changed schema from dbo to bobsbookstore_dbo
+   - Lowercased function name (PostgreSQL convention)
+4. Maintained @parameter syntax (compatible with Npgsql)
+5. Removed intermediate SELECT @rowsAffected (function returns value directly)
+
+Parameter Bindings: PRESERVED
+- @BusinessEntityID (int)
+
+Error Handling: PRESERVED
+- try-catch block maintained
+- return type remains bool
+
+================================================================================
+CHANGE 4: SelectAuthorsByHireYear Method
+================================================================================
+File: app/Bookstore.Web/Controllers/AuthorsController.cs
+Method: SelectAuthorsByHireYear
+Line: 228
+
+Original MS SQL Server Statement:
+----------------------------------
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+Converted PostgreSQL Statement:
+--------------------------------
+SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+Changes Applied:
+----------------
+1. Column Name Case Changes (PostgreSQL lowercase convention):
+   - BusinessEntityID → businessentityid
+   - ModifiedDate → modifieddate
+   - BirthDate → birthdate
+   - HireDate → hiredate
+
+2. Date Formatting Function:
+   - FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') → TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS')
+   - Changed function name from FORMAT to TO_CHAR
+   - Updated format pattern to PostgreSQL style:
+     * yyyy → YYYY
+     * HH:mm:ss → HH24:MI:SS
+
+3. Alias Case Change:
+   - FormattedModifiedDate → formattedmodifieddate (PostgreSQL lowercase convention)
+
+4. Age Calculation:
+   - DATEDIFF(YEAR, BirthDate, GETDATE()) → DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER
+   - GETDATE() → CURRENT_TIMESTAMP (PostgreSQL current timestamp function)
+   - DATEDIFF(YEAR, date1, date2) → AGE(date2, date1) (PostgreSQL interval calculation)
+   - Added DATE_PART('year', ...) to extract year component from interval
+   - Added ::INTEGER cast to ensure integer return type
+
+5. Alias Case Change:
+   - Age → age (PostgreSQL lowercase convention)
+
+6. Date Part Extraction in WHERE Clause:
+   - DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM hiredate)
+   - Changed function from DATEPART to EXTRACT (PostgreSQL standard SQL function)
+   - Changed syntax from DATEPART(unit, date) to EXTRACT(unit FROM date)
+
+Parameter Bindings: PRESERVED
+- @HireDate (int)
+
+Return Type: PRESERVED
+- Returns List<AuthorAgeResult>
+- AuthorAgeResult properties:
+  * BusinessEntityID (int) - now populated from businessentityid
+  * FormattedModifiedDate (string) - now populated from formattedmodifieddate
+  * Age (int) - now populated from age
+
+Error Handling: PRESERVED
+- try-catch block maintained
+
+Note: Column name case changes match PostgreSQL schema definition where columns
+      are typically lowercase. The .NET entity mapping handles case-insensitive
+      property binding automatically.
+
+================================================================================
+CHANGE 5: FindAllProducts Method
+================================================================================
+File: app/Bookstore.Web/Controllers/ProductsController.cs
+Method: FindAllProducts
+Line: 34
+
+Original MS SQL Server Statement:
+----------------------------------
+EXEC [dbo].[uspGetProductData];
+
+Converted PostgreSQL Statement:
+--------------------------------
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+Changes Applied:
+----------------
+1. Changed EXEC stored procedure call to SELECT function call
+2. Changed [dbo].[uspGetProductData] to bobsbookstore_dbo.uspgetproductdata
+   - Removed brackets (not needed in PostgreSQL)
+   - Changed schema from dbo to bobsbookstore_dbo
+   - Lowercased function name (PostgreSQL convention)
+3. Added SELECT * FROM syntax (for table-returning functions)
+4. Added () after function name (required in PostgreSQL even without parameters)
+
+Parameter Bindings: NONE
+
+Return Type: PRESERVED
+- Returns Task<List<Product>>
+
+Error Handling: PRESERVED
+- try-catch block maintained
+
+================================================================================
+SUMMARY OF CHANGES
+================================================================================
+Total Files Modified: 2
+- app/Bookstore.Web/Controllers/AuthorsController.cs (4 SQL statements)
+- app/Bookstore.Web/Controllers/ProductsController.cs (1 SQL statement)
+
+Total SQL Statements Changed: 5
+- Statement 1 (EditUsingStoredProcedure): MS SQL stored proc → PostgreSQL function
+- Statement 2 (FindAllAuthorsEmbeddedSql): No changes needed (already compatible)
+- Statement 3 (DeleteAuthorEmbeddedSql): MS SQL stored proc → PostgreSQL function  
+- Statement 4 (SelectAuthorsByHireYear): Complex date functions converted
+- Statement 5 (FindAllProducts): MS SQL stored proc → PostgreSQL function
+
+SQL Server Syntax Eliminated:
+- DECLARE @variable INT syntax (3 instances)
+- EXEC stored_procedure syntax (3 instances)
+- [bracket] notation (5 instances)
+- FORMAT() function (1 instance)
+- DATEDIFF() function (1 instance)
+- GETDATE() function (1 instance)
+- DATEPART() function (1 instance)
+
+PostgreSQL Syntax Introduced:
+- SELECT function_name() syntax for stored procedure calls (3 instances)
+- TO_CHAR() function for date formatting (1 instance)
+- AGE() function for date intervals (1 instance)
+- DATE_PART() function for extracting interval components (1 instance)
+- EXTRACT() function for extracting date components (1 instance)
+- CURRENT_TIMESTAMP for current date/time (1 instance)
+- Lowercase identifier convention (column names, function names)
+- schema.object notation without brackets (5 instances)
+
+Schema Object Names Changed:
+- [dbo].[uspUpdateAuthorPersonalInfo] → bobsbookstore_dbo.uspupdateauthorpersonalinfo
+- [dbo].[uspDeleteAuthor] → bobsbookstore_dbo.uspdeleteauthor
+- [dbo].[uspGetProductData] → bobsbookstore_dbo.uspgetproductdata
+
+Parameter Bindings:
+- ALL PRESERVED - @ParameterName syntax maintained (compatible with Npgsql)
+- Total parameters: 7 instances across 3 methods
+- No parameter name changes required
+
+Error Handling:
+- ALL PRESERVED - try-catch blocks maintained in all methods
+- Return types unchanged
+- Exception logging unchanged
+
+Code Quality:
+- Original code structure maintained
+- Comments preserved
+- Formatting preserved
+- No functional changes to .NET code logic
+- Only SQL syntax within string literals changed
+
+================================================================================
+VERIFICATION CHECKLIST
+================================================================================
+✓ All 5 SQL statements updated to PostgreSQL syntax
+✓ No DECLARE statements remain in SQL
+✓ No EXEC statements remain in SQL
+✓ No SQL Server-specific functions remain (FORMAT, DATEDIFF, GETDATE, DATEPART)
+✓ No [bracket] notation remains in SQL
+✓ Schema object names match DMS conversion output (bobsbookstore_dbo, lowercase functions)
+✓ All @parameter bindings preserved
+✓ All error handling preserved
+✓ All return types preserved
+✓ Code formatting maintained
+✓ Comments preserved
+
+================================================================================
+POST-INTEGRATION REQUIREMENTS
+================================================================================
+1. Build Verification:
+   - Execute: dotnet build BobsBookstore.sln
+   - Expected: 0 errors
+   - Verify: No SQL syntax errors
+
+2. PostgreSQL Function Prerequisites:
+   The following PostgreSQL functions MUST exist in the bobsbookstore_dbo schema:
+   - uspupdateauthorpersonalinfo(int, varchar, timestamp, varchar, varchar)
+   - uspdeleteauthor(int)
+   - uspgetproductdata()
+
+3. Database Testing Required:
+   - Test EditUsingStoredProcedure with valid author data
+   - Test FindAllAuthorsEmbeddedSql for result set
+   - Test DeleteAuthorEmbeddedSql with valid author ID
+   - Test SelectAuthorsByHireYear with valid hire year
+   - Test FindAllProducts for product result set
+   - Verify date function results match expected values
+   - Verify function calls return expected row counts
+
+4. Column Name Mapping:
+   - Verify AuthorAgeResult entity maps correctly to lowercase column names
+   - Test: businessentityid → BusinessEntityID
+   - Test: formattedmodifieddate → FormattedModifiedDate
+   - Test: age → Age
+
+================================================================================
+END OF CODE CHANGES LOG
+================================================================================

@@ -1,0 +1,324 @@
+============================================================================
+DMS MCP TOOL CONVERSION LOG
+Microsoft SQL Server to PostgreSQL Migration
+============================================================================
+Conversion Date: 2026-01-27
+Tool: dms-mcp____statement_conversion_tool
+Schema: bobsbookstore_dbo
+Total Statements Processed: 5
+Successful DMS Conversions: 0
+Failed DMS Conversions: 5 (All statements)
+Manual Conversions Applied: 5
+============================================================================
+
+============================================================================
+STATEMENT 1: Edit Author Using Stored Procedure
+============================================================================
+Source: AuthorsController.cs, EditUsingStoredProcedure method, line 163
+
+Original MS SQL Statement:
+--------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+SELECT @rowsAffected;
+
+DMS Tool Input:
+--------------
+- schema_name: bobsbookstore_dbo
+- sql_text: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-01-27T19:39:01.751699",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-27T19:39:16.702872"
+}
+
+DMS Error Analysis:
+------------------
+The DMS tool failed with "The selected objects were not found" error during metadata model creation. This suggests the stored procedure uspUpdateAuthorPersonalInfo may not exist in the migration project's metadata model or the schema objects are not properly registered.
+
+Manual PostgreSQL Conversion Applied:
+-------------------------------------
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Conversion Rationale:
+--------------------
+1. PostgreSQL function calls use SELECT function_name(params) syntax instead of EXEC
+2. Return value is directly captured from SELECT, eliminating need for DECLARE
+3. Schema prefix maintained: bobsbookstore_dbo
+4. Function names in PostgreSQL are typically lowercase: uspupdateauthorpersonalinfo
+5. Parameters maintain @param syntax (supported by Npgsql)
+6. Eliminated DECLARE @rowsAffected and intermediate SELECT as PostgreSQL functions return values directly
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+============================================================================
+STATEMENT 2: Find All Authors
+============================================================================
+Source: AuthorsController.cs, FindAllAuthorsEmbeddedSql method, line 187
+
+Original MS SQL Statement:
+--------------------------
+SELECT * FROM bobsbookstore_dbo.author;
+
+DMS Tool Input:
+--------------
+- schema_name: bobsbookstore_dbo
+- sql_text: SELECT * FROM bobsbookstore_dbo.author
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-01-27T19:39:25.858521",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-27T19:39:40.720049"
+}
+
+DMS Error Analysis:
+------------------
+The DMS tool failed with "The selected objects were not found" error during metadata model creation. This suggests the author table may not exist in the migration project's metadata model.
+
+Manual PostgreSQL Conversion Applied:
+-------------------------------------
+SELECT * FROM bobsbookstore_dbo.author;
+
+Conversion Rationale:
+--------------------
+1. This statement is already compatible with PostgreSQL syntax
+2. Schema.table notation is valid in PostgreSQL
+3. SELECT * is standard SQL
+4. No changes required - statement is PostgreSQL-compatible as-is
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE (No changes needed)
+
+============================================================================
+STATEMENT 3: Delete Author Using Stored Procedure
+============================================================================
+Source: AuthorsController.cs, DeleteAuthorEmbeddedSql method, line 208
+
+Original MS SQL Statement:
+--------------------------
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+SELECT @rowsAffected;
+
+DMS Tool Input:
+--------------
+- schema_name: bobsbookstore_dbo
+- sql_text: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-01-27T19:39:50.845430",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-27T19:40:05.746153"
+}
+
+DMS Error Analysis:
+------------------
+The DMS tool failed with "The selected objects were not found" error during metadata model creation. This suggests the stored procedure uspDeleteAuthor may not exist in the migration project's metadata model.
+
+Manual PostgreSQL Conversion Applied:
+-------------------------------------
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+Conversion Rationale:
+--------------------
+1. PostgreSQL function calls use SELECT function_name(params) syntax instead of EXEC
+2. Return value is directly captured from SELECT, eliminating need for DECLARE
+3. Schema prefix maintained: bobsbookstore_dbo
+4. Function names in PostgreSQL are typically lowercase: uspdeleteauthor
+5. Parameter maintains @param syntax (supported by Npgsql)
+6. Eliminated DECLARE @rowsAffected and intermediate SELECT as PostgreSQL functions return values directly
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+============================================================================
+STATEMENT 4: Select Authors By Hire Year
+============================================================================
+Source: AuthorsController.cs, SelectAuthorsByHireYear method, line 228
+
+Original MS SQL Statement:
+--------------------------
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS Tool Input:
+--------------
+- schema_name: bobsbookstore_dbo
+- sql_text: SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-01-27T19:40:14.241844",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-27T19:40:29.050692"
+}
+
+DMS Error Analysis:
+------------------
+The DMS tool failed with "The selected objects were not found" error during metadata model creation. This is a complex statement with multiple SQL Server-specific date functions that need conversion.
+
+Manual PostgreSQL Conversion Applied:
+-------------------------------------
+SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+Conversion Rationale:
+--------------------
+1. FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') → TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS')
+   - PostgreSQL uses TO_CHAR for date formatting
+   - Format pattern changed to PostgreSQL style: YYYY-MM-DD HH24:MI:SS
+   - Column name lowercased to match PostgreSQL convention
+
+2. DATEDIFF(YEAR, BirthDate, GETDATE()) → DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER
+   - GETDATE() → CURRENT_TIMESTAMP (PostgreSQL equivalent)
+   - DATEDIFF(YEAR, date1, date2) → DATE_PART('year', AGE(date2, date1))
+   - AGE() function calculates interval between two timestamps
+   - DATE_PART extracts the year component from the interval
+   - Cast to INTEGER to match expected return type
+
+3. DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM hiredate)
+   - DATEPART → EXTRACT (PostgreSQL standard SQL function)
+   - Column name lowercased to match PostgreSQL convention
+
+4. Column names lowercased (businessentityid, modifieddate, birthdate, hiredate) to match PostgreSQL naming conventions
+
+5. Parameter @HireDate maintained (supported by Npgsql)
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+============================================================================
+STATEMENT 5: Get Product Data Using Stored Procedure
+============================================================================
+Source: ProductsController.cs, FindAllProducts method, line 34
+
+Original MS SQL Statement:
+--------------------------
+EXEC [dbo].[uspGetProductData];
+
+DMS Tool Input:
+--------------
+- schema_name: bobsbookstore_dbo
+- sql_text: EXEC [dbo].[uspGetProductData]
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-01-27T19:40:37.289816",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-01-27T19:40:52.087711"
+}
+
+DMS Error Analysis:
+------------------
+The DMS tool failed with "The selected objects were not found" error during metadata model creation. This suggests the stored procedure uspGetProductData may not exist in the migration project's metadata model.
+
+Manual PostgreSQL Conversion Applied:
+-------------------------------------
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+Conversion Rationale:
+--------------------
+1. PostgreSQL function calls use SELECT syntax instead of EXEC
+2. Function name lowercased: uspgetproductdata
+3. Schema prefix maintained: bobsbookstore_dbo
+4. Added () for function call even though no parameters
+5. SELECT * FROM used because function returns a result set (table)
+6. No parameters needed for this function call
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+============================================================================
+SUMMARY OF DMS TOOL FAILURES
+============================================================================
+All 5 SQL statements failed DMS conversion with identical error:
+- Error: "Metadata model creation failed: The selected objects were not found"
+- Root Cause: The migration project's metadata model does not contain the required database objects (tables, stored procedures)
+- This is likely due to incomplete schema migration or metadata synchronization issues
+
+All statements required manual conversion using PostgreSQL best practices and syntax rules.
+
+============================================================================
+CONVERSION PATTERNS APPLIED
+============================================================================
+1. Stored Procedure Calls:
+   MS SQL: DECLARE @var INT; EXEC @var = [schema].[proc] @params; SELECT @var;
+   PostgreSQL: SELECT schema.proc(@params);
+
+2. Date Formatting:
+   MS SQL: FORMAT(date, 'yyyy-MM-dd HH:mm:ss')
+   PostgreSQL: TO_CHAR(date, 'YYYY-MM-DD HH24:MI:SS')
+
+3. Date Difference:
+   MS SQL: DATEDIFF(YEAR, date1, date2)
+   PostgreSQL: DATE_PART('year', AGE(date2, date1))
+
+4. Current Date/Time:
+   MS SQL: GETDATE()
+   PostgreSQL: CURRENT_TIMESTAMP or NOW()
+
+5. Date Part Extraction:
+   MS SQL: DATEPART(YEAR, date)
+   PostgreSQL: EXTRACT(YEAR FROM date)
+
+6. Bracket Notation:
+   MS SQL: [schema].[object]
+   PostgreSQL: schema.object (no brackets)
+
+7. Case Convention:
+   MS SQL: PascalCase or mixed case
+   PostgreSQL: lowercase (standard convention)
+
+============================================================================
+SCHEMA OBJECT NAME CHANGES
+============================================================================
+Function/Procedure Names (lowercased for PostgreSQL):
+- uspUpdateAuthorPersonalInfo → uspupdateauthorpersonalinfo
+- uspDeleteAuthor → uspdeleteauthor
+- uspGetProductData → uspgetproductdata
+
+Table Names:
+- author (no change - already lowercase in schema)
+
+Schema Names:
+- bobsbookstore_dbo (no change - maintained as-is)
+- dbo → bobsbookstore_dbo (for stored procedures)
+
+Column Names in Statement 4 (lowercased):
+- BusinessEntityID → businessentityid
+- ModifiedDate → modifieddate
+- BirthDate → birthdate
+- HireDate → hiredate
+
+CRITICAL NOTE: When re-integrating converted statements into code, use these exact names as returned from the conversion process.
+
+============================================================================
+RECOMMENDATIONS FOR MANUAL REVIEW
+============================================================================
+1. Verify that stored procedures exist in PostgreSQL as functions:
+   - bobsbookstore_dbo.uspupdateauthorpersonalinfo
+   - bobsbookstore_dbo.uspdeleteauthor
+   - bobsbookstore_dbo.uspgetproductdata
+
+2. Test date function conversions with actual data to ensure accurate results:
+   - TO_CHAR formatting
+   - AGE calculation for age in years
+   - EXTRACT for year extraction
+
+3. Validate that column names match PostgreSQL schema (case-sensitive):
+   - Ensure column names are lowercase if PostgreSQL schema uses lowercase
+   - Test queries against actual PostgreSQL database
+
+4. Test parameter binding with Npgsql to ensure @param syntax works correctly
+
+5. Verify return types from PostgreSQL functions match expected .NET types
+
+============================================================================

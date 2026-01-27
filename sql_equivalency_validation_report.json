@@ -1,0 +1,117 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 4,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "EditUsingStoredProcedure - Update Author Personal Info",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "source_line": 163,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-27T19:44:41.455895\"}",
+      "equivalency_notes": "Tool returned UNKNOWN which is marked as ERROR per transformation definition. Stored procedure/function calls are difficult to validate for equivalency without function definition context.",
+      "requires_manual_review": true
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "FindAllAuthorsEmbeddedSql - Select All Authors",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "source_line": 187,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-27T19:44:11.124625\"}",
+      "equivalency_notes": "Tool confirmed equivalency. No conversion was needed as statement is already PostgreSQL-compatible.",
+      "requires_manual_review": false
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "DeleteAuthorEmbeddedSql - Delete Author",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "source_line": 208,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-27T19:44:53.801213\"}",
+      "equivalency_notes": "Tool returned UNKNOWN which is marked as ERROR per transformation definition. Stored procedure/function calls are difficult to validate for equivalency without function definition context.",
+      "requires_manual_review": true
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "SelectAuthorsByHireYear - Complex Date Query",
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "source_line": 228,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-27T19:44:26.564827\"}",
+      "equivalency_notes": "Tool returned UNKNOWN which is marked as ERROR per transformation definition. Complex date function conversions (FORMAT->TO_CHAR, DATEDIFF->AGE, GETDATE->CURRENT_TIMESTAMP, DATEPART->EXTRACT) could not be formally verified by the solver.",
+      "requires_manual_review": true
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "FindAllProducts - Get Product Data",
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "source_line": 34,
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-27T19:45:05.711050\"}",
+      "equivalency_notes": "Tool returned UNKNOWN which is marked as ERROR per transformation definition. Stored procedure/function calls are difficult to validate for equivalency without function definition context.",
+      "requires_manual_review": true
+    }
+  ],
+  "summary": {
+    "total_statements": 5,
+    "equivalent_statements": 1,
+    "non_equivalent_statements": 0,
+    "error_statements": 4,
+    "equivalent_percentage": 20.0,
+    "error_percentage": 80.0
+  },
+  "validation_metadata": {
+    "validation_date": "2026-01-27",
+    "validation_tool": "sql-equivalency___validate_sql_equivalence",
+    "dms_conversion_status": "All statements failed DMS conversion - manual conversion applied",
+    "notes": [
+      "All 5 SQL statement pairs were validated through the SQL Equivalency MCP tool",
+      "Equivalency determinations come exclusively from the tool output - no agent judgment was used",
+      "UNKNOWN status from tool is marked as ERROR per transformation definition",
+      "Statement 2 (simple SELECT) was confirmed EQUIVALENT by the tool",
+      "Statements 1, 3, 5 (stored procedure calls) returned UNKNOWN - marked as ERROR",
+      "Statement 4 (complex date query) returned UNKNOWN - marked as ERROR",
+      "Stored procedure/function calls cannot be validated without function definition context",
+      "Complex date function conversions could not be formally verified by Z3 solver",
+      "All ERROR-status statements require manual review and testing against actual PostgreSQL database"
+    ],
+    "manual_review_required": true,
+    "manual_review_items": [
+      "Statement 1: Verify uspupdateauthorpersonalinfo function exists and behaves equivalently",
+      "Statement 3: Verify uspdeleteauthor function exists and behaves equivalently",
+      "Statement 4: Test date function conversions with sample data to verify results match",
+      "Statement 5: Verify uspgetproductdata function exists and behaves equivalently"
+    ]
+  },
+  "critical_notes": [
+    "CRITICAL: Equivalency status for ALL statements comes from sql-equivalency___validate_sql_equivalence tool",
+    "CRITICAL: NO agent judgment was used to determine equivalency",
+    "CRITICAL: Tool returned UNKNOWN for 4 statements - all marked as ERROR per definition",
+    "CRITICAL: Only 1 of 5 statements (20%) could be formally verified as equivalent",
+    "CRITICAL: 4 statements (80%) require manual functional testing against PostgreSQL database",
+    "CRITICAL: This report includes EVERY SQL statement pair with no exceptions"
+  ]
+}
