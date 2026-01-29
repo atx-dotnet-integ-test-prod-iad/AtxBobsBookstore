@@ -1,0 +1,130 @@
+================================================================================
+SQL Statement Re-integration Log
+================================================================================
+Project: BobsBookstore SQL Server to PostgreSQL Migration
+Date: 2026-01-29
+Purpose: Document all SQL statement replacements in source code
+================================================================================
+
+FILE: sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+================================================================================
+
+STATEMENT 1: FindAllAuthorsEmbeddedSql - Line 187
+--------------------------------------------------------------------------------
+Original SQL: SELECT * FROM bobsbookstore_dbo.author
+Converted SQL: SELECT * FROM bobsbookstore_dbo.author
+Change Type: NO CHANGE NEEDED
+Notes: Simple SELECT statement is identical in PostgreSQL
+Schema Name: bobsbookstore_dbo (maintained)
+Parameters: None
+Status: COMPLETED
+
+STATEMENT 2: DeleteAuthorEmbeddedSql - Line 205
+--------------------------------------------------------------------------------
+Original SQL: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+Converted SQL: SELECT bobsbookstore_dbo.uspDeleteAuthor($1)
+Change Type: STORED PROCEDURE CALL CONVERSION
+Changes Applied:
+  - Replaced DECLARE and EXEC syntax with SELECT function call
+  - Changed [dbo] schema to bobsbookstore_dbo
+  - Changed @BusinessEntityID parameter to $1 (positional parameter)
+  - Updated SqlParameter to NpgsqlParameter with positional syntax
+  - Removed parameter name, using Value property only
+Schema Name: bobsbookstore_dbo (maintained)
+Parameters: businessEntityId (int) → $1
+Line Numbers: Method starting at line 205
+Status: COMPLETED
+
+STATEMENT 3: EditUsingStoredProcedure - Line 157
+--------------------------------------------------------------------------------
+Original SQL: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+Converted SQL: SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo($1, $2, $3, $4, $5)
+Change Type: STORED PROCEDURE CALL CONVERSION
+Changes Applied:
+  - Replaced DECLARE and EXEC syntax with SELECT function call
+  - Changed [dbo] schema to bobsbookstore_dbo
+  - Changed named parameters (@BusinessEntityID, etc.) to positional parameters ($1, $2, $3, $4, $5)
+  - Updated all SqlParameter instances to NpgsqlParameter
+  - Removed parameter names, using Value property for positional binding
+  - Maintained all 5 parameters in correct order
+Schema Name: bobsbookstore_dbo (maintained)
+Parameters:
+  - businessEntityId → $1
+  - nationalIdNumber → $2
+  - birthDate.ToUniversalTime() → $3
+  - maritalStatus → $4
+  - gender → $5
+Line Numbers: Method starting at line 157
+Status: COMPLETED
+
+STATEMENT 4: SelectAuthorsByHireYear - Line 223
+--------------------------------------------------------------------------------
+Original SQL: SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+Converted SQL: SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = $1;
+Change Type: COMPLEX SQL FUNCTION CONVERSION
+Changes Applied:
+  - Replaced FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') with TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+  - Changed format pattern from 'yyyy-MM-dd HH:mm:ss' to 'YYYY-MM-DD HH24:MI:SS' (PostgreSQL format)
+  - Replaced DATEDIFF(YEAR, BirthDate, GETDATE()) with DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate))
+  - Replaced GETDATE() with CURRENT_TIMESTAMP
+  - Replaced DATEPART(YEAR, HireDate) with EXTRACT(YEAR FROM HireDate)
+  - Changed @HireDate parameter to $1 (positional parameter)
+  - Updated SqlParameter to NpgsqlParameter with positional syntax
+Schema Name: bobsbookstore_dbo (maintained)
+Parameters: hireYear (int) → $1
+Line Numbers: Method starting at line 223
+Status: COMPLETED
+
+================================================================================
+SUMMARY OF CHANGES
+================================================================================
+
+Files Modified: 1
+  - sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+
+Total SQL Statements Updated: 4
+  - Statement 1 (FindAllAuthorsEmbeddedSql): NO CHANGE NEEDED
+  - Statement 2 (DeleteAuthorEmbeddedSql): UPDATED
+  - Statement 3 (EditUsingStoredProcedure): UPDATED
+  - Statement 4 (SelectAuthorsByHireYear): UPDATED
+
+Parameter Changes:
+  - All SqlParameter instances replaced with NpgsqlParameter
+  - Named parameters (@ParamName) converted to positional parameters ($1, $2, etc.)
+  - Parameter binding changed to use Value property instead of constructor with name
+
+SQL Server Functions Converted:
+  - FORMAT() → TO_CHAR()
+  - DATEDIFF() → DATE_PART() with AGE()
+  - GETDATE() → CURRENT_TIMESTAMP
+  - DATEPART() → EXTRACT()
+
+Schema Changes:
+  - [dbo] schema consistently replaced with bobsbookstore_dbo
+  - No schema name changes from DMS tool output (schema maintained as bobsbookstore_dbo)
+
+Code Structure Preserved:
+  ✓ Method signatures unchanged
+  ✓ Error handling try-catch blocks maintained
+  ✓ Async/await patterns maintained
+  ✓ Return types unchanged
+  ✓ Parameter types unchanged
+
+SQL Server Specific Syntax Removed:
+  ✓ DECLARE statements removed
+  ✓ EXEC with output variables removed
+  ✓ FORMAT function replaced
+  ✓ DATEDIFF function replaced
+  ✓ GETDATE function replaced
+  ✓ DATEPART function replaced
+  ✓ Named parameters replaced with positional
+
+Notes:
+  - All conversions based on manual conversions from Step 2 (DMS tool failures)
+  - Schema name bobsbookstore_dbo maintained throughout per ApplicationDbContext.cs
+  - All parameter bindings use positional syntax compatible with ExecuteSqlRawAsync
+  - No breaking changes to method signatures or public API
+  - All async patterns and error handling preserved
+
+Status: ALL SQL STATEMENTS SUCCESSFULLY RE-INTEGRATED
+================================================================================

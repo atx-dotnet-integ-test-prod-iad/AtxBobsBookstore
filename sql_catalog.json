@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "creation_date": "2026-01-29",
+    "purpose": "Comprehensive catalog of all SQL statements in BobsBookstore application for PostgreSQL migration",
+    "total_statement_count": 6
+  },
+  "statements": [
+    {
+      "statement_id": 1,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "FindAllAuthorsEmbeddedSql",
+      "line_number": 187,
+      "statement_type": "SELECT",
+      "execution_method": "SqlQueryRaw<Author>",
+      "original_sql": "SELECT * FROM bobsbookstore_dbo.author",
+      "parameters": [],
+      "context": "Retrieves all authors from the author table using embedded SQL"
+    },
+    {
+      "statement_id": 2,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "DeleteAuthorEmbeddedSql",
+      "line_number": 205,
+      "statement_type": "EXEC",
+      "execution_method": "ExecuteSqlRawAsync",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "parameters": [
+        "@BusinessEntityID (int)"
+      ],
+      "context": "Deletes an author using stored procedure uspDeleteAuthor with DECLARE and OUTPUT parameter handling"
+    },
+    {
+      "statement_id": 3,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "EditUsingStoredProcedure",
+      "line_number": 157,
+      "statement_type": "EXEC",
+      "execution_method": "ExecuteSqlRawAsync",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "parameters": [
+        "@BusinessEntityID (int)",
+        "@NationalIDNumber (string)",
+        "@BirthDate (DateTime)",
+        "@MaritalStatus (string)",
+        "@Gender (string)"
+      ],
+      "context": "Updates author personal information using stored procedure with DECLARE and OUTPUT parameter handling"
+    },
+    {
+      "statement_id": 4,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method_name": "SelectAuthorsByHireYear",
+      "line_number": 223,
+      "statement_type": "SELECT",
+      "execution_method": "SqlQueryRaw<AuthorAgeResult>",
+      "original_sql": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "parameters": [
+        "@HireDate (int)"
+      ],
+      "context": "Complex SELECT with SQL Server specific functions: FORMAT, DATEDIFF, GETDATE, DATEPART - all require PostgreSQL conversion"
+    },
+    {
+      "statement_id": 5,
+      "source_file": "sourceCode/db/adven.sql",
+      "method_name": "uspUpdateAuthorPersonalInfo",
+      "line_number": 932,
+      "statement_type": "UPDATE",
+      "execution_method": "Stored Procedure Definition",
+      "original_sql": "CREATE PROCEDURE [dbo].[uspUpdateAuthorPersonalInfo]\n    @BusinessEntityID [int], \n    @NationalIDNumber [nvarchar](15), \n    @BirthDate [datetime], \n    @MaritalStatus [nchar](1), \n    @Gender [nchar](1)\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        UPDATE [dbo].[Author] \n        SET [NationalIDNumber] = @NationalIDNumber \n            ,[BirthDate] = @BirthDate \n            ,[MaritalStatus] = @MaritalStatus \n            ,[Gender] = @Gender \n        WHERE [BusinessEntityID] = @BusinessEntityID;\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError];\n    END CATCH;\nEND;",
+      "parameters": [
+        "@BusinessEntityID (int)",
+        "@NationalIDNumber (nvarchar(15))",
+        "@BirthDate (datetime)",
+        "@MaritalStatus (nchar(1))",
+        "@Gender (nchar(1))"
+      ],
+      "context": "Stored procedure definition for updating author personal information with error handling"
+    },
+    {
+      "statement_id": 6,
+      "source_file": "sourceCode/db/adven.sql",
+      "method_name": "uspDeleteAuthor",
+      "line_number": 957,
+      "statement_type": "DELETE",
+      "execution_method": "Stored Procedure Definition",
+      "original_sql": "CREATE PROCEDURE [dbo].[uspDeleteAuthor]\n    @BusinessEntityID [int]\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        DELETE FROM [dbo].[Author]\n        WHERE [BusinessEntityID] = @BusinessEntityID;\n        IF @@ROWCOUNT = 0\n        BEGIN\n            RAISERROR('No author found with the provided BusinessEntityID.', 16, 1);\n            RETURN;\n        END\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError];\n        THROW;\n    END CATCH;\nEND;",
+      "parameters": [
+        "@BusinessEntityID (int)"
+      ],
+      "context": "Stored procedure definition for deleting an author with error handling and row count check"
+    }
+  ],
+  "analysis_summary": {
+    "total_files_analyzed": 3,
+    "files_with_sql": [
+      "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "sourceCode/db/adven.sql"
+    ],
+    "statement_types": {
+      "SELECT": 2,
+      "UPDATE": 1,
+      "DELETE": 1,
+      "EXEC": 2
+    },
+    "sql_server_specific_functions_identified": [
+      "FORMAT",
+      "DATEDIFF",
+      "GETDATE",
+      "DATEPART",
+      "SET NOCOUNT",
+      "BEGIN TRY/CATCH",
+      "RAISERROR",
+      "@@ROWCOUNT",
+      "THROW"
+    ],
+    "schema_used": "bobsbookstore_dbo"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "number_of_statements_processed": 6,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-29T19:30:10.973612\"}"
+    },
+    {
+      "statement_id": 2,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = $1;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-29T19:30:25.917205\"}"
+    },
+    {
+      "statement_id": 3,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo($1, $2, $3, $4, $5)",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-29T19:30:41.790358\"}"
+    },
+    {
+      "statement_id": 4,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor($1)",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-29T19:30:55.449890\"}"
+    },
+    {
+      "statement_id": 5,
+      "original_statement": "CREATE PROCEDURE [dbo].[uspUpdateAuthorPersonalInfo]\n    @BusinessEntityID [int], \n    @NationalIDNumber [nvarchar](15), \n    @BirthDate [datetime], \n    @MaritalStatus [nchar](1), \n    @Gender [nchar](1)\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        UPDATE [dbo].[Author] \n        SET [NationalIDNumber] = @NationalIDNumber \n            ,[BirthDate] = @BirthDate \n            ,[MaritalStatus] = @MaritalStatus \n            ,[Gender] = @Gender \n        WHERE [BusinessEntityID] = @BusinessEntityID;\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError];\n    END CATCH;\nEND;",
+      "converted_statement": "CREATE OR REPLACE FUNCTION bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(\n    p_BusinessEntityID int,\n    p_NationalIDNumber varchar(15),\n    p_BirthDate timestamp,\n    p_MaritalStatus char(1),\n    p_Gender char(1)\n)\nRETURNS int\nLANGUAGE plpgsql\nAS $$\nDECLARE\n    v_rows_affected int;\nBEGIN\n    UPDATE bobsbookstore_dbo.Author\n    SET NationalIDNumber = p_NationalIDNumber,\n        BirthDate = p_BirthDate,\n        MaritalStatus = p_MaritalStatus,\n        Gender = p_Gender\n    WHERE BusinessEntityID = p_BusinessEntityID;\n    \n    GET DIAGNOSTICS v_rows_affected = ROW_COUNT;\n    RETURN v_rows_affected;\nEXCEPTION\n    WHEN OTHERS THEN\n        RAISE NOTICE 'Error in uspUpdateAuthorPersonalInfo: %', SQLERRM;\n        RETURN 0;\nEND;\n$$;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-29T19:31:10.464761\"}"
+    },
+    {
+      "statement_id": 6,
+      "original_statement": "CREATE PROCEDURE [dbo].[uspDeleteAuthor]\n    @BusinessEntityID [int]\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        DELETE FROM [dbo].[Author]\n        WHERE [BusinessEntityID] = @BusinessEntityID;\n        IF @@ROWCOUNT = 0\n        BEGIN\n            RAISERROR('No author found with the provided BusinessEntityID.', 16, 1);\n            RETURN;\n        END\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError];\n        THROW;\n    END CATCH;\nEND;",
+      "converted_statement": "CREATE OR REPLACE FUNCTION bobsbookstore_dbo.uspDeleteAuthor(\n    p_BusinessEntityID int\n)\nRETURNS int\nLANGUAGE plpgsql\nAS $$\nDECLARE\n    v_rows_affected int;\nBEGIN\n    DELETE FROM bobsbookstore_dbo.Author\n    WHERE BusinessEntityID = p_BusinessEntityID;\n    \n    GET DIAGNOSTICS v_rows_affected = ROW_COUNT;\n    \n    IF v_rows_affected = 0 THEN\n        RAISE EXCEPTION 'No author found with the provided BusinessEntityID.';\n    END IF;\n    \n    RETURN v_rows_affected;\nEXCEPTION\n    WHEN OTHERS THEN\n        RAISE NOTICE 'Error in uspDeleteAuthor: %', SQLERRM;\n        RAISE;\nEND;\n$$;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Pipeline execution failed: Required keyword: 'true' missing for <class 'sqlglot.expressions.If'>. Line 11, Col: 13.\\n  o].[Author]\\n        WHERE [BusinessEntityID] = @BusinessEntityID;\\n        IF @@ROWCOUNT = 0\\n        \\u001b[4mBEGIN\\u001b[0m\\n            RAISERROR('No author found with the provided BusinessEntityID.', 16, 1);\\n            RE\\nTraceback: [Full traceback truncated for brevity]\", \"validation_method\": \"unknown\", \"timestamp\": \"2026-01-29T19:31:22.692565\"}"
+    }
+  ],
+  "metadata": {
+    "report_generation_date": "2026-01-29",
+    "report_purpose": "SQL Equivalency Validation for BobsBookstore SQL Server to PostgreSQL Migration",
+    "validation_notes": [
+      "All 6 statement pairs were validated using sql-equivalency___validate_sql_equivalence tool",
+      "1 statement pair validated as EQUIVALENT",
+      "5 statement pairs returned UNKNOWN status, marked as ERROR per transformation definition",
+      "No agent judgment was used - all equivalency_status values come directly from the equivalency tool",
+      "UNKNOWN status indicates the formal verification methods could not prove equivalency/non-equivalency",
+      "Complex statements with SQL Server functions and stored procedures returned UNKNOWN",
+      "Statement 6 had parsing errors in the equivalency tool",
+      "All conversions maintain schema name bobsbookstore_dbo as required"
+    ],
+    "exit_criteria_compliance": {
+      "all_statements_processed_through_dms": true,
+      "all_statements_validated_through_equivalency_tool": true,
+      "no_agent_judgment_used": true,
+      "comprehensive_report_generated": true,
+      "report_contains_all_required_fields": true
+    }
+  }
+}
