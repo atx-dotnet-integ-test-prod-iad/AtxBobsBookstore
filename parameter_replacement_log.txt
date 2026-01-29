@@ -1,0 +1,147 @@
+================================================================================
+PARAMETER REPLACEMENT LOG
+SqlParameter → NpgsqlParameter Conversion
+================================================================================
+Timestamp: 2026-01-29 12:05:00 UTC
+Total Replacements: 7
+Files Modified: 1
+================================================================================
+
+================================================================================
+FILE: AuthorsController.cs
+================================================================================
+File Path: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+
+Verification of using Npgsql directive:
+Line 10: using Npgsql; ✓ (PRESENT)
+
+REPLACEMENT 1: EditUsingStoredProcedure Method
+-----------------------------------------------
+Line Number: 166
+Original: new SqlParameter("@BusinessEntityID", businessEntityId)
+Replaced: new NpgsqlParameter("@BusinessEntityID", businessEntityId)
+Parameter Name: @BusinessEntityID
+Parameter Value: businessEntityId (int)
+
+REPLACEMENT 2: EditUsingStoredProcedure Method
+-----------------------------------------------
+Line Number: 167
+Original: new SqlParameter("@NationalIDNumber", nationalIdNumber)
+Replaced: new NpgsqlParameter("@NationalIDNumber", nationalIdNumber)
+Parameter Name: @NationalIDNumber
+Parameter Value: nationalIdNumber (string)
+
+REPLACEMENT 3: EditUsingStoredProcedure Method
+-----------------------------------------------
+Line Number: 168
+Original: new SqlParameter("@BirthDate", birthDate.ToUniversalTime())
+Replaced: new NpgsqlParameter("@BirthDate", birthDate.ToUniversalTime())
+Parameter Name: @BirthDate
+Parameter Value: birthDate.ToUniversalTime() (DateTime)
+
+REPLACEMENT 4: EditUsingStoredProcedure Method
+-----------------------------------------------
+Line Number: 169
+Original: new SqlParameter("@MaritalStatus", maritalStatus)
+Replaced: new NpgsqlParameter("@MaritalStatus", maritalStatus)
+Parameter Name: @MaritalStatus
+Parameter Value: maritalStatus (string)
+
+REPLACEMENT 5: EditUsingStoredProcedure Method
+-----------------------------------------------
+Line Number: 170
+Original: new SqlParameter("@Gender", gender)
+Replaced: new NpgsqlParameter("@Gender", gender)
+Parameter Name: @Gender
+Parameter Value: gender (string)
+
+REPLACEMENT 6: DeleteAuthorEmbeddedSql Method
+-----------------------------------------------
+Line Number: 211
+Original: new SqlParameter("@BusinessEntityID", businessEntityId)
+Replaced: new NpgsqlParameter("@BusinessEntityID", businessEntityId)
+Parameter Name: @BusinessEntityID
+Parameter Value: businessEntityId (int)
+
+REPLACEMENT 7: SelectAuthorsByHireYear Method
+-----------------------------------------------
+Line Number: 231
+Original: new SqlParameter("@HireDate", hireYear)
+Replaced: new NpgsqlParameter("@HireDate", hireYear)
+Parameter Name: @HireDate
+Parameter Value: hireYear (int)
+
+================================================================================
+FILE: ProductsController.cs
+================================================================================
+File Path: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs
+
+Verification of using Npgsql directive:
+Line 10: using Npgsql; ✓ (PRESENT)
+
+No SqlParameter instances found in ProductsController.cs.
+FindAllProducts method does not use parameters.
+
+================================================================================
+REPLACEMENT SUMMARY
+================================================================================
+Total Files Checked: 2
+Total Files Modified: 1
+Total SqlParameter Instances Found: 7
+Total SqlParameter → NpgsqlParameter Replacements: 7
+Replacement Success Rate: 100%
+
+Files Modified:
+1. AuthorsController.cs (7 replacements)
+
+Files Unchanged:
+1. ProductsController.cs (no SqlParameter instances found)
+
+Methods Modified in AuthorsController.cs:
+1. EditUsingStoredProcedure (5 parameter replacements)
+2. DeleteAuthorEmbeddedSql (1 parameter replacement)
+3. SelectAuthorsByHireYear (1 parameter replacement)
+
+Parameter Types Handled:
+- int: 3 parameters (@BusinessEntityID appears twice, @HireDate once)
+- string: 3 parameters (@NationalIDNumber, @MaritalStatus, @Gender)
+- DateTime: 1 parameter (@BirthDate with ToUniversalTime() conversion)
+
+Additional ADO.NET Classes Checked:
+✓ SqlConnection: NOT FOUND (application uses EF Core)
+✓ SqlCommand: NOT FOUND (application uses EF Core)
+✓ SqlDataReader: NOT FOUND (application uses EF Core)
+✓ SqlTransaction: NOT FOUND (application uses EF Core)
+
+Npgsql Using Directive Verification:
+✓ AuthorsController.cs: using Npgsql; present at line 10
+✓ ProductsController.cs: using Npgsql; present at line 10
+
+Parameter Constructor Compatibility Notes:
+- NpgsqlParameter constructor signature: new NpgsqlParameter(string parameterName, object value)
+- Identical to SqlParameter constructor signature
+- No changes required to parameter names or values
+- @ parameter syntax works natively with Npgsql driver
+- All parameter conversions are drop-in replacements
+
+Build Impact:
+- Fixes compilation errors caused by missing SqlParameter references
+- Application already uses Npgsql for database connectivity via EF Core
+- NpgsqlParameter is provided by Npgsql NuGet package
+- No additional dependencies required
+
+Migration Compatibility:
+- NpgsqlParameter works identically to SqlParameter for basic parameter binding
+- Parameter names retain @ prefix (PostgreSQL and Npgsql support this)
+- Parameter values and data types remain unchanged
+- No code logic changes required beyond type replacement
+
+Verification Steps Completed:
+✓ All SqlParameter instances identified (7 total)
+✓ All SqlParameter instances replaced with NpgsqlParameter (7 total)
+✓ Npgsql using directive present in both controller files
+✓ No other SQL Server-specific ADO.NET types found
+✓ Parameter names and values preserved
+✓ Code structure and logic preserved
+
+================================================================================

@@ -1,0 +1,126 @@
+-- ============================================================
+-- SQL STATEMENTS CATALOG FOR MIGRATION
+-- Extracted from BobsBookstore .NET Application
+-- Total Statements: 5
+-- ============================================================
+
+-- ============================================================
+-- STATEMENT 1: Stored Procedure Call - uspUpdateAuthorPersonalInfo
+-- ============================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: EditUsingStoredProcedure
+-- Line Number: ~164
+-- Statement Type: EXEC stored procedure with variable assignment and return value
+-- Complexity: Medium (T-SQL DECLARE, EXEC with output parameter)
+-- Parameters:
+--   @BusinessEntityID (int)
+--   @NationalIDNumber (string)
+--   @BirthDate (DateTime)
+--   @MaritalStatus (string)
+--   @Gender (string)
+-- SQL Server Specific Features:
+--   - DECLARE @variable syntax
+--   - EXEC @returnValue = [dbo].[procedureName] syntax
+--   - Bracketed schema notation [dbo].[procedureName]
+-- Original SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+-- ============================================================
+-- STATEMENT 2: Simple SELECT from author table
+-- ============================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: FindAllAuthorsEmbeddedSql
+-- Line Number: ~187
+-- Statement Type: SELECT (simple)
+-- Complexity: Easy (standard SELECT)
+-- Parameters: None
+-- SQL Server Specific Features:
+--   - Schema notation (may be transformed by DMS)
+-- Original SQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+-- ============================================================
+-- STATEMENT 3: Stored Procedure Call - uspDeleteAuthor
+-- ============================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: DeleteAuthorEmbeddedSql
+-- Line Number: ~209
+-- Statement Type: EXEC stored procedure with variable assignment and return value
+-- Complexity: Medium (T-SQL DECLARE, EXEC with output parameter)
+-- Parameters:
+--   @BusinessEntityID (int)
+-- SQL Server Specific Features:
+--   - DECLARE @variable syntax
+--   - EXEC @returnValue = [dbo].[procedureName] syntax
+--   - Bracketed schema notation [dbo].[procedureName]
+-- Original SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+-- ============================================================
+-- STATEMENT 4: Complex SELECT with SQL Server date functions
+-- ============================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+-- Method: SelectAuthorsByHireYear
+-- Line Number: ~228
+-- Statement Type: SELECT (complex with date/time functions)
+-- Complexity: Hard (multiple SQL Server-specific functions)
+-- Parameters:
+--   @HireDate (int - year value)
+-- SQL Server Specific Features:
+--   - FORMAT(date, format_string) function
+--   - DATEDIFF(datepart, startdate, enddate) function
+--   - GETDATE() function
+--   - DATEPART(datepart, date) function
+-- PostgreSQL Equivalents Needed:
+--   - FORMAT → TO_CHAR(date, format_pattern)
+--   - DATEDIFF(YEAR, date1, date2) → EXTRACT(YEAR FROM AGE(date2, date1))
+--   - GETDATE() → NOW() or CURRENT_TIMESTAMP
+--   - DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+-- Original SQL Statement:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+-- ============================================================
+-- STATEMENT 5: Stored Procedure Call - uspGetProductData
+-- ============================================================
+-- Source File: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs
+-- Method: FindAllProducts
+-- Line Number: ~32
+-- Statement Type: EXEC stored procedure (no parameters)
+-- Complexity: Easy (simple stored procedure call)
+-- Parameters: None
+-- SQL Server Specific Features:
+--   - EXEC [dbo].[procedureName] syntax
+--   - Bracketed schema notation [dbo].[procedureName]
+-- Original SQL Statement:
+EXEC [dbo].[uspGetProductData];
+
+-- ============================================================
+-- SUMMARY
+-- ============================================================
+-- Total SQL Statements Identified: 5
+-- Statement Types:
+--   - Stored Procedure Calls (with DECLARE/EXEC): 2 (uspUpdateAuthorPersonalInfo, uspDeleteAuthor)
+--   - Stored Procedure Calls (simple EXEC): 1 (uspGetProductData)
+--   - SELECT statements (simple): 1 (FindAllAuthorsEmbeddedSql)
+--   - SELECT statements (complex): 1 (SelectAuthorsByHireYear)
+--
+-- Complexity Distribution:
+--   - Easy: 2 statements
+--   - Medium: 2 statements
+--   - Hard: 1 statement
+--
+-- Files Containing SQL:
+--   - AuthorsController.cs: 4 statements
+--   - ProductsController.cs: 1 statement
+--
+-- SQL Server Specific Features to Convert:
+--   - T-SQL DECLARE statements
+--   - T-SQL EXEC with return value assignment
+--   - [dbo].[procedureName] schema notation
+--   - FORMAT() function
+--   - DATEDIFF() function
+--   - GETDATE() function
+--   - DATEPART() function
+--
+-- All statements are ready for DMS MCP tool conversion in Step 2.
+-- ============================================================

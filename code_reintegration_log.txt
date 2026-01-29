@@ -1,0 +1,194 @@
+================================================================================
+CODE RE-INTEGRATION LOG
+SQL Statements Converted from MS SQL Server to PostgreSQL
+================================================================================
+Timestamp: 2026-01-29 12:03:00 UTC
+Total Statements Re-integrated: 5
+Files Modified: 2
+================================================================================
+
+================================================================================
+FILE 1: AuthorsController.cs
+================================================================================
+File Path: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+
+MODIFICATION 1: EditUsingStoredProcedure Method
+-------------------------------------------------
+Method: EditUsingStoredProcedure
+Line Number: ~164
+
+Original MS SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Equivalency Status: ERROR (requires manual review)
+
+Changes Applied:
+- Removed T-SQL DECLARE and variable assignment pattern
+- Converted EXEC [dbo].[procedure] to SELECT schema.function()
+- Changed schema from [dbo] to bobsbookstore_dbo
+- Converted procedure name to lowercase (uspupdateauthorpersonalinfo)
+- Retained @ parameter syntax (Npgsql compatible)
+- Parameters unchanged: @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender
+
+MODIFICATION 2: FindAllAuthorsEmbeddedSql Method
+--------------------------------------------------
+Method: FindAllAuthorsEmbeddedSql
+Line Number: ~187
+
+Original MS SQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Equivalency Status: EQUIVALENT
+
+Changes Applied:
+- No changes needed - statement is already PostgreSQL-compatible
+- Schema name bobsbookstore_dbo retained
+- Table name author retained (already lowercase)
+
+MODIFICATION 3: DeleteAuthorEmbeddedSql Method
+------------------------------------------------
+Method: DeleteAuthorEmbeddedSql
+Line Number: ~209
+
+Original MS SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Equivalency Status: ERROR (requires manual review)
+
+Changes Applied:
+- Removed T-SQL DECLARE and variable assignment pattern
+- Converted EXEC [dbo].[procedure] to SELECT schema.function()
+- Changed schema from [dbo] to bobsbookstore_dbo
+- Converted procedure name to lowercase (uspdeleteauthor)
+- Retained @ parameter syntax (Npgsql compatible)
+- Parameter unchanged: @BusinessEntityID
+
+MODIFICATION 4: SelectAuthorsByHireYear Method
+-----------------------------------------------
+Method: SelectAuthorsByHireYear
+Line Number: ~228
+
+Original MS SQL Statement:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+Converted PostgreSQL Statement:
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(NOW(), BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Equivalency Status: ERROR (requires manual review)
+
+Changes Applied:
+- FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') → TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+  * Format pattern adjusted: yyyy→YYYY, HH→HH24 (24-hour format), mm→MI (minutes), ss→SS
+- DATEDIFF(YEAR, BirthDate, GETDATE()) → EXTRACT(YEAR FROM AGE(NOW(), BirthDate))
+  * GETDATE() → NOW() for current timestamp
+  * DATEDIFF → AGE function + EXTRACT for year difference
+- DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM HireDate)
+  * Direct conversion from DATEPART to EXTRACT
+- Schema name bobsbookstore_dbo retained
+- Table name author retained
+- Parameter unchanged: @HireDate
+- Retained @ parameter syntax (Npgsql compatible)
+
+================================================================================
+FILE 2: ProductsController.cs
+================================================================================
+File Path: /QNet/site-packages/atx_dot_net_strands_cli/all_local_test_output/artifact-BobsBookstore/artifact/sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs
+
+MODIFICATION 5: FindAllProducts Method
+---------------------------------------
+Method: FindAllProducts
+Line Number: ~32
+
+Original MS SQL Statement:
+EXEC [dbo].[uspGetProductData];
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Equivalency Status: ERROR (requires manual review)
+
+Changes Applied:
+- Converted EXEC [dbo].[procedure] to SELECT * FROM schema.function()
+- Changed schema from [dbo] to bobsbookstore_dbo
+- Converted procedure name to lowercase (uspgetproductdata)
+- Added parentheses for function call syntax ()
+- Used SELECT * FROM pattern for result set returning function
+
+================================================================================
+RE-INTEGRATION SUMMARY
+================================================================================
+Total Files Modified: 2
+Total Statements Re-integrated: 5
+
+Files Modified:
+1. AuthorsController.cs (4 statements)
+2. ProductsController.cs (1 statement)
+
+Conversion Patterns Applied:
+1. T-SQL DECLARE statements removed (3 statements)
+2. EXEC [schema].[procedure] → SELECT schema.function() (3 statements)
+3. EXEC [schema].[procedure] → SELECT * FROM schema.function() (1 statement)
+4. [dbo] schema → bobsbookstore_dbo (5 statements)
+5. Procedure/function names → lowercase (3 statements)
+6. FORMAT() → TO_CHAR() (1 statement)
+7. DATEDIFF() → AGE() with EXTRACT() (1 statement)
+8. GETDATE() → NOW() (1 statement)
+9. DATEPART() → EXTRACT() (2 instances in 1 statement)
+10. @ parameter syntax retained (Npgsql compatible) (4 statements)
+
+Schema/Object Name Changes Applied:
+- [dbo] → bobsbookstore_dbo (consistently applied to all conversions)
+- uspUpdateAuthorPersonalInfo → uspupdateauthorpersonalinfo
+- uspDeleteAuthor → uspdeleteauthor
+- uspGetProductData → uspgetproductdata
+- Table name "author" unchanged (already lowercase)
+
+Code Structure Preservation:
+- All string variable names retained (string sql = ...)
+- All method signatures unchanged
+- All parameter passing mechanisms unchanged
+- Proper formatting and indentation maintained
+- Comments preserved
+
+Parameter Syntax Notes:
+- All statements retained @ parameter syntax (@ParameterName)
+- Npgsql driver supports @ parameter syntax natively
+- No conversion to positional parameters ($1, $2, etc.) required
+
+Statements Requiring Runtime Verification:
+- All 4 stored procedure conversions (uspupdateauthorpersonalinfo, uspdeleteauthor, uspgetproductdata)
+- Complex date function conversion (SelectAuthorsByHireYear)
+- Note: 4 statements marked with ERROR equivalency status require manual testing
+
+Critical Notes:
+- All conversions followed PostgreSQL best practices
+- All conversions respect Npgsql driver conventions
+- Schema names changed from [dbo] to bobsbookstore_dbo per application convention
+- Function names converted to lowercase per PostgreSQL naming convention
+- PostgreSQL functions must exist in target database for statements to execute successfully
+- No SQL statements were skipped or omitted from re-integration
+
+Verification Needed:
+- Confirm PostgreSQL functions exist in target database:
+  * bobsbookstore_dbo.uspupdateauthorpersonalinfo
+  * bobsbookstore_dbo.uspdeleteauthor
+  * bobsbookstore_dbo.uspgetproductdata
+- Test date/time function conversions with sample data
+- Verify row count returns match expected behavior
+- Test parameter binding with Npgsql driver
+
+================================================================================

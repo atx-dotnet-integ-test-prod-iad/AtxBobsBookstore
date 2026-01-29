@@ -1,0 +1,120 @@
+-- ============================================================
+-- CONVERTED SQL STATEMENTS CATALOG
+-- Manual Conversion After DMS Tool Failures
+-- All 5 statements failed DMS conversion with metadata error
+-- ============================================================
+
+-- ============================================================
+-- STATEMENT 1: Stored Procedure Call - uspUpdateAuthorPersonalInfo
+-- ============================================================
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- Original MS SQL:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+--
+-- Converted PostgreSQL:
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+--
+-- Conversion Notes:
+-- - T-SQL DECLARE removed (not needed in PostgreSQL function call)
+-- - EXEC [dbo].[procedure] → SELECT schema.function()
+-- - Schema changed from [dbo] to bobsbookstore_dbo (matching existing schema convention)
+-- - Function name converted to lowercase (PostgreSQL convention)
+-- - Parameters remain named with @ syntax (Npgsql supports this)
+-- - Return value now comes from SELECT statement directly
+
+-- ============================================================
+-- STATEMENT 2: Simple SELECT from author table
+-- ============================================================
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- Original MS SQL:
+-- SELECT * FROM bobsbookstore_dbo.author
+--
+-- Converted PostgreSQL:
+SELECT * FROM bobsbookstore_dbo.author
+--
+-- Conversion Notes:
+-- - This statement is already PostgreSQL-compatible
+-- - Schema name bobsbookstore_dbo remains unchanged
+-- - Table name author remains lowercase (PostgreSQL convention)
+-- - No conversion needed
+
+-- ============================================================
+-- STATEMENT 3: Stored Procedure Call - uspDeleteAuthor
+-- ============================================================
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- Original MS SQL:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+--
+-- Converted PostgreSQL:
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+--
+-- Conversion Notes:
+-- - T-SQL DECLARE removed (not needed in PostgreSQL function call)
+-- - EXEC [dbo].[procedure] → SELECT schema.function()
+-- - Schema changed from [dbo] to bobsbookstore_dbo (matching existing schema convention)
+-- - Function name converted to lowercase (PostgreSQL convention)
+-- - Parameter remains named with @ syntax (Npgsql supports this)
+-- - Return value now comes from SELECT statement directly
+
+-- ============================================================
+-- STATEMENT 4: Complex SELECT with date functions
+-- ============================================================
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- Original MS SQL:
+-- SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+--
+-- Converted PostgreSQL:
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(NOW(), BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+--
+-- Conversion Notes:
+-- - FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') → TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS')
+--   * FORMAT date pattern changed: yyyy→YYYY, HH→HH24, mm→MI, ss→SS
+-- - DATEDIFF(YEAR, BirthDate, GETDATE()) → EXTRACT(YEAR FROM AGE(NOW(), BirthDate))
+--   * GETDATE() → NOW() for current timestamp
+--   * DATEDIFF → AGE function + EXTRACT for year difference
+-- - DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM HireDate)
+--   * Direct conversion from DATEPART to EXTRACT
+-- - Schema name bobsbookstore_dbo remains unchanged
+-- - Parameter @HireDate remains with @ syntax (Npgsql supports this)
+
+-- ============================================================
+-- STATEMENT 5: Stored Procedure Call - uspGetProductData
+-- ============================================================
+-- Conversion Method: MANUAL_AFTER_DMS_FAILURE
+-- Original MS SQL:
+-- EXEC [dbo].[uspGetProductData];
+--
+-- Converted PostgreSQL:
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+--
+-- Conversion Notes:
+-- - EXEC [dbo].[procedure] → SELECT * FROM schema.function()
+-- - Schema changed from [dbo] to bobsbookstore_dbo (matching existing schema convention)
+-- - Function name converted to lowercase (PostgreSQL convention)
+-- - No parameters for this function
+-- - SELECT * FROM used since this likely returns a result set
+
+-- ============================================================
+-- CONVERSION SUMMARY
+-- ============================================================
+-- Total Statements: 5
+-- Successfully Converted by DMS Tool: 0
+-- Manually Converted After DMS Failure: 5
+--
+-- Common Conversion Patterns Applied:
+-- 1. T-SQL EXEC [schema].[procedure] → PostgreSQL SELECT schema.function()
+-- 2. [dbo] schema → bobsbookstore_dbo schema
+-- 3. Procedure/function names → lowercase (PostgreSQL convention)
+-- 4. FORMAT() → TO_CHAR() with adjusted format patterns
+-- 5. DATEDIFF() → AGE() with EXTRACT()
+-- 6. GETDATE() → NOW()
+-- 7. DATEPART() → EXTRACT()
+-- 8. DECLARE statements removed (not needed for function calls)
+-- 9. @ parameter syntax retained (Npgsql compatible)
+--
+-- Schema/Object Name Changes:
+-- - [dbo] → bobsbookstore_dbo (consistently applied)
+-- - All function names converted to lowercase per PostgreSQL convention
+--
+-- All conversions follow PostgreSQL best practices and Npgsql driver conventions.
+-- ============================================================

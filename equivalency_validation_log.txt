@@ -1,0 +1,262 @@
+================================================================================
+SQL EQUIVALENCY VALIDATION LOG
+================================================================================
+Timestamp: 2026-01-29 11:59:00 UTC
+Tool: sql-equivalency___validate_sql_equivalence
+Total Statement Pairs Validated: 5
+Validation Method: formal_verification
+================================================================================
+
+CRITICAL NOTE: All equivalency determinations in this log come EXCLUSIVELY from
+the SQL Equivalency MCP tool. NO agent judgment was used to determine equivalency
+status. UNKNOWN results from the tool were marked as ERROR per transformation
+requirements, NOT based on agent analysis.
+
+================================================================================
+
+================================================================================
+STATEMENT PAIR 1: uspUpdateAuthorPersonalInfo (Stored Procedure Call)
+================================================================================
+Statement ID: AuthorsController.EditUsingStoredProcedure.uspUpdateAuthorPersonalInfo
+Source: AuthorsController.cs, Line 164
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Query Complexity: medium
+
+Original MS SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+MS SQL Table/Procedure Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATETIME NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate DATETIME NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL);
+CREATE PROCEDURE dbo.uspUpdateAuthorPersonalInfo @BusinessEntityID INT, @NationalIDNumber VARCHAR(15), @BirthDate DATETIME, @MaritalStatus VARCHAR(1), @Gender VARCHAR(1) AS BEGIN UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID; RETURN @@ROWCOUNT; END;
+
+PostgreSQL Table/Function Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate TIMESTAMP NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate TIMESTAMP NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL);
+CREATE FUNCTION bobsbookstore_dbo.uspupdateauthorpersonalinfo(p_businessentityid INT, p_nationalidnumber VARCHAR(15), p_birthdate TIMESTAMP, p_maritalstatus VARCHAR(1), p_gender VARCHAR(1)) RETURNS INT AS $$ DECLARE v_rowcount INT; BEGIN UPDATE bobsbookstore_dbo.author SET nationalidnumber = p_nationalidnumber, birthdate = p_birthdate, maritalstatus = p_maritalstatus, gender = p_gender WHERE businessentityid = p_businessentityid; GET DIAGNOSTICS v_rowcount = ROW_COUNT; RETURN v_rowcount; END; $$ LANGUAGE plpgsql;
+
+Equivalency Tool Output:
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-29T12:00:02.284769"
+}
+
+EQUIVALENCY STATUS: ERROR
+(UNKNOWN from tool marked as ERROR per transformation requirements)
+
+Analysis:
+The SQL Equivalency tool returned UNKNOWN status, indicating it could not formally prove
+equivalency or non-equivalency for this stored procedure conversion. Per transformation
+requirements, UNKNOWN results must be marked as ERROR. This statement pair requires manual
+review and runtime testing to verify functional equivalency.
+
+================================================================================
+STATEMENT PAIR 2: FindAllAuthorsEmbeddedSql (Simple SELECT)
+================================================================================
+Statement ID: AuthorsController.FindAllAuthorsEmbeddedSql
+Source: AuthorsController.cs, Line 187
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Query Complexity: easy
+
+Original MS SQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+MS SQL Table Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATETIME NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate DATETIME NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL);
+
+PostgreSQL Table Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate TIMESTAMP NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate TIMESTAMP NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL);
+
+Equivalency Tool Output:
+{
+  "equivalence_status": "EQUIVALENT",
+  "result_details": "StructuralEquivalenceVerifier stage in formal methods proved equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-29T11:59:34.049937"
+}
+
+EQUIVALENCY STATUS: EQUIVALENT
+
+Analysis:
+The SQL Equivalency tool successfully proved this statement pair is EQUIVALENT. The simple
+SELECT statement is identical in both MS SQL and PostgreSQL syntax, and the tool verified
+structural equivalency.
+
+================================================================================
+STATEMENT PAIR 3: uspDeleteAuthor (Stored Procedure Call)
+================================================================================
+Statement ID: AuthorsController.DeleteAuthorEmbeddedSql.uspDeleteAuthor
+Source: AuthorsController.cs, Line 209
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Query Complexity: medium
+
+Original MS SQL Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+Converted PostgreSQL Statement:
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+MS SQL Table/Procedure Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATETIME NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate DATETIME NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL);
+CREATE PROCEDURE dbo.uspDeleteAuthor @BusinessEntityID INT AS BEGIN DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID; RETURN @@ROWCOUNT; END;
+
+PostgreSQL Table/Function Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate TIMESTAMP NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate TIMESTAMP NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL);
+CREATE FUNCTION bobsbookstore_dbo.uspdeleteauthor(p_businessentityid INT) RETURNS INT AS $$ DECLARE v_rowcount INT; BEGIN DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = p_businessentityid; GET DIAGNOSTICS v_rowcount = ROW_COUNT; RETURN v_rowcount; END; $$ LANGUAGE plpgsql;
+
+Equivalency Tool Output:
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-29T12:00:15.157218"
+}
+
+EQUIVALENCY STATUS: ERROR
+(UNKNOWN from tool marked as ERROR per transformation requirements)
+
+Analysis:
+The SQL Equivalency tool returned UNKNOWN status, indicating it could not formally prove
+equivalency or non-equivalency for this stored procedure conversion. Per transformation
+requirements, UNKNOWN results must be marked as ERROR. This statement pair requires manual
+review and runtime testing to verify functional equivalency.
+
+================================================================================
+STATEMENT PAIR 4: SelectAuthorsByHireYear (Complex SELECT with Date Functions)
+================================================================================
+Statement ID: AuthorsController.SelectAuthorsByHireYear
+Source: AuthorsController.cs, Line 228
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Query Complexity: hard
+
+Original MS SQL Statement:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+Converted PostgreSQL Statement:
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(NOW(), BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+MS SQL Table Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATETIME NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate DATETIME NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate DATETIME NOT NULL);
+
+PostgreSQL Table Creation:
+CREATE TABLE bobsbookstore_dbo.author (businessentityid INT PRIMARY KEY, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate TIMESTAMP NOT NULL, maritalstatus VARCHAR(1) NOT NULL, gender VARCHAR(1) NOT NULL, hiredate TIMESTAMP NOT NULL, vacationhours SMALLINT NOT NULL, modifieddate TIMESTAMP NOT NULL);
+
+Equivalency Tool Output:
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-29T11:59:46.888846"
+}
+
+EQUIVALENCY STATUS: ERROR
+(UNKNOWN from tool marked as ERROR per transformation requirements)
+
+Analysis:
+The SQL Equivalency tool returned UNKNOWN status, indicating it could not formally prove
+equivalency or non-equivalency for this complex date function conversion. Per transformation
+requirements, UNKNOWN results must be marked as ERROR. This statement involves multiple
+SQL Server-specific date functions (FORMAT, DATEDIFF, GETDATE, DATEPART) converted to
+PostgreSQL equivalents (TO_CHAR, AGE+EXTRACT, NOW, EXTRACT). Manual review and runtime
+testing with sample data is required to verify functional equivalency.
+
+================================================================================
+STATEMENT PAIR 5: uspGetProductData (Stored Procedure Call)
+================================================================================
+Statement ID: ProductsController.FindAllProducts.uspGetProductData
+Source: ProductsController.cs, Line 32
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+Query Complexity: easy
+
+Original MS SQL Statement:
+EXEC [dbo].[uspGetProductData];
+
+Converted PostgreSQL Statement:
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+MS SQL Table/Procedure Creation:
+CREATE TABLE bobsbookstore_dbo.product (productid INT PRIMARY KEY, name VARCHAR(15) NOT NULL, productnumber VARCHAR(256) NOT NULL, safetystocklevel INT NOT NULL);
+CREATE PROCEDURE dbo.uspGetProductData AS BEGIN SELECT * FROM bobsbookstore_dbo.product; END;
+
+PostgreSQL Table/Function Creation:
+CREATE TABLE bobsbookstore_dbo.product (productid INT PRIMARY KEY, name VARCHAR(15) NOT NULL, productnumber VARCHAR(256) NOT NULL, safetystocklevel INT NOT NULL);
+CREATE FUNCTION bobsbookstore_dbo.uspgetproductdata() RETURNS TABLE(productid INT, name VARCHAR(15), productnumber VARCHAR(256), safetystocklevel INT) AS $$ BEGIN RETURN QUERY SELECT * FROM bobsbookstore_dbo.product; END; $$ LANGUAGE plpgsql;
+
+Equivalency Tool Output:
+{
+  "equivalence_status": "UNKNOWN",
+  "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+  "validation_method": "formal_verification",
+  "timestamp": "2026-01-29T12:00:27.204859"
+}
+
+EQUIVALENCY STATUS: ERROR
+(UNKNOWN from tool marked as ERROR per transformation requirements)
+
+Analysis:
+The SQL Equivalency tool returned UNKNOWN status, indicating it could not formally prove
+equivalency or non-equivalency for this stored procedure conversion. Per transformation
+requirements, UNKNOWN results must be marked as ERROR. This statement pair requires manual
+review and runtime testing to verify functional equivalency.
+
+================================================================================
+VALIDATION SUMMARY
+================================================================================
+Total Statement Pairs Validated: 5
+Equivalency Status Distribution:
+  - EQUIVALENT: 1 statement (20%)
+  - NOT_EQUIVALENT: 0 statements (0%)
+  - ERROR: 4 statements (80%)
+
+Statements by Source:
+  - EQUIVALENT:
+    * AuthorsController.FindAllAuthorsEmbeddedSql (simple SELECT)
+  
+  - ERROR (UNKNOWN from tool):
+    * AuthorsController.EditUsingStoredProcedure.uspUpdateAuthorPersonalInfo (stored procedure)
+    * AuthorsController.DeleteAuthorEmbeddedSql.uspDeleteAuthor (stored procedure)
+    * AuthorsController.SelectAuthorsByHireYear (complex date functions)
+    * ProductsController.FindAllProducts.uspGetProductData (stored procedure)
+
+Complexity Analysis:
+  - Easy queries: 2 total (1 EQUIVALENT, 1 ERROR)
+  - Medium queries: 2 total (0 EQUIVALENT, 2 ERROR)
+  - Hard queries: 1 total (0 EQUIVALENT, 1 ERROR)
+
+Common Patterns in ERROR Results:
+  1. Stored procedure conversions (T-SQL EXEC → PostgreSQL function call): 3 statements
+  2. Complex date/time function conversions: 1 statement
+  3. All ERROR results were UNKNOWN from the tool, not NOT_EQUIVALENT
+
+Manual Review Required:
+  - 4 statement pairs require manual review and runtime testing
+  - Priority: Verify stored procedure/function definitions exist in PostgreSQL database
+  - Priority: Test date/time function conversions with sample data
+  - Priority: Validate row count returns and result set structures match expected behavior
+
+Tool Limitations Observed:
+  - The SQL Equivalency tool successfully validates simple SELECT statements
+  - The tool returns UNKNOWN for stored procedure conversions (different paradigms: procedures vs functions)
+  - The tool returns UNKNOWN for complex date/time function transformations
+  - These UNKNOWN results do NOT indicate non-equivalency, only that formal verification could not be completed
+
+Recommendations:
+  1. Implement comprehensive integration tests for all stored procedure conversions
+  2. Create test cases with sample data for date/time function conversions
+  3. Verify PostgreSQL function definitions match expected behavior of SQL Server procedures
+  4. Test error handling and edge cases for all converted statements
+  5. Consider manual code review of converted statements marked as ERROR
+
+CRITICAL REMINDER:
+All equivalency determinations came EXCLUSIVELY from the sql-equivalency___validate_sql_equivalence
+tool. NO agent judgment was used to determine equivalency status. This log accurately reflects
+the tool's output without interpretation or modification beyond marking UNKNOWN as ERROR per
+transformation requirements.
+
+================================================================================
