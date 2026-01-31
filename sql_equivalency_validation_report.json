@@ -1,0 +1,87 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 4,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "Update Author Personal Info via Stored Procedure",
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-31T07:32:30.502708\"}",
+      "equivalency_tool_raw_status": "UNKNOWN",
+      "note": "Per transformation definition, UNKNOWN status from equivalency tool is marked as ERROR. Tool could not verify equivalence of stored procedure call transformation."
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "Select All Authors",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-31T07:32:41.850981\"}",
+      "equivalency_tool_raw_status": "EQUIVALENT",
+      "note": "Successfully validated as EQUIVALENT by SQL Equivalency tool using StructuralEquivalenceVerifier."
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "Delete Author via Stored Procedure",
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-31T07:32:53.977086\"}",
+      "equivalency_tool_raw_status": "UNKNOWN",
+      "note": "Per transformation definition, UNKNOWN status from equivalency tool is marked as ERROR. Tool could not verify equivalence of stored procedure call transformation."
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "Select Authors by Hire Year with Age Calculation",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, \n       TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, \n       DATE_PART('year', AGE(NOW(), BirthDate)) AS Age \nFROM bobsbookstore_dbo.author \nWHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-31T07:33:07.749176\"}",
+      "equivalency_tool_raw_status": "UNKNOWN",
+      "note": "Per transformation definition, UNKNOWN status from equivalency tool is marked as ERROR. Tool could not verify equivalence due to complex date function transformations (FORMAT->TO_CHAR, DATEDIFF->DATE_PART/AGE, GETDATE->NOW, DATEPART->EXTRACT)."
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "Get All Product Data via Stored Procedure",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-01-31T08:02:53.868632\"}",
+      "equivalency_tool_raw_status": "UNKNOWN",
+      "note": "Per transformation definition, UNKNOWN status from equivalency tool is marked as ERROR. Tool could not verify equivalence of stored procedure call transformation (EXEC -> SELECT * FROM function())."
+    }
+  ],
+  "summary": {
+    "total_statements": 5,
+    "dms_tool_successful_conversions": 0,
+    "manual_conversions_after_dms_failure": 5,
+    "equivalency_validation_completion": "100%",
+    "equivalency_details": {
+      "formally_verified_as_equivalent": 1,
+      "formally_verified_as_not_equivalent": 0,
+      "verification_errors_or_unknown": 4
+    }
+  },
+  "transformation_compliance": {
+    "all_statements_processed_through_dms": true,
+    "all_statement_pairs_validated_through_equivalency_tool": true,
+    "no_agent_judgment_used_for_equivalency": true,
+    "all_statements_documented": true
+  },
+  "report_metadata": {
+    "report_generation_timestamp": "2026-01-31T08:03:00.000000",
+    "transformation_project": "BobsBookstore SQL Server to PostgreSQL Migration",
+    "schema": "bobsbookstore_dbo",
+    "tables": "author, product",
+    "compliance_note": "Per transformation definition requirements: (1) EVERY SQL statement was processed through DMS MCP tool, (2) EVERY statement pair was validated through SQL Equivalency tool, (3) Equivalency status determined ONLY by tool output (UNKNOWN marked as ERROR), not agent judgment, (4) All statements documented with complete traceability."
+  }
+}
