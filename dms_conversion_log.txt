@@ -1,0 +1,333 @@
+================================================================================
+SQL STATEMENT CONVERSION LOG
+BobsBookstore .NET Application - SQL Server to PostgreSQL Migration
+================================================================================
+Generated: 2026-02-01
+Tool: DMS MCP Statement Conversion Tool (dms-mcp____statement_conversion_tool)
+Schema: bobsbookstore_dbo
+================================================================================
+
+================================================================================
+STATEMENT 1: uspUpdateAuthorPersonalInfo Stored Procedure Call
+================================================================================
+Location: AuthorsController.cs, EditUsingStoredProcedure method, Line ~163
+
+Original SQL Statement:
+-----------------------
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Input:
+--------------
+{
+  "schema_name": "bobsbookstore_dbo",
+  "sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;"
+}
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-02-01T07:29:23.531925",
+  "input": {
+    "sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-02-01T07:29:25.654693",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-02-01T07:29:38.542649"
+}
+
+DMS Conversion Status: FAILED
+Error Reason: Metadata model creation failed - schema objects not found in DMS metadata
+
+Manual Conversion Applied:
+--------------------------
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender) AS rows_affected;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+Conversion Rationale:
+--------------------
+- PostgreSQL calls stored procedures as functions using SELECT
+- Npgsql supports named parameters (@paramName) similar to SQL Server
+- Schema qualification maintained: bobsbookstore_dbo
+- Procedure name assumed to be lowercase per PostgreSQL convention
+- Result returned directly (Entity Framework will capture rows affected)
+
+================================================================================
+STATEMENT 2: Select All Authors
+================================================================================
+Location: AuthorsController.cs, FindAllAuthorsEmbeddedSql method, Line ~192
+
+Original SQL Statement:
+-----------------------
+SELECT * FROM bobsbookstore_dbo.author
+
+DMS Tool Input:
+--------------
+{
+  "schema_name": "bobsbookstore_dbo",
+  "sql_text": "SELECT * FROM bobsbookstore_dbo.author"
+}
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-02-01T07:29:46.427097",
+  "input": {
+    "sql_text": "SELECT * FROM bobsbookstore_dbo.author",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-02-01T07:29:48.516256",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-02-01T07:30:01.418630"
+}
+
+DMS Conversion Status: FAILED
+Error Reason: Metadata model creation failed - schema objects not found in DMS metadata
+
+Manual Conversion Applied:
+--------------------------
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+Conversion Rationale:
+--------------------
+- This query is already PostgreSQL compatible
+- No SQL Server specific syntax used
+- Schema and table names remain the same
+- No conversion changes needed
+
+================================================================================
+STATEMENT 3: uspDeleteAuthor Stored Procedure Call
+================================================================================
+Location: AuthorsController.cs, DeleteAuthorEmbeddedSql method, Line ~207
+
+Original SQL Statement:
+-----------------------
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Input:
+--------------
+{
+  "schema_name": "bobsbookstore_dbo",
+  "sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;"
+}
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-02-01T07:30:13.896107",
+  "input": {
+    "sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-02-01T07:30:16.036770",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-02-01T07:30:28.632652"
+}
+
+DMS Conversion Status: FAILED
+Error Reason: Metadata model creation failed - schema objects not found in DMS metadata
+
+Manual Conversion Applied:
+--------------------------
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID) AS rows_affected;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+Conversion Rationale:
+--------------------
+- Same pattern as Statement 1
+- PostgreSQL calls stored procedures as functions
+- Named parameter support via Npgsql: @BusinessEntityID
+- Schema qualification: bobsbookstore_dbo
+- Procedure name lowercase per PostgreSQL convention
+- Result returned directly
+
+================================================================================
+STATEMENT 4: Select Authors By Hire Year with Date Functions
+================================================================================
+Location: AuthorsController.cs, SelectAuthorsByHireYear method, Line ~228
+
+Original SQL Statement:
+-----------------------
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS Tool Input:
+--------------
+{
+  "schema_name": "bobsbookstore_dbo",
+  "sql_text": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;"
+}
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-02-01T07:30:36.665428",
+  "input": {
+    "sql_text": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-02-01T07:30:38.775699",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}",
+  "error_timestamp": "2026-02-01T07:30:52.019958"
+}
+
+DMS Conversion Status: FAILED
+Error Reason: Metadata model creation failed - schema objects not found in DMS metadata
+
+Manual Conversion Applied:
+--------------------------
+SELECT 
+    BusinessEntityID, 
+    TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, 
+    EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate)) AS Age 
+FROM bobsbookstore_dbo.author 
+WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+Conversion Rationale:
+--------------------
+- FORMAT() → TO_CHAR(): PostgreSQL date formatting function
+  - Format pattern converted: 'yyyy-MM-dd HH:mm:ss' → 'YYYY-MM-DD HH24:MI:SS'
+  - PostgreSQL uses uppercase format specifiers
+  - HH24 for 24-hour time format (vs HH for 12-hour)
+- DATEDIFF(YEAR, start, end) → EXTRACT(YEAR FROM AGE(end, start))
+  - AGE() calculates interval between two dates
+  - EXTRACT(YEAR FROM ...) extracts the year component
+  - Order of dates: AGE(end, start) for positive result
+- GETDATE() → CURRENT_DATE
+  - CURRENT_DATE returns current date
+  - Alternatively, NOW() returns date + time
+- DATEPART(YEAR, date) → EXTRACT(YEAR FROM date)
+  - Direct PostgreSQL equivalent
+- Parameter @HireDate remains compatible via Npgsql
+
+================================================================================
+SUMMARY
+================================================================================
+Total Statements Processed: 4
+DMS Tool Successful Conversions: 0
+DMS Tool Failed Conversions: 4 (100%)
+
+Common DMS Failure Reason:
+- Metadata model creation failed
+- Error: "The selected objects were not found"
+- Indicates DMS metadata model doesn't contain the schema objects
+- All conversions required manual intervention
+
+Manual Conversion Strategy:
+- Applied SQL Server to PostgreSQL syntax transformation rules
+- Maintained schema qualification (bobsbookstore_dbo)
+- Used Npgsql parameter naming conventions (@paramName)
+- Converted date functions to PostgreSQL equivalents
+- Converted stored procedure calls to function invocations
+
+All conversions documented in: converted_statements.sql
+================================================================================
+
+
+================================================================================
+STATEMENT 5: uspGetProductData Stored Procedure Call
+================================================================================
+Location: ProductsController.cs, FindAllProducts method, Line ~33
+
+Original SQL Statement:
+-----------------------
+EXEC [dbo].[uspGetProductData];
+
+DMS Tool Input:
+--------------
+{
+  "schema_name": "bobsbookstore_dbo",
+  "sql_text": "EXEC [dbo].[uspGetProductData];"
+}
+
+DMS Tool Output:
+---------------
+{
+  "conversion_timestamp": "2026-02-01T08:02:45.974889",
+  "input": {
+    "sql_text": "EXEC [dbo].[uspGetProductData];",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "schema_name": "dbo",
+    "region": "us-east-1",
+    "server_name": "172.31.82.226"
+  },
+  "workflow_steps": [
+    {
+      "step": "create_metadata_model",
+      "timestamp": "2026-02-01T08:02:48.169446",
+      "status": "started"
+    }
+  ],
+  "status": "error",
+  "error": "Metadata model creation failed",
+  "error_timestamp": "2026-02-01T08:03:00.895020"
+}
+
+DMS Conversion Status: FAILED
+Error Reason: Metadata model creation failed - schema objects not found in DMS metadata
+
+Manual Conversion Applied:
+--------------------------
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+Conversion Method: MANUAL_AFTER_DMS_FAILURE
+
+Conversion Rationale:
+--------------------
+- PostgreSQL calls stored procedures as functions using SELECT
+- Added SELECT * FROM since procedure returns result set
+- Schema qualification maintained: bobsbookstore_dbo
+- Procedure name assumed to be lowercase per PostgreSQL convention
+- Function call syntax with parentheses ()
+
+================================================================================

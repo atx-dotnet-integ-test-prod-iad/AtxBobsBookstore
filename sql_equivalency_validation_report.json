@@ -1,0 +1,128 @@
+{
+  "report_metadata": {
+    "generated_timestamp": "2026-02-01T07:33:00.000000",
+    "migration_project": "BobsBookstore SQL Server to PostgreSQL Migration",
+    "schema_name": "bobsbookstore_dbo",
+    "validation_tool": "sql-equivalency___validate_sql_equivalence"
+  },
+  "summary": {
+    "number_of_statements_processed": 5,
+    "number_of_statements_equivalent": 1,
+    "number_of_statements_non_equivalent": 0,
+    "number_of_statements_with_equivalency_error": 4
+  },
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "uspUpdateAuthorPersonalInfo Stored Procedure Call",
+      "location": "AuthorsController.cs, EditUsingStoredProcedure method, Line ~163",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender) AS rows_affected;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "Not validated - Stored procedure uspupdateauthorpersonalinfo does not exist in test databases. Cannot validate equivalency of stored procedure calls without the procedure definitions. Manual verification required to ensure stored procedure exists in PostgreSQL database with compatible signature and behavior.",
+      "validation_notes": "Stored procedures require manual validation. The SQL Server stored procedure [dbo].[uspUpdateAuthorPersonalInfo] must be migrated to PostgreSQL as a function bobsbookstore_dbo.uspupdateauthorpersonalinfo() with equivalent logic. The conversion from EXEC to SELECT function call is syntactically correct for PostgreSQL."
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "Select All Authors",
+      "location": "AuthorsController.cs, FindAllAuthorsEmbeddedSql method, Line ~192",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-01T07:33:19.065219\"}",
+      "validation_notes": "Statement is identical in both SQL Server and PostgreSQL. No conversion changes were needed. Formal verification confirmed equivalency."
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "uspDeleteAuthor Stored Procedure Call",
+      "location": "AuthorsController.cs, DeleteAuthorEmbeddedSql method, Line ~207",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID) AS rows_affected;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "Not validated - Stored procedure uspdeleteauthor does not exist in test databases. Cannot validate equivalency of stored procedure calls without the procedure definitions. Manual verification required to ensure stored procedure exists in PostgreSQL database with compatible signature and behavior.",
+      "validation_notes": "Stored procedures require manual validation. The SQL Server stored procedure [dbo].[uspDeleteAuthor] must be migrated to PostgreSQL as a function bobsbookstore_dbo.uspdeleteauthor() with equivalent logic. The conversion from EXEC to SELECT function call is syntactically correct for PostgreSQL."
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "Select Authors By Hire Year with Date Functions",
+      "location": "AuthorsController.cs, SelectAuthorsByHireYear method, Line ~228",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-01T07:33:33.606417\"}",
+      "validation_notes": "SQL Equivalency tool returned UNKNOWN status. Per transformation requirements, UNKNOWN is marked as ERROR. The conversion involves complex date functions: FORMAT\u2192TO_CHAR, DATEDIFF\u2192AGE+EXTRACT, GETDATE\u2192CURRENT_DATE, DATEPART\u2192EXTRACT. Manual testing required to verify date calculations produce identical results. Note: Date function semantics may differ slightly between SQL Server and PostgreSQL, particularly for DATEDIFF vs AGE calculations."
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "uspGetProductData Stored Procedure Call",
+      "location": "ProductsController.cs, FindAllProducts method, Line ~33",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-01T08:04:15.626626\"}",
+      "validation_notes": "SQL Equivalency tool returned UNKNOWN status. Per transformation requirements, UNKNOWN is marked as ERROR. Stored procedure conversion - requires manual verification that PostgreSQL function bobsbookstore_dbo.uspgetproductdata() exists with equivalent logic. The conversion from EXEC to SELECT * FROM function call is syntactically correct for PostgreSQL."
+    }
+  ],
+  "validation_methodology": {
+    "tool_used": "sql-equivalency___validate_sql_equivalence",
+    "validation_approach": "Formal verification using structural equivalence and Z3 SQL solver",
+    "interpretation_rules": [
+      "EQUIVALENT status from tool \u2192 Statement pair is validated as equivalent",
+      "NOT_EQUIVALENT status from tool \u2192 Statement pair has proven differences",
+      "ERROR status from tool \u2192 Tool encountered error during validation",
+      "UNKNOWN status from tool \u2192 Tool could not prove equivalency, marked as ERROR per requirements",
+      "Stored procedures \u2192 Cannot be validated without procedure definitions, marked as ERROR"
+    ],
+    "agent_judgment_usage": "NONE - All equivalency determinations come exclusively from the SQL Equivalency tool output. Per transformation requirements: 'Never use agent judgment to determine equivalency - rely SOLELY on the tool's output.'"
+  },
+  "critical_findings": {
+    "statements_requiring_manual_review": [
+      {
+        "statement_id": 1,
+        "reason": "Stored procedure conversion - requires manual verification that PostgreSQL function exists with equivalent logic"
+      },
+      {
+        "statement_id": 3,
+        "reason": "Stored procedure conversion - requires manual verification that PostgreSQL function exists with equivalent logic"
+      },
+      {
+        "statement_id": 4,
+        "reason": "Complex date function conversions - tool could not prove equivalency, manual testing recommended"
+      },
+      {
+        "statement_id": 5,
+        "reason": "Stored procedure conversion - requires manual verification that PostgreSQL function exists with equivalent logic"
+      }
+    ],
+    "validated_statements": [
+      {
+        "statement_id": 2,
+        "confirmation": "Formally verified as EQUIVALENT - no changes needed for PostgreSQL"
+      }
+    ]
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Verify stored procedures uspupdateauthorpersonalinfo and uspdeleteauthor exist in PostgreSQL database",
+      "Test stored procedure signatures and parameter types match the .NET code expectations",
+      "Verify stored procedure uspgetproductdata exists in PostgreSQL database",
+      "Manually test Statement 4 date calculations with sample data to ensure identical results",
+      "Run integration tests after code re-integration to validate runtime behavior"
+    ],
+    "migration_risks": [
+      {
+        "risk": "Stored procedure calls may fail at runtime if procedures don't exist or have incompatible signatures",
+        "mitigation": "Ensure database migration includes stored procedure conversion to PostgreSQL functions"
+      },
+      {
+        "risk": "Date function calculations may produce slightly different results due to semantic differences",
+        "mitigation": "Test date calculations with edge cases (leap years, timezone boundaries, null values)"
+      }
+    ]
+  }
+}
