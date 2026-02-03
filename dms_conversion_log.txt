@@ -1,0 +1,253 @@
+================================================================================
+DMS MCP Tool Conversion Log
+================================================================================
+Migration Project: SQL Server to PostgreSQL
+Generation Time: 2026-02-03
+Tool: dms-mcp____statement_conversion_tool
+================================================================================
+
+This log documents all attempts to convert SQL statements using the DMS MCP 
+tool, including both successful conversions and failures that required manual 
+intervention.
+
+================================================================================
+STATEMENT 1: Update Author Personal Info using Stored Procedure
+================================================================================
+Source: AuthorsController.cs - EditUsingStoredProcedure (line 155)
+Conversion Attempt Time: 2026-02-03T11:43:42.823751
+
+ORIGINAL SQL:
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;
+SELECT @rowsAffected;
+
+DMS TOOL INPUT PARAMETERS:
+- schema_name: dbo
+- sql_text: [See ORIGINAL SQL above]
+- migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- database_name: BobsBookstore
+- region: us-east-1
+
+DMS TOOL STATUS: ERROR
+DMS TOOL ERROR MESSAGE:
+Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+
+ERROR ANALYSIS:
+The DMS tool failed to create a metadata model because the stored procedure 
+uspUpdateAuthorPersonalInfo was not found in the DMS migration project metadata.
+This indicates that the stored procedure metadata was not available in the DMS 
+service for conversion.
+
+MANUAL CONVERSION REQUIRED: YES
+MANUAL CONVERSION RATIONALE:
+Since DMS tool cannot access the stored procedure metadata, manual conversion 
+is necessary. In PostgreSQL, stored procedures are called as functions. The 
+T-SQL pattern "DECLARE @var; EXEC @var = proc; SELECT @var" should be converted 
+to a PostgreSQL function call using SELECT to capture the return value.
+
+MANUAL POSTGRESQL CONVERSION:
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(
+    @BusinessEntityID, 
+    @NationalIDNumber, 
+    @BirthDate, 
+    @MaritalStatus, 
+    @Gender
+);
+
+CONVERSION NOTES:
+- Changed from DECLARE/EXEC pattern to SELECT function call pattern
+- Schema updated from dbo to bobsbookstore_dbo (per schema mapping)
+- Stored procedure name converted to lowercase (PostgreSQL convention)
+- Parameters remain the same (@parameter syntax compatible with Npgsql)
+- Return value will be the function result directly
+
+================================================================================
+STATEMENT 2: Select All Authors
+================================================================================
+Source: AuthorsController.cs - FindAllAuthorsEmbeddedSql (line 180)
+Conversion Attempt Time: 2026-02-03T11:44:06.706790
+
+ORIGINAL SQL:
+SELECT * FROM bobsbookstore_dbo.author;
+
+DMS TOOL INPUT PARAMETERS:
+- schema_name: bobsbookstore_dbo / dbo (tried both)
+- sql_text: [See ORIGINAL SQL above]
+- migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- database_name: BobsBookstore
+- region: us-east-1
+
+DMS TOOL STATUS: ERROR
+DMS TOOL ERROR MESSAGE:
+Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+
+ERROR ANALYSIS:
+The DMS tool failed to create a metadata model because the author table metadata
+was not found in the DMS migration project. The table may not have been imported
+into the DMS metadata model.
+
+MANUAL CONVERSION REQUIRED: YES (for consistency)
+MANUAL CONVERSION RATIONALE:
+While this SQL is already PostgreSQL-compatible (simple SELECT), we need to 
+ensure schema naming is consistent with the PostgreSQL target. The original 
+statement already uses bobsbookstore_dbo.author which is correct.
+
+MANUAL POSTGRESQL CONVERSION:
+SELECT * FROM bobsbookstore_dbo.author;
+
+CONVERSION NOTES:
+- Statement is already PostgreSQL-compatible
+- Schema name bobsbookstore_dbo is correct per schema mapping
+- No syntax changes needed
+
+================================================================================
+STATEMENT 3: Delete Author using Stored Procedure
+================================================================================
+Source: AuthorsController.cs - DeleteAuthorEmbeddedSql (line 201)
+Conversion Attempt Time: 2026-02-03T11:44:58.127736
+
+ORIGINAL SQL:
+DECLARE @rowsAffected INT;
+EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;
+SELECT @rowsAffected;
+
+DMS TOOL INPUT PARAMETERS:
+- schema_name: dbo
+- sql_text: [See ORIGINAL SQL above]
+- migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- database_name: BobsBookstore
+- region: us-east-1
+
+DMS TOOL STATUS: ERROR
+DMS TOOL ERROR MESSAGE:
+Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+
+ERROR ANALYSIS:
+The DMS tool failed because the stored procedure uspDeleteAuthor was not found 
+in the DMS migration project metadata.
+
+MANUAL CONVERSION REQUIRED: YES
+MANUAL CONVERSION RATIONALE:
+Similar to Statement 1, the T-SQL DECLARE/EXEC pattern needs to be converted to
+PostgreSQL function call syntax. PostgreSQL functions are invoked with SELECT.
+
+MANUAL POSTGRESQL CONVERSION:
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+CONVERSION NOTES:
+- Changed from DECLARE/EXEC pattern to SELECT function call pattern
+- Schema updated from dbo to bobsbookstore_dbo
+- Stored procedure name converted to lowercase
+- Parameter syntax remains compatible with Npgsql
+- Return value will be the function result directly
+
+================================================================================
+STATEMENT 4: Select Authors by Hire Year with Age Calculation
+================================================================================
+Source: AuthorsController.cs - SelectAuthorsByHireYear (line 221)
+Conversion Attempt Time: 2026-02-03T11:45:21.640709
+
+ORIGINAL SQL:
+SELECT BusinessEntityID, 
+       FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, 
+       DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age 
+FROM bobsbookstore_dbo.author 
+WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS TOOL INPUT PARAMETERS:
+- schema_name: dbo
+- sql_text: [Modified to use dbo.author instead of bobsbookstore_dbo.author]
+- migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- database_name: BobsBookstore
+- region: us-east-1
+
+DMS TOOL STATUS: ERROR
+DMS TOOL ERROR MESSAGE:
+Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+
+ERROR ANALYSIS:
+The DMS tool failed to access the author table metadata. This statement requires
+conversion of multiple T-SQL-specific functions to PostgreSQL equivalents.
+
+MANUAL CONVERSION REQUIRED: YES
+MANUAL CONVERSION RATIONALE:
+This statement uses several T-SQL-specific functions that need PostgreSQL equivalents:
+- FORMAT() -> TO_CHAR()
+- DATEDIFF(YEAR, date1, date2) -> DATE_PART('year', AGE(date2, date1))
+- GETDATE() -> CURRENT_DATE or NOW()
+- DATEPART(YEAR, date) -> EXTRACT(YEAR FROM date)
+
+MANUAL POSTGRESQL CONVERSION:
+SELECT BusinessEntityID, 
+       TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, 
+       DATE_PART('year', AGE(CURRENT_DATE, BirthDate)) AS Age 
+FROM bobsbookstore_dbo.author 
+WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+CONVERSION NOTES:
+- FORMAT() converted to TO_CHAR() with PostgreSQL format string
+- Format pattern changed: 'yyyy-MM-dd HH:mm:ss' -> 'YYYY-MM-DD HH24:MI:SS'
+- DATEDIFF(YEAR, ...) converted to DATE_PART('year', AGE(...))
+- GETDATE() converted to CURRENT_DATE
+- DATEPART(YEAR, ...) converted to EXTRACT(YEAR FROM ...)
+- Schema name already correct (bobsbookstore_dbo.author)
+- Parameter syntax remains compatible
+
+================================================================================
+STATEMENT 5: Get All Product Data using Stored Procedure
+================================================================================
+Source: ProductsController.cs - FindAllProducts (line 31)
+Conversion Attempt Time: 2026-02-03T11:45:44.080286
+
+ORIGINAL SQL:
+EXEC [dbo].[uspGetProductData];
+
+DMS TOOL INPUT PARAMETERS:
+- schema_name: dbo
+- sql_text: [See ORIGINAL SQL above]
+- migration_project_identifier: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- database_name: BobsBookstore
+- region: us-east-1
+
+DMS TOOL STATUS: ERROR
+DMS TOOL ERROR MESSAGE:
+Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+
+ERROR ANALYSIS:
+The DMS tool failed because the stored procedure uspGetProductData was not found
+in the DMS migration project metadata.
+
+MANUAL CONVERSION REQUIRED: YES
+MANUAL CONVERSION RATIONALE:
+Simple stored procedure execution needs to be converted to PostgreSQL function
+call syntax using SELECT. The procedure has no parameters.
+
+MANUAL POSTGRESQL CONVERSION:
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+CONVERSION NOTES:
+- Changed from EXEC to SELECT * FROM function() pattern
+- Schema updated from dbo to bobsbookstore_dbo
+- Stored procedure name converted to lowercase
+- Added () for function call syntax
+- Return value will be table result set
+
+================================================================================
+CONVERSION SUMMARY
+================================================================================
+Total Statements Processed: 5
+DMS Tool Successful Conversions: 0
+DMS Tool Failed Conversions: 5
+Manual Conversions Required: 5
+
+All statements failed DMS conversion due to metadata model creation errors.
+The error "The selected objects were not found" indicates that the database
+objects (tables, stored procedures) were not imported into the DMS migration
+project's metadata model, preventing automated conversion.
+
+Manual conversions were applied using PostgreSQL best practices and standard
+T-SQL to PostgreSQL syntax mappings.
+
+================================================================================
+END OF CONVERSION LOG
+================================================================================
