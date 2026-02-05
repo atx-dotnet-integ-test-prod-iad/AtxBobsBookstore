@@ -1,0 +1,102 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 4,
+  "report_generated_date": "2026-02-04T23:44:00Z",
+  "validation_summary": {
+    "total_pairs_validated": 5,
+    "validation_tool_used": "sql-equivalency___validate_sql_equivalence",
+    "validation_method": "formal_verification",
+    "notes": "All statement pairs were validated using the SQL Equivalency MCP tool. UNKNOWN results from the tool are marked as ERROR per transformation definition requirements."
+  },
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "source_file": "AuthorsController.cs",
+      "source_line": 162,
+      "source_method": "EditUsingStoredProcedure",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-04T23:44:01.855067\"}",
+      "validation_notes": "Tool returned UNKNOWN, marked as ERROR per transformation definition. The stored procedure conversion from SQL Server EXEC to PostgreSQL function call could not be formally verified due to complexity of procedural logic."
+    },
+    {
+      "statement_id": 2,
+      "source_file": "AuthorsController.cs",
+      "source_line": 230,
+      "source_method": "SelectAuthorsByHireYear",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-04T23:43:46.756091\"}",
+      "validation_notes": "Tool returned UNKNOWN, marked as ERROR per transformation definition. Complex date/time function conversions (FORMAT to TO_CHAR, DATEDIFF to DATE_PART/AGE, GETDATE to CURRENT_TIMESTAMP, DATEPART to EXTRACT) could not be formally proven equivalent."
+    },
+    {
+      "statement_id": 3,
+      "source_file": "AuthorsController.cs",
+      "source_line": 213,
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-04T23:44:14.107427\"}",
+      "validation_notes": "Tool returned UNKNOWN, marked as ERROR per transformation definition. The stored procedure conversion from SQL Server EXEC to PostgreSQL function call could not be formally verified."
+    },
+    {
+      "statement_id": 4,
+      "source_file": "AuthorsController.cs",
+      "source_line": 189,
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-04T23:43:33.828577\"}",
+      "validation_notes": "Successfully validated as EQUIVALENT by the SQL Equivalency tool. Simple SELECT statement is structurally equivalent between SQL Server and PostgreSQL."
+    },
+    {
+      "statement_id": 5,
+      "source_file": "ProductsController.cs",
+      "source_line": 31,
+      "source_method": "FindAllProducts",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-04T23:44:25.852903\"}",
+      "validation_notes": "Tool returned UNKNOWN, marked as ERROR per transformation definition. The stored procedure conversion from SQL Server EXEC to PostgreSQL function call could not be formally verified."
+    }
+  ],
+  "critical_compliance_notes": [
+    "All 5 statement pairs were processed through the SQL Equivalency MCP tool as required",
+    "No agent judgment was used to determine equivalency - all statuses come directly from the tool output",
+    "UNKNOWN results from the tool were marked as ERROR per transformation definition guidelines",
+    "1 statement (Statement 4) was successfully validated as EQUIVALENT",
+    "4 statements (Statements 1, 2, 3, 5) received UNKNOWN/ERROR status from the validation tool",
+    "All statements with ERROR status require manual review and testing against actual PostgreSQL database"
+  ],
+  "reasons_for_validation_errors": {
+    "stored_procedure_conversions": "Statements 1, 3, and 5 involve stored procedure conversions from SQL Server EXEC to PostgreSQL function calls. The formal verification tool could not prove equivalency due to procedural logic complexity.",
+    "complex_date_functions": "Statement 2 involves multiple date/time function conversions (FORMAT, DATEDIFF, GETDATE, DATEPART) which could not be formally proven equivalent by the tool.",
+    "tool_limitations": "The Z3SqlSolverVerifier stage could not handle the semantic differences between SQL Server stored procedures and PostgreSQL functions, despite these being standard conversion patterns."
+  },
+  "recommendations_for_next_steps": [
+    "Proceed with code integration for Statement 4 (EQUIVALENT status)",
+    "For Statements 1, 2, 3, and 5 (ERROR status): Integrate converted SQL but flag for mandatory testing",
+    "Create comprehensive test suite to validate runtime equivalency for all ERROR-status statements",
+    "Ensure PostgreSQL stored procedures/functions are created with correct signatures before testing",
+    "Manual testing should verify: row counts, return values, data accuracy, and exception handling",
+    "Consider additional validation approaches: unit tests, integration tests, database comparison"
+  ],
+  "exit_criteria_assessment": {
+    "all_statements_validated_through_tool": "MET - All 5 statement pairs processed through SQL Equivalency tool",
+    "equivalency_status_from_tool_only": "MET - No agent judgment used; all statuses from tool output",
+    "no_missing_statement_pairs": "MET - All 5 statements accounted for in report",
+    "complete_tool_output_documented": "MET - Raw tool output included for each statement pair"
+  }
+}

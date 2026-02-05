@@ -1,0 +1,140 @@
+{
+  "conversion_summary": {
+    "total_statements_processed": 5,
+    "successfully_converted_by_dms": 0,
+    "failed_dms_conversions": 5,
+    "manual_conversions_performed": 5,
+    "conversion_date": "2026-02-04T23:40:00Z"
+  },
+  "dms_tool_configuration": {
+    "region": "us-east-1",
+    "schema_name": "bobsbookstore_dbo",
+    "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U",
+    "database_name": "BobsBookstore",
+    "server_name": "172.31.82.226"
+  },
+  "statement_conversions": [
+    {
+      "statement_id": 1,
+      "source_file": "AuthorsController.cs",
+      "source_line": 162,
+      "source_method": "EditUsingStoredProcedure",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_timestamp": "2026-02-04T23:40:15.565935",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_notes": "Converted EXEC stored procedure call to SELECT FROM function. Removed DECLARE statement. Changed [dbo] to bobsbookstore_dbo schema. Procedure name converted to lowercase following PostgreSQL conventions.",
+      "manual_conversion_rationale": "DMS tool failed during metadata model creation. Applied standard SQL Server to PostgreSQL stored procedure conversion pattern."
+    },
+    {
+      "statement_id": 2,
+      "source_file": "AuthorsController.cs",
+      "source_line": 230,
+      "source_method": "SelectAuthorsByHireYear",
+      "original_sql": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_timestamp": "2026-02-04T23:40:28.304028",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "converted_sql": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_notes": "Converted SQL Server date functions to PostgreSQL equivalents: FORMAT()→TO_CHAR(), DATEDIFF()→DATE_PART(AGE()), GETDATE()→CURRENT_TIMESTAMP, DATEPART()→EXTRACT(). Adjusted date format pattern from SQL Server to PostgreSQL syntax.",
+      "manual_conversion_rationale": "DMS tool failed during metadata model creation. Applied standard function mapping for date/time operations between SQL Server and PostgreSQL."
+    },
+    {
+      "statement_id": 3,
+      "source_file": "AuthorsController.cs",
+      "source_line": 213,
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_timestamp": "2026-02-04T23:40:41.214966",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_notes": "Converted EXEC stored procedure call to SELECT FROM function. Removed DECLARE statement. Changed [dbo] to bobsbookstore_dbo schema. Procedure name converted to lowercase.",
+      "manual_conversion_rationale": "DMS tool failed during metadata model creation. Applied standard SQL Server to PostgreSQL stored procedure conversion pattern."
+    },
+    {
+      "statement_id": 4,
+      "source_file": "AuthorsController.cs",
+      "source_line": 189,
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "original_sql": "SELECT * FROM bobsbookstore_dbo.author",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_timestamp": "2026-02-04T23:40:52.204828",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_notes": "Statement is PostgreSQL-compatible. Added semicolon for consistency. No functional changes required.",
+      "manual_conversion_rationale": "DMS tool failed during metadata model creation. Statement required minimal modification as it contains no SQL Server specific syntax."
+    },
+    {
+      "statement_id": 5,
+      "source_file": "ProductsController.cs",
+      "source_line": 31,
+      "source_method": "FindAllProducts",
+      "original_sql": "EXEC [dbo].[uspGetProductData];",
+      "dms_status": "error",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_timestamp": "2026-02-04T23:41:07.374790",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_notes": "Converted EXEC stored procedure call to SELECT FROM function. Changed [dbo] to bobsbookstore_dbo schema. Procedure name converted to lowercase. No parameters required.",
+      "manual_conversion_rationale": "DMS tool failed during metadata model creation. Applied standard SQL Server to PostgreSQL stored procedure conversion pattern."
+    }
+  ],
+  "conversion_patterns_applied": {
+    "stored_procedures": {
+      "from": "EXEC [dbo].[procedure_name] @param1, @param2",
+      "to": "SELECT * FROM bobsbookstore_dbo.procedure_name(@param1, @param2)",
+      "note": "SQL Server stored procedures converted to PostgreSQL function calls"
+    },
+    "date_functions": {
+      "FORMAT": {
+        "from": "FORMAT(date, 'yyyy-MM-dd HH:mm:ss')",
+        "to": "TO_CHAR(date, 'YYYY-MM-DD HH24:MI:SS')",
+        "note": "Date format pattern adjusted for PostgreSQL"
+      },
+      "DATEDIFF": {
+        "from": "DATEDIFF(YEAR, date1, date2)",
+        "to": "DATE_PART('year', AGE(date2, date1))",
+        "note": "DATEDIFF replaced with DATE_PART and AGE combination"
+      },
+      "GETDATE": {
+        "from": "GETDATE()",
+        "to": "CURRENT_TIMESTAMP",
+        "note": "Standard SQL equivalent for current timestamp"
+      },
+      "DATEPART": {
+        "from": "DATEPART(YEAR, date)",
+        "to": "EXTRACT(YEAR FROM date)",
+        "note": "Standard SQL EXTRACT function"
+      }
+    },
+    "schema_mapping": {
+      "from": "[dbo]",
+      "to": "bobsbookstore_dbo",
+      "note": "SQL Server dbo schema mapped to PostgreSQL schema"
+    },
+    "naming_conventions": {
+      "stored_procedures": "Converted to lowercase following PostgreSQL naming conventions",
+      "parameters": "Maintained @ prefix for Npgsql compatibility"
+    }
+  },
+  "requirements_for_deployment": [
+    "All stored procedures must exist in PostgreSQL database as functions returning appropriate types",
+    "Schema bobsbookstore_dbo must exist in PostgreSQL database",
+    "Function signatures must match parameter expectations from .NET code",
+    "Return types must be compatible with Entity Framework Core mapping",
+    "Verify all date/time columns use appropriate PostgreSQL timestamp types"
+  ],
+  "next_steps": [
+    "Validate SQL equivalency for all converted statement pairs using SQL Equivalency tool",
+    "Re-integrate converted statements into C# source code",
+    "Replace SqlParameter with NpgsqlParameter",
+    "Update connection strings for PostgreSQL",
+    "Test all database operations against PostgreSQL database"
+  ]
+}
