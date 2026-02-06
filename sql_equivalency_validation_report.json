@@ -1,0 +1,100 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 2,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 3,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "EditUsingStoredProcedure - Update Author Personal Information",
+      "source_file": "AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-06T23:14:05.156134\"}",
+      "equivalency_notes": "Tool returned UNKNOWN status which is treated as ERROR per transformation definition. The stored procedure call was converted to a direct UPDATE statement. Manual review recommended to ensure functional equivalence."
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "FindAllAuthorsEmbeddedSql - Select All Authors",
+      "source_file": "AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-06T23:14:15.550464\"}",
+      "equivalency_notes": "Statement was already PostgreSQL-compatible. Tool confirmed structural equivalence."
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "DeleteAuthorEmbeddedSql - Delete Author",
+      "source_file": "AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-06T23:14:27.670144\"}",
+      "equivalency_notes": "Tool returned UNKNOWN status which is treated as ERROR per transformation definition. The stored procedure call was converted to a direct DELETE statement. Manual review recommended to ensure functional equivalence."
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "SelectAuthorsByHireYear - Select Authors by Hire Year with Age Calculation",
+      "source_file": "AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "original_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, birthdate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "{\"equivalence_status\": \"EQUIVALENT\", \"result_details\": \"StructuralEquivalenceVerifier stage in formal methods proved equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-06T23:14:40.518076\"}",
+      "equivalency_notes": "Statement already used PostgreSQL functions. Column names corrected to lowercase. Tool confirmed structural equivalence."
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "FindAllProducts - Get All Product Data",
+      "source_file": "ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT productid, name, productnumber, safetystocklevel FROM bobsbookstore_dbo.product",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"UNKNOWN\", \"result_details\": \"Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency\", \"validation_method\": \"formal_verification\", \"timestamp\": \"2026-02-06T23:14:52.033280\"}",
+      "equivalency_notes": "Tool returned UNKNOWN status which is treated as ERROR per transformation definition. The cursor-based stored procedure was converted to a direct SELECT statement. Manual review recommended to ensure functional equivalence."
+    }
+  ],
+  "validation_summary": {
+    "total_pairs_validated": 5,
+    "successful_validations": 2,
+    "failed_validations": 3,
+    "validation_method": "sql-equivalency___validate_sql_equivalence MCP tool",
+    "validation_timestamp": "2026-02-06T23:14:52",
+    "notes": "All statement pairs were validated through the SQL Equivalency MCP tool as required. No agent judgment was used to determine equivalency status. UNKNOWN results from the tool were marked as ERROR per transformation definition requirements. Statements 1, 3, and 5 require manual review due to conversion from stored procedures to direct SQL statements."
+  },
+  "manual_review_required": [
+    {
+      "statement_id": 1,
+      "reason": "Stored procedure converted to UPDATE statement - verify business logic equivalence",
+      "priority": "HIGH"
+    },
+    {
+      "statement_id": 3,
+      "reason": "Stored procedure converted to DELETE statement - verify business logic equivalence",
+      "priority": "HIGH"
+    },
+    {
+      "statement_id": 5,
+      "reason": "Cursor-based stored procedure converted to SELECT statement - verify result set equivalence",
+      "priority": "HIGH"
+    }
+  ],
+  "transformation_compliance": {
+    "all_statements_processed_through_dms": true,
+    "all_statements_validated_through_equivalency_tool": true,
+    "agent_judgment_used_for_equivalency": false,
+    "unknown_treated_as_error": true,
+    "comprehensive_documentation_generated": true
+  }
+}

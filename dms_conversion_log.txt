@@ -1,0 +1,169 @@
+==============================================================================
+DMS CONVERSION LOG
+Microsoft SQL Server to PostgreSQL Statement Conversion
+==============================================================================
+Conversion Date: 2026-02-06
+Migration Project: Bob's Bookstore SQL Statement Migration
+Schema: bobsbookstore_dbo
+DMS Region: us-east-1
+==============================================================================
+
+==============================================================================
+STATEMENT 1: EditUsingStoredProcedure - Update Author Personal Information
+==============================================================================
+Original SQL (T-SQL):
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Invocation:
+- Timestamp: 2026-02-06T23:09:35.016681
+- Status: error
+- Error Message: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+- DMS Output: {"conversion_timestamp": "2026-02-06T23:09:35.016681", "input": {"sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;", "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U", "database_name": "BobsBookstore", "schema_name": "dbo", "region": "us-east-1", "server_name": "172.31.82.226"}, "workflow_steps": [{"step": "create_metadata_model", "timestamp": "2026-02-06T23:09:37.147000", "status": "started"}], "status": "error", "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}", "error_timestamp": "2026-02-06T23:09:39.088598"}
+
+Manual Conversion Applied: YES
+Conversion Rationale:
+The stored procedure uspUpdateAuthorPersonalInfo performs an UPDATE on the Author table.
+In PostgreSQL, since this is called from C# using ExecuteSqlRawAsync, we need to convert
+the T-SQL DECLARE/EXEC syntax to a direct PostgreSQL function call or inline SQL.
+The stored procedure logic: UPDATE Author SET fields WHERE BusinessEntityID matches.
+PostgreSQL equivalent uses direct UPDATE statement with RETURNING clause for row count.
+
+Converted SQL (PostgreSQL):
+UPDATE bobsbookstore_dbo.author SET nationalidnumber = @NationalIDNumber, birthdate = @BirthDate, maritalstatus = @MaritalStatus, gender = @Gender WHERE businessentityid = @BusinessEntityID
+
+Conversion Notes:
+- Removed T-SQL DECLARE/EXEC syntax (not compatible with PostgreSQL via ExecuteSqlRawAsync)
+- Converted [dbo].[Author] to bobsbookstore_dbo.author (lowercase, PostgreSQL schema)
+- All column names converted to lowercase per PostgreSQL schema mapping
+- Parameters remain with @ prefix (Npgsql handles this)
+- Row count will be returned by ExecuteSqlRawAsync method automatically
+
+==============================================================================
+STATEMENT 2: FindAllAuthorsEmbeddedSql - Select All Authors
+==============================================================================
+Original SQL (T-SQL):
+SELECT * FROM bobsbookstore_dbo.author
+
+DMS Tool Invocation:
+- Timestamp: 2026-02-06T23:09:48.054636
+- Status: error
+- Error Message: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+- DMS Output: {"conversion_timestamp": "2026-02-06T23:09:48.054636", "input": {"sql_text": "SELECT * FROM bobsbookstore_dbo.author", "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U", "database_name": "BobsBookstore", "schema_name": "dbo", "region": "us-east-1", "server_name": "172.31.82.226"}, "workflow_steps": [{"step": "create_metadata_model", "timestamp": "2026-02-06T23:09:50.273388", "status": "started"}], "status": "error", "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}", "error_timestamp": "2026-02-06T23:09:52.176087"}
+
+Manual Conversion Applied: NO (Statement already PostgreSQL-compatible)
+Conversion Rationale:
+This statement is already using PostgreSQL-compatible syntax. The table name 
+bobsbookstore_dbo.author matches the PostgreSQL schema exactly. No conversion needed.
+
+Converted SQL (PostgreSQL):
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Notes:
+- Statement is already PostgreSQL-compatible
+- Schema and table names match PostgreSQL configuration in ApplicationDbContext.cs
+- No changes required
+
+==============================================================================
+STATEMENT 3: DeleteAuthorEmbeddedSql - Delete Author
+==============================================================================
+Original SQL (T-SQL):
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Invocation:
+- Timestamp: 2026-02-06T23:09:59.868391
+- Status: error
+- Error Message: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+- DMS Output: {"conversion_timestamp": "2026-02-06T23:09:59.868391", "input": {"sql_text": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;", "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U", "database_name": "BobsBookstore", "schema_name": "dbo", "region": "us-east-1", "server_name": "172.31.82.226"}, "workflow_steps": [{"step": "create_metadata_model", "timestamp": "2026-02-06T23:10:02.043633", "status": "started"}], "status": "error", "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}", "error_timestamp": "2026-02-06T23:10:04.157404"}
+
+Manual Conversion Applied: YES
+Conversion Rationale:
+The stored procedure uspDeleteAuthor performs a DELETE on the Author table.
+In PostgreSQL, since this is called from C# using ExecuteSqlRawAsync, we need to convert
+the T-SQL DECLARE/EXEC syntax to a direct DELETE statement.
+The stored procedure logic: DELETE FROM Author WHERE BusinessEntityID matches.
+
+Converted SQL (PostgreSQL):
+DELETE FROM bobsbookstore_dbo.author WHERE businessentityid = @BusinessEntityID
+
+Conversion Notes:
+- Removed T-SQL DECLARE/EXEC syntax (not compatible with PostgreSQL via ExecuteSqlRawAsync)
+- Converted [dbo].[Author] to bobsbookstore_dbo.author (lowercase, PostgreSQL schema)
+- Column name converted to lowercase per PostgreSQL schema mapping
+- Parameters remain with @ prefix (Npgsql handles this)
+- Row count will be returned by ExecuteSqlRawAsync method automatically
+
+==============================================================================
+STATEMENT 4: SelectAuthorsByHireYear - Select Authors by Hire Year with Age
+==============================================================================
+Original SQL (Already PostgreSQL):
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+DMS Tool Invocation:
+- Timestamp: 2026-02-06T23:10:12.046468
+- Status: error
+- Error Message: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+- DMS Output: {"conversion_timestamp": "2026-02-06T23:10:12.046468", "input": {"sql_text": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;", "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U", "database_name": "BobsBookstore", "schema_name": "dbo", "region": "us-east-1", "server_name": "172.31.82.226"}, "workflow_steps": [{"step": "create_metadata_model", "timestamp": "2026-02-06T23:10:14.150568", "status": "started"}], "status": "error", "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}", "error_timestamp": "2026-02-06T23:10:16.056126"}
+
+Manual Conversion Applied: YES (Column name case correction)
+Conversion Rationale:
+This statement already uses PostgreSQL-specific functions (TO_CHAR, EXTRACT, AGE).
+However, column names need to be corrected to match PostgreSQL schema (lowercase).
+The ApplicationDbContext maps all column names to lowercase.
+
+Converted SQL (PostgreSQL):
+SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, birthdate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+Conversion Notes:
+- Statement already uses PostgreSQL functions (TO_CHAR, EXTRACT, AGE)
+- Column names corrected to lowercase: BusinessEntityID -> businessentityid, ModifiedDate -> modifieddate, BirthDate -> birthdate, HireDate -> hiredate
+- Schema and table name already correct (bobsbookstore_dbo.author)
+- Parameter syntax with @ prefix compatible with Npgsql
+
+==============================================================================
+STATEMENT 5: FindAllProducts - Get All Product Data
+==============================================================================
+Original SQL (T-SQL):
+EXEC [dbo].[uspGetProductData];
+
+DMS Tool Invocation:
+- Timestamp: 2026-02-06T23:10:23.861236
+- Status: error
+- Error Message: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+- DMS Output: {"conversion_timestamp": "2026-02-06T23:10:23.861236", "input": {"sql_text": "EXEC [dbo].[uspGetProductData];", "migration_project_identifier": "arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U", "database_name": "BobsBookstore", "schema_name": "dbo", "region": "us-east-1", "server_name": "172.31.82.226"}, "workflow_steps": [{"step": "create_metadata_model", "timestamp": "2026-02-06T23:10:26.015366", "status": "started"}], "status": "error", "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}", "error_timestamp": "2026-02-06T23:10:27.770625"}
+
+Manual Conversion Applied: YES
+Conversion Rationale:
+The stored procedure uspGetProductData uses SQL Server cursor syntax (OUTPUT cursor parameter)
+which is not compatible with PostgreSQL or with SqlQueryRaw/ExecuteSqlRawAsync in Entity Framework.
+The stored procedure returns: ProductID, Name, ProductNumber, SafetyStockLevel from dbo.Product.
+PostgreSQL equivalent is a direct SELECT statement.
+
+Converted SQL (PostgreSQL):
+SELECT productid, name, productnumber, safetystocklevel FROM bobsbookstore_dbo.product
+
+Conversion Notes:
+- Removed T-SQL EXEC syntax and cursor-based stored procedure call
+- Converted to direct SELECT statement returning the same columns
+- Converted [dbo].[Product] to bobsbookstore_dbo.product (lowercase, PostgreSQL schema)
+- All column names converted to lowercase per PostgreSQL schema mapping
+- This is compatible with SqlQueryRaw<Product> in Entity Framework Core
+
+==============================================================================
+CONVERSION SUMMARY
+==============================================================================
+Total Statements Processed: 5
+DMS Tool Status: All statements returned error (Metadata model creation failed)
+Manual Conversions Applied: 4 (Statements 1, 3, 4, 5)
+Already Compatible: 1 (Statement 2)
+
+All statements were first attempted through DMS MCP tool as required.
+Due to DMS tool infrastructure errors, manual conversions were applied based on:
+- SQL Server stored procedure definitions from adven.sql
+- PostgreSQL schema mapping from ApplicationDbContext.cs
+- Best practices for PostgreSQL syntax conversion
+- Entity Framework Core compatibility requirements
+
+Schema Naming Convention Applied:
+- SQL Server: [dbo].[TableName] with PascalCase columns
+- PostgreSQL: bobsbookstore_dbo.tablename with lowercase columns
+==============================================================================
