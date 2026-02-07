@@ -1,0 +1,141 @@
+=============================================================================
+DMS MCP TOOL CONVERSION LOG
+Microsoft SQL Server to PostgreSQL Migration
+Date: 2026-02-07
+=============================================================================
+This file documents all DMS tool failures and manual conversions applied
+=============================================================================
+
+=============================================================================
+STATEMENT 1: Update Author Personal Info (Stored Procedure Call)
+=============================================================================
+Original Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Error:
+{
+  "conversion_timestamp": "2026-02-07T19:20:28.120516",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+  "error_timestamp": "2026-02-07T19:20:32.423932"
+}
+
+Manual Conversion Applied:
+SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo($1, $2, $3, $4, $5) AS rows_affected;
+
+Conversion Notes:
+- Replaced DECLARE/EXEC/SELECT pattern with direct function call
+- In PostgreSQL, stored procedures become functions that can be called with SELECT
+- Changed parameter syntax from @ParamName to $1, $2, etc. (positional parameters)
+- Schema qualifier updated to bobsbookstore_dbo
+- Return value captured via AS clause instead of OUTPUT parameter
+
+=============================================================================
+STATEMENT 2: Select All Authors (Simple SELECT)
+=============================================================================
+Original Statement:
+SELECT * FROM bobsbookstore_dbo.author
+
+DMS Tool Error:
+{
+  "conversion_timestamp": "2026-02-07T19:20:40.416312",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+  "error_timestamp": "2026-02-07T19:20:44.333909"
+}
+
+Manual Conversion Applied:
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Notes:
+- This statement is already PostgreSQL compatible
+- No changes needed as it uses standard SQL syntax
+- Schema qualifier remains bobsbookstore_dbo
+
+=============================================================================
+STATEMENT 3: Delete Author (Stored Procedure Call)
+=============================================================================
+Original Statement:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Error:
+{
+  "conversion_timestamp": "2026-02-07T19:20:54.359662",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+  "error_timestamp": "2026-02-07T19:20:58.181544"
+}
+
+Manual Conversion Applied:
+SELECT bobsbookstore_dbo.uspDeleteAuthor($1) AS rows_affected;
+
+Conversion Notes:
+- Replaced DECLARE/EXEC/SELECT pattern with direct function call
+- Changed parameter syntax from @BusinessEntityID to $1 (positional parameter)
+- Schema qualifier updated to bobsbookstore_dbo
+- Return value captured via AS clause
+
+=============================================================================
+STATEMENT 4: Select Authors By Hire Year with Complex Functions
+=============================================================================
+Original Statement:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS Tool Error:
+{
+  "conversion_timestamp": "2026-02-07T19:20:59.061475",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+  "error_timestamp": "2026-02-07T19:21:03.005284"
+}
+
+Manual Conversion Applied:
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_DATE, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = $1;
+
+Conversion Notes:
+- FORMAT() -> TO_CHAR() with PostgreSQL date format codes (YYYY-MM-DD HH24:MI:SS)
+- DATEDIFF(YEAR, BirthDate, GETDATE()) -> DATE_PART('year', AGE(CURRENT_DATE, BirthDate))
+- GETDATE() -> CURRENT_DATE
+- DATEPART(YEAR, HireDate) -> EXTRACT(YEAR FROM HireDate)
+- @HireDate -> $1 (positional parameter)
+- Schema qualifier remains bobsbookstore_dbo
+
+=============================================================================
+STATEMENT 5: Get All Products (Stored Procedure Call)
+=============================================================================
+Original Statement:
+EXEC [dbo].[uspGetProductData];
+
+DMS Tool Error:
+{
+  "conversion_timestamp": "2026-02-07T19:21:03.873707",
+  "status": "error",
+  "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+  "error_timestamp": "2026-02-07T19:21:08.079281"
+}
+
+Manual Conversion Applied:
+SELECT * FROM bobsbookstore_dbo.uspGetProductData();
+
+Conversion Notes:
+- Replaced EXEC with SELECT * FROM function_name()
+- Schema qualifier updated to bobsbookstore_dbo
+- Added () to indicate function call with no parameters
+
+=============================================================================
+SUMMARY
+=============================================================================
+Total Statements Processed: 5
+DMS Tool Successes: 0
+DMS Tool Failures: 5 (all due to metadata model creation error)
+Manual Conversions Applied: 5
+
+Common Error Pattern:
+All DMS tool invocations failed with the same error:
+"Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}"
+
+This indicates a systemic issue with the DMS metadata model creation process,
+requiring manual conversion of all statements using standard SQL Server to 
+PostgreSQL migration patterns.
+
+=============================================================================
