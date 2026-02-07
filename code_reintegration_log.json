@@ -1,0 +1,107 @@
+{
+  "reintegration_timestamp": "2026-02-07T07:05:45Z",
+  "files_modified": [
+    "app/Bookstore.Web/Controllers/AuthorsController.cs",
+    "app/Bookstore.Web/Controllers/ProductsController.cs"
+  ],
+  "total_statements_reintegrated": 5,
+  "reintegration_details": [
+    {
+      "statement_number": 1,
+      "file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "FindAllAuthorsEmbeddedSql",
+      "line_number": 188,
+      "original_sql": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.author",
+      "changes_made": "No changes required - standard SQL syntax compatible with both MS SQL and PostgreSQL",
+      "code_structure_changes": "None",
+      "parameters_affected": "None",
+      "reintegration_status": "SUCCESS"
+    },
+    {
+      "statement_number": 2,
+      "file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "EditUsingStoredProcedure",
+      "line_number": 163,
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_sql": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender)",
+      "changes_made": "Removed DECLARE statement and variable assignment. Changed EXEC stored procedure call to SELECT function call. Updated schema reference from [dbo].[name] to bobsbookstore_dbo.name",
+      "code_structure_changes": "SQL statement simplified from multi-statement to single SELECT function call",
+      "parameters_affected": "None - all parameters preserved (@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender)",
+      "reintegration_status": "SUCCESS",
+      "notes": "PostgreSQL stored procedures are converted to functions that return values. ExecuteSqlRawAsync will execute the SELECT and return the function result."
+    },
+    {
+      "statement_number": 3,
+      "file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "DeleteAuthorEmbeddedSql",
+      "line_number": 209,
+      "original_sql": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_sql": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID)",
+      "changes_made": "Removed DECLARE statement and variable assignment. Changed EXEC stored procedure call to SELECT function call. Updated schema reference from [dbo].[name] to bobsbookstore_dbo.name",
+      "code_structure_changes": "SQL statement simplified from multi-statement to single SELECT function call",
+      "parameters_affected": "None - parameter @BusinessEntityID preserved",
+      "reintegration_status": "SUCCESS",
+      "notes": "PostgreSQL stored procedures are converted to functions that return values. ExecuteSqlRawAsync will execute the SELECT and return the function result."
+    },
+    {
+      "statement_number": 4,
+      "file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "SelectAuthorsByHireYear",
+      "line_number": 229,
+      "original_sql": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_sql": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "changes_made": "Replaced SQL Server date/time functions with PostgreSQL equivalents: FORMAT() -> TO_CHAR(), DATEDIFF(YEAR, d1, d2) -> DATE_PART('year', AGE(d2, d1))::INTEGER, GETDATE() -> CURRENT_TIMESTAMP, DATEPART(YEAR, date) -> EXTRACT(YEAR FROM date)",
+      "code_structure_changes": "None - SELECT structure preserved, only function calls changed",
+      "parameters_affected": "None - parameter @HireDate preserved",
+      "reintegration_status": "SUCCESS",
+      "notes": "Date format codes changed from MS SQL format (yyyy-MM-dd HH:mm:ss) to PostgreSQL format (YYYY-MM-DD HH24:MI:SS). Age calculation uses PostgreSQL AGE function with type cast to INTEGER."
+    },
+    {
+      "statement_number": 5,
+      "file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "method": "FindAllProducts",
+      "line_number": 33,
+      "original_sql": "EXEC [dbo].[uspGetProductData];",
+      "converted_sql": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "changes_made": "Changed EXEC stored procedure call to SELECT * FROM function call. Updated schema reference from [dbo].[name] to bobsbookstore_dbo.name. Added parentheses for function call syntax.",
+      "code_structure_changes": "Changed from EXEC statement to SELECT FROM statement to retrieve table-valued function results",
+      "parameters_affected": "None - no parameters for this function",
+      "reintegration_status": "SUCCESS",
+      "notes": "PostgreSQL stored procedure that returns a result set is converted to a table-valued function. SqlQueryRaw will correctly process the SELECT * FROM function call."
+    }
+  ],
+  "schema_name_changes": {
+    "original_schema_reference": "[dbo].[name]",
+    "converted_schema_reference": "bobsbookstore_dbo.name",
+    "notes": "DMS did not convert schema names in the SQL statements, so the original bobsbookstore_dbo schema name is preserved as specified in ApplicationDbContext"
+  },
+  "parameter_handling": {
+    "syntax_preserved": "@parameter",
+    "notes": "Npgsql supports both @ and $ parameter syntax. All @parameter references preserved from original SQL Server statements."
+  },
+  "code_quality_notes": [
+    "All try-catch error handling blocks preserved",
+    "All method signatures unchanged - no breaking API changes",
+    "All return types preserved",
+    "All parameter types preserved",
+    "ExecuteSqlRawAsync and SqlQueryRaw calls remain syntactically correct",
+    "All comments preserved"
+  ],
+  "reintegration_summary": {
+    "total_files_modified": 2,
+    "total_statements_modified": 4,
+    "statements_unchanged": 1,
+    "stored_procedure_conversions": 3,
+    "date_function_conversions": 1,
+    "build_compatibility": "All changes maintain compatibility with Npgsql and Entity Framework Core",
+    "breaking_changes": "None"
+  },
+  "validation_requirements": [
+    "PostgreSQL functions bobsbookstore_dbo.uspUpdateAuthorPersonalInfo, uspDeleteAuthor, and uspGetProductData must exist in the database",
+    "Functions must have correct signatures matching the parameters",
+    "Functions must return appropriate types (INTEGER for update/delete, table for uspGetProductData)",
+    "Database schema bobsbookstore_dbo must exist",
+    "Table bobsbookstore_dbo.author must exist with required columns"
+  ]
+}

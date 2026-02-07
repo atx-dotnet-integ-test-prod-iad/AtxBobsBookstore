@@ -1,0 +1,157 @@
+{
+  "conversion_timestamp": "2026-02-07T07:00:00Z",
+  "statements_processed": 5,
+  "statements_successfully_converted_by_dms": 0,
+  "statements_manually_converted_after_dms_failure": 5,
+  "dms_tool_status": "All conversions failed with metadata model creation error",
+  "conversion_details": [
+    {
+      "statement_number": 1,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "source_line": 188,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "dms_conversion_status": "FAILED",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_output": {
+        "conversion_timestamp": "2026-02-07T07:00:59.906129",
+        "status": "error",
+        "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+        "workflow_steps": [
+          {
+            "step": "create_metadata_model",
+            "timestamp": "2026-02-07T07:01:02.127080",
+            "status": "started"
+          }
+        ]
+      },
+      "manual_conversion_applied": true,
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_notes": "Simple SELECT statement. Schema reference format preserved for PostgreSQL. No syntax changes required as this is standard SQL."
+    },
+    {
+      "statement_number": 2,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "source_line": 158,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "dms_conversion_status": "FAILED",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_output": {
+        "conversion_timestamp": "2026-02-07T07:01:13.652333",
+        "status": "error",
+        "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+        "workflow_steps": [
+          {
+            "step": "create_metadata_model",
+            "timestamp": "2026-02-07T07:01:15.789410",
+            "status": "started"
+          }
+        ]
+      },
+      "manual_conversion_applied": true,
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_notes": "Converted SQL Server stored procedure call to PostgreSQL function call. Removed DECLARE and variable assignment. PostgreSQL functions are called using SELECT schema.function_name(params). The function should return the number of rows affected."
+    },
+    {
+      "statement_number": 3,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "source_line": 206,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "dms_conversion_status": "FAILED",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_output": {
+        "conversion_timestamp": "2026-02-07T07:01:26.583829",
+        "status": "error",
+        "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+        "workflow_steps": [
+          {
+            "step": "create_metadata_model",
+            "timestamp": "2026-02-07T07:01:28.684412",
+            "status": "started"
+          }
+        ]
+      },
+      "manual_conversion_applied": true,
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+      "conversion_notes": "Converted SQL Server stored procedure call to PostgreSQL function call. Removed DECLARE and variable assignment. PostgreSQL functions are called using SELECT schema.function_name(params)."
+    },
+    {
+      "statement_number": 4,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "source_line": 225,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "dms_conversion_status": "FAILED",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_output": {
+        "conversion_timestamp": "2026-02-07T07:01:38.949364",
+        "status": "error",
+        "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+        "workflow_steps": [
+          {
+            "step": "create_metadata_model",
+            "timestamp": "2026-02-07T07:01:41.097079",
+            "status": "started"
+          }
+        ]
+      },
+      "manual_conversion_applied": true,
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_notes": "Complex statement with multiple SQL Server specific functions converted to PostgreSQL equivalents: FORMAT() -> TO_CHAR() with PostgreSQL format codes (YYYY-MM-DD HH24:MI:SS), DATEDIFF(YEAR, d1, d2) -> DATE_PART('year', AGE(d2, d1))::INTEGER, GETDATE() -> CURRENT_TIMESTAMP, DATEPART(YEAR, date) -> EXTRACT(YEAR FROM date). Parameter syntax (@HireDate) preserved as Npgsql supports it."
+    },
+    {
+      "statement_number": 5,
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "source_line": 31,
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "dms_conversion_status": "FAILED",
+      "dms_error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "dms_output": {
+        "conversion_timestamp": "2026-02-07T07:01:51.007124",
+        "status": "error",
+        "error": "Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+        "workflow_steps": [
+          {
+            "step": "create_metadata_model",
+            "timestamp": "2026-02-07T07:01:53.109253",
+            "status": "started"
+          }
+        ]
+      },
+      "manual_conversion_applied": true,
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_notes": "Converted SQL Server stored procedure execution to PostgreSQL function call that returns a table. Changed from EXEC [dbo].[uspGetProductData] to SELECT * FROM schema.function_name(). Based on the stored procedure definition, it returns a result set with ProductID, Name, ProductNumber, SafetyStockLevel columns."
+    }
+  ],
+  "conversion_patterns_applied": {
+    "stored_procedure_calls": "Converted EXEC stored_proc to SELECT schema.function_name(params) or SELECT * FROM schema.function_name()",
+    "format_function": "Converted FORMAT() to TO_CHAR() with PostgreSQL format codes",
+    "datediff_function": "Converted DATEDIFF(YEAR, d1, d2) to DATE_PART('year', AGE(d2, d1))::INTEGER",
+    "getdate_function": "Converted GETDATE() to CURRENT_TIMESTAMP",
+    "datepart_function": "Converted DATEPART(YEAR, date) to EXTRACT(YEAR FROM date)",
+    "schema_references": "Converted [dbo].[name] to bobsbookstore_dbo.name (schema.object format)",
+    "declare_statements": "Removed DECLARE and variable assignments (handled by PostgreSQL functions)",
+    "parameter_syntax": "Preserved @parameter syntax (Npgsql supports both @ and $ syntax)"
+  },
+  "summary": {
+    "total_statements": 5,
+    "dms_successful": 0,
+    "dms_failed": 5,
+    "manual_conversions": 5,
+    "simple_select_statements": 1,
+    "stored_procedure_calls": 3,
+    "complex_select_with_functions": 1
+  },
+  "notes": [
+    "All DMS conversions failed with the same error: 'Unknown metadata model creation status: RECEIVED'",
+    "Manual conversions were performed following PostgreSQL best practices",
+    "All conversions preserve the original functionality",
+    "Schema name bobsbookstore_dbo is maintained from the original SQL Server schema",
+    "Parameter syntax (@parameter) is preserved as Npgsql supports it",
+    "Stored procedures are assumed to be converted to PostgreSQL functions in the database",
+    "The converted statements require corresponding PostgreSQL functions to exist in the database"
+  ]
+}

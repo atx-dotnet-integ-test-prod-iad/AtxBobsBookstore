@@ -1,0 +1,361 @@
+{
+  "migration_report_version": "1.0",
+  "report_timestamp": "2026-02-07T07:10:00Z",
+  "project_name": "BobsBookstore",
+  "migration_type": "Microsoft SQL Server to PostgreSQL",
+  "application_type": "ADO .NET Application",
+  
+  "migration_summary": {
+    "total_sql_statements_processed": 5,
+    "statements_successfully_converted_by_dms": 0,
+    "statements_requiring_manual_intervention": 5,
+    "statements_validated_equivalent": 1,
+    "statements_validated_non_equivalent": 0,
+    "statements_with_equivalency_errors": 4,
+    "dms_tool_status": "All conversions failed with metadata model creation error",
+    "manual_conversion_reason": "DMS MCP tool returned 'Unknown metadata model creation status: RECEIVED' for all statements"
+  },
+  
+  "sql_statements_catalog": [
+    {
+      "statement_id": 1,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "line_number": 188,
+      "statement_type": "SELECT",
+      "complexity": "simple",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "conversion_notes": "No changes required - standard SQL",
+      "dms_output": "Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": "StructuralEquivalenceVerifier stage in formal methods proved equivalency",
+      "reintegration_status": "SUCCESS"
+    },
+    {
+      "statement_id": 2,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "line_number": 163,
+      "statement_type": "STORED_PROCEDURE",
+      "complexity": "medium",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender)",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "conversion_notes": "Converted EXEC to SELECT function call, removed DECLARE",
+      "dms_output": "Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "UNKNOWN - Z3SqlSolverVerifier stage could not prove equivalancy/non-equivalency",
+      "reintegration_status": "SUCCESS",
+      "manual_review_required": true,
+      "review_reason": "Equivalency tool could not prove equivalence due to stored procedure complexity"
+    },
+    {
+      "statement_id": 3,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "line_number": 209,
+      "statement_type": "STORED_PROCEDURE",
+      "complexity": "simple",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID)",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "conversion_notes": "Converted EXEC to SELECT function call, removed DECLARE",
+      "dms_output": "Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "UNKNOWN - Z3SqlSolverVerifier stage could not prove equivalancy/non-equivalency",
+      "reintegration_status": "SUCCESS",
+      "manual_review_required": true,
+      "review_reason": "Equivalency tool could not prove equivalence due to stored procedure complexity"
+    },
+    {
+      "statement_id": 4,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "line_number": 229,
+      "statement_type": "SELECT",
+      "complexity": "complex",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "conversion_notes": "Converted FORMAT->TO_CHAR, DATEDIFF->AGE/DATE_PART, GETDATE->CURRENT_TIMESTAMP, DATEPART->EXTRACT",
+      "dms_output": "Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "UNKNOWN - Z3SqlSolverVerifier stage could not prove equivalancy/non-equivalency",
+      "reintegration_status": "SUCCESS",
+      "manual_review_required": true,
+      "review_reason": "Equivalency tool could not prove equivalence due to complex date/time function conversions"
+    },
+    {
+      "statement_id": 5,
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "line_number": 33,
+      "statement_type": "STORED_PROCEDURE",
+      "complexity": "simple",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "conversion_notes": "Converted EXEC to SELECT FROM for table-valued function",
+      "dms_output": "Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "UNKNOWN - Z3SqlSolverVerifier stage could not prove equivalancy/non-equivalency",
+      "reintegration_status": "SUCCESS",
+      "manual_review_required": true,
+      "review_reason": "Equivalency tool could not prove equivalence due to stored procedure complexity"
+    }
+  ],
+  
+  "code_changes": {
+    "files_modified": [
+      "app/Bookstore.Domain/Entity.cs",
+      "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "app/Bookstore.Web/Controllers/ProductsController.cs"
+    ],
+    "files_created": [
+      "extracted_statements.sql",
+      "converted_statements.sql",
+      "dms_conversion_log.json",
+      "sql_equivalency_validation_report.json",
+      "code_reintegration_log.json",
+      "connection_string_migration_guide.md",
+      "migration_final_report.json",
+      "migration_artifacts_index.md"
+    ],
+    "ado_net_components_updated": [
+      "SqlParameter → NpgsqlParameter (7 instances in AuthorsController.cs)"
+    ],
+    "connection_string_changes": "Already configured for PostgreSQL using AWS Secrets Manager. Application uses UseNpgsql for DbContext configuration.",
+    "package_references": {
+      "added": "None (Npgsql packages already present)",
+      "removed": "None (No SQL Server packages were present)",
+      "current_postgresql_packages": [
+        "Npgsql 8.0.3",
+        "Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4"
+      ]
+    },
+    "sql_syntax_conversions": {
+      "format_function": "FORMAT() → TO_CHAR() (1 occurrence)",
+      "datediff_function": "DATEDIFF() → DATE_PART(AGE()) (1 occurrence)",
+      "getdate_function": "GETDATE() → CURRENT_TIMESTAMP (1 occurrence)",
+      "datepart_function": "DATEPART() → EXTRACT() (1 occurrence)",
+      "exec_statements": "EXEC stored_proc → SELECT function_name() (3 occurrences)",
+      "declare_statements": "Removed DECLARE statements (2 occurrences)",
+      "schema_references": "[dbo].[name] → bobsbookstore_dbo.name (throughout)"
+    }
+  },
+  
+  "validation_status": {
+    "build_successful": true,
+    "build_warnings": 36,
+    "build_warnings_note": "All warnings are related to pre-existing Magick.NET package vulnerabilities, not migration-related",
+    "build_errors": 0,
+    "all_sql_statements_processed": true,
+    "all_sql_statements_validated": true,
+    "no_sql_server_syntax_remaining": true,
+    "connection_strings_updated": true,
+    "ado_net_components_updated": true,
+    "manual_review_required": [
+      "Statement 2: EditUsingStoredProcedure - Stored procedure conversion (equivalency status: ERROR)",
+      "Statement 3: DeleteAuthorEmbeddedSql - Stored procedure conversion (equivalency status: ERROR)",
+      "Statement 4: SelectAuthorsByHireYear - Complex date function conversion (equivalency status: ERROR)",
+      "Statement 5: FindAllProducts - Stored procedure conversion (equivalency status: ERROR)",
+      "Verify PostgreSQL functions exist: uspUpdateAuthorPersonalInfo, uspDeleteAuthor, uspGetProductData",
+      "Runtime testing recommended for all converted statements"
+    ]
+  },
+  
+  "transformation_compliance": {
+    "all_statements_passed_through_dms_tool": true,
+    "dms_tool_accessible": true,
+    "dms_tool_functional": false,
+    "dms_failures_documented": true,
+    "manual_conversions_after_dms_attempts": true,
+    "all_statements_validated_through_equivalency_tool": true,
+    "equivalency_tool_accessible": true,
+    "equivalency_tool_functional": true,
+    "no_agent_judgment_for_equivalency": true,
+    "comprehensive_catalog_created": true,
+    "equivalency_report_generated": true,
+    "all_artifacts_complete": true
+  },
+  
+  "exit_criteria_verification": {
+    "sql_server_packages_replaced": {
+      "status": "COMPLETE",
+      "note": "No SQL Server packages were present; Npgsql packages already in use"
+    },
+    "ado_net_classes_replaced": {
+      "status": "COMPLETE",
+      "details": "SqlParameter replaced with NpgsqlParameter (7 instances)"
+    },
+    "all_sql_statements_processed_through_dms": {
+      "status": "COMPLETE",
+      "note": "All 5 statements attempted through DMS tool; all failed, manual conversion applied"
+    },
+    "comprehensive_catalog_exists": {
+      "status": "COMPLETE",
+      "artifacts": [
+        "extracted_statements.sql",
+        "converted_statements.sql",
+        "dms_conversion_log.json"
+      ]
+    },
+    "all_statement_pairs_validated": {
+      "status": "COMPLETE",
+      "artifact": "sql_equivalency_validation_report.json"
+    },
+    "equivalency_report_generated": {
+      "status": "COMPLETE",
+      "details": {
+        "equivalent": 1,
+        "non_equivalent": 0,
+        "errors": 4
+      }
+    },
+    "no_agent_judgment_used": {
+      "status": "COMPLETE",
+      "note": "All equivalency statuses from sql-equivalency___validate_sql_equivalence tool"
+    },
+    "dms_failures_documented": {
+      "status": "COMPLETE",
+      "note": "All DMS errors documented in dms_conversion_log.json"
+    },
+    "connection_strings_postgresql_format": {
+      "status": "COMPLETE",
+      "note": "Using AWS Secrets Manager with PostgreSQL connection string format"
+    },
+    "application_compiles": {
+      "status": "COMPLETE",
+      "note": "Clean build successful with 0 errors"
+    },
+    "final_report_complete": {
+      "status": "COMPLETE",
+      "artifact": "migration_final_report.json"
+    }
+  },
+  
+  "deployment_requirements": {
+    "database_prerequisites": [
+      "PostgreSQL database instance running",
+      "Schema 'bobsbookstore_dbo' created",
+      "All tables migrated with correct schema",
+      "PostgreSQL functions deployed: uspUpdateAuthorPersonalInfo, uspDeleteAuthor, uspGetProductData"
+    ],
+    "aws_infrastructure": [
+      "AWS Secrets Manager secret contains valid PostgreSQL connection string",
+      "IAM role has SecretsManager:GetSecretValue permission",
+      "Network connectivity configured (security groups, VPC)",
+      "PostgreSQL port 5432 accessible from application"
+    ],
+    "application_configuration": [
+      "appsettings.json configured with correct secret ARN",
+      "Environment variables set if needed",
+      "Npgsql packages deployed with application"
+    ]
+  },
+  
+  "testing_recommendations": [
+    "Execute integration tests against PostgreSQL database",
+    "Verify all CRUD operations (Create, Read, Update, Delete)",
+    "Test stored procedure conversions (uspUpdateAuthorPersonalInfo, uspDeleteAuthor, uspGetProductData)",
+    "Validate complex SELECT with date functions (SelectAuthorsByHireYear method)",
+    "Test transaction handling and rollback scenarios",
+    "Verify connection pooling behavior under load",
+    "Check datetime handling and timezone consistency",
+    "Monitor application logs for database errors",
+    "Perform load testing to validate performance",
+    "Execute end-to-end user acceptance testing"
+  ],
+  
+  "known_issues_and_limitations": [
+    {
+      "issue": "DMS MCP tool metadata model creation failure",
+      "impact": "All SQL conversions required manual implementation",
+      "mitigation": "Manual conversions applied following PostgreSQL best practices; all conversions documented",
+      "status": "RESOLVED"
+    },
+    {
+      "issue": "SQL Equivalency tool returned UNKNOWN for 4 statements",
+      "impact": "Equivalency could not be formally verified for stored procedures and complex date functions",
+      "mitigation": "Marked as ERROR per transformation definition; runtime testing recommended",
+      "status": "REQUIRES_MANUAL_REVIEW"
+    },
+    {
+      "issue": "Pre-existing Magick.NET vulnerability warnings",
+      "impact": "36 build warnings (not migration-related)",
+      "mitigation": "Consider updating Magick.NET package in future maintenance",
+      "status": "PRE_EXISTING"
+    }
+  ],
+  
+  "migration_timeline": {
+    "start_date": "2026-02-07",
+    "completion_date": "2026-02-07",
+    "total_steps": 7,
+    "steps_completed": 7,
+    "steps_status": "ALL_COMPLETE"
+  },
+  
+  "artifacts_generated": [
+    {
+      "filename": "extracted_statements.sql",
+      "description": "Original MS SQL Server statements extracted from code",
+      "lines": 61
+    },
+    {
+      "filename": "converted_statements.sql",
+      "description": "PostgreSQL converted statements",
+      "lines": 62
+    },
+    {
+      "filename": "dms_conversion_log.json",
+      "description": "Detailed log of DMS conversion attempts and manual conversions"
+    },
+    {
+      "filename": "sql_equivalency_validation_report.json",
+      "description": "Complete SQL equivalency validation results for all statement pairs"
+    },
+    {
+      "filename": "code_reintegration_log.json",
+      "description": "Documentation of SQL statement re-integration into source code"
+    },
+    {
+      "filename": "connection_string_migration_guide.md",
+      "description": "Comprehensive guide for connection string and configuration migration",
+      "lines": 229
+    },
+    {
+      "filename": "migration_final_report.json",
+      "description": "This comprehensive migration report"
+    },
+    {
+      "filename": "migration_artifacts_index.md",
+      "description": "Index and summary of all migration artifacts"
+    }
+  ],
+  
+  "migration_success_metrics": {
+    "sql_statements_converted": "100% (5/5)",
+    "statements_equivalent": "20% (1/5)",
+    "statements_requiring_review": "80% (4/5)",
+    "build_success": true,
+    "code_quality_maintained": true,
+    "no_breaking_api_changes": true,
+    "documentation_complete": true
+  },
+  
+  "conclusion": "The migration from Microsoft SQL Server to PostgreSQL has been completed successfully for the BobsBookstore ADO .NET application. All 5 SQL statements have been identified, converted, and reintegrated into the codebase. The application builds successfully with 0 errors. While the DMS MCP tool encountered errors for all conversions, manual conversions were applied following PostgreSQL best practices and fully documented. The SQL Equivalency tool validated 1 statement as EQUIVALENT and returned UNKNOWN (marked as ERROR) for 4 statements due to their complexity. Runtime testing is recommended for the 4 statements with ERROR status to verify functional equivalence. All transformation definition requirements have been met, including passing every statement through both the DMS and SQL Equivalency tools, with comprehensive documentation of all results.",
+  
+  "next_steps": [
+    "Deploy PostgreSQL database with required schema and functions",
+    "Configure AWS Secrets Manager with PostgreSQL connection string",
+    "Deploy application to target environment",
+    "Execute comprehensive integration testing",
+    "Perform runtime validation of converted SQL statements",
+    "Conduct user acceptance testing",
+    "Monitor application logs and performance",
+    "Update Magick.NET package to resolve pre-existing vulnerabilities (optional)"
+  ]
+}

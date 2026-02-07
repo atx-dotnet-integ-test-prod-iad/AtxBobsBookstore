@@ -1,0 +1,119 @@
+{
+  "report_timestamp": "2026-02-07T07:05:30Z",
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 1,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 4,
+  "statement_details": [
+    {
+      "statement_number": 1,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "source_line": 188,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "EQUIVALENT",
+      "equivalency_tool_output": {
+        "equivalence_status": "EQUIVALENT",
+        "result_details": "StructuralEquivalenceVerifier stage in formal methods proved equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-02-07T07:04:34.526909"
+      },
+      "notes": "Simple SELECT statement validated as EQUIVALENT by SQL Equivalency tool using formal verification methods."
+    },
+    {
+      "statement_number": 2,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "source_line": 158,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspUpdateAuthorPersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-02-07T07:04:51.556088"
+      },
+      "notes": "Stored procedure call. SQL Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition requirements. The tool could not prove equivalency/non-equivalency due to the complexity of stored procedure semantics."
+    },
+    {
+      "statement_number": 3,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "source_line": 206,
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspDeleteAuthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-02-07T07:05:05.711426"
+      },
+      "notes": "Stored procedure call. SQL Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition requirements. The tool could not prove equivalency/non-equivalency due to the complexity of stored procedure semantics."
+    },
+    {
+      "statement_number": 4,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "source_line": 225,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-02-07T07:05:18.224438"
+      },
+      "notes": "Complex SELECT with multiple SQL Server specific functions (FORMAT, DATEDIFF, GETDATE, DATEPART) converted to PostgreSQL equivalents (TO_CHAR, AGE, CURRENT_TIMESTAMP, EXTRACT). SQL Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition requirements. The tool could not prove equivalency/non-equivalency likely due to the complexity of date/time function conversions."
+    },
+    {
+      "statement_number": 5,
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "source_line": 31,
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspGetProductData();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": {
+        "equivalence_status": "UNKNOWN",
+        "result_details": "Z3SqlSolverVerifier stage in formal methods could not prove equivalancy/non-equivalency",
+        "validation_method": "formal_verification",
+        "timestamp": "2026-02-07T07:05:30.702801"
+      },
+      "notes": "Stored procedure execution converted to PostgreSQL function call. SQL Equivalency tool returned UNKNOWN, marked as ERROR per transformation definition requirements. The tool could not prove equivalency/non-equivalency due to the complexity of stored procedure semantics."
+    }
+  ],
+  "validation_summary": {
+    "total_validated": 5,
+    "equivalent_statements": 1,
+    "non_equivalent_statements": 0,
+    "error_statements": 4,
+    "equivalent_percentage": 20.0,
+    "error_percentage": 80.0
+  },
+  "critical_notes": [
+    "CRITICAL: All statement pairs were validated through the sql-equivalency___validate_sql_equivalence tool as required",
+    "CRITICAL: No agent judgment was used to determine equivalency - all statuses come from the tool",
+    "CRITICAL: UNKNOWN results from the tool were marked as ERROR per transformation definition requirements",
+    "Statement 1 (simple SELECT) was validated as EQUIVALENT by the tool",
+    "Statements 2, 3, 5 (stored procedure calls) returned UNKNOWN - the formal verification methods could not prove equivalency for stored procedures",
+    "Statement 4 (complex SELECT with date functions) returned UNKNOWN - the formal verification methods could not prove equivalency for complex date/time function conversions",
+    "The UNKNOWN/ERROR results do not necessarily mean the conversions are incorrect, but rather that the formal verification tool could not mathematically prove equivalency",
+    "Manual review and runtime testing is recommended for statements with ERROR status"
+  ],
+  "tool_validation_method": "formal_verification",
+  "transformation_compliance": {
+    "all_statements_validated_through_tool": true,
+    "no_agent_judgment_used": true,
+    "unknown_marked_as_error": true,
+    "all_tool_outputs_documented": true
+  }
+}
