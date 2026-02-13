@@ -1,0 +1,91 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "statement_id": 1,
+      "statement_name": "EditUsingStoredProcedure - Update Author Personal Info",
+      "source_file": "AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "source_line": 164,
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(\n    @BusinessEntityID, \n    @NationalIDNumber, \n    @BirthDate, \n    @MaritalStatus, \n    @Gender\n);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"ERROR\",\n  \"error\": \"'uniqueID'\",\n  \"timestamp\": \"2026-02-13T18:21:41.128978\"\n}",
+      "notes": "SQL Equivalency tool returned ERROR. Converted DECLARE/EXEC/SELECT pattern to PostgreSQL function call. Assumed PostgreSQL function bobsbookstore_dbo.uspupdateauthorpersonalinfo exists."
+    },
+    {
+      "statement_id": 2,
+      "statement_name": "FindAllAuthorsEmbeddedSql - Retrieve All Authors",
+      "source_file": "AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "source_line": 186,
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"ERROR\",\n  \"error\": \"'uniqueID'\",\n  \"timestamp\": \"2026-02-13T18:21:55.024861\"\n}",
+      "notes": "SQL Equivalency tool returned ERROR. Statement is already PostgreSQL compatible. Only added semicolon for consistency."
+    },
+    {
+      "statement_id": 3,
+      "statement_name": "DeleteAuthorEmbeddedSql - Delete Author via Stored Procedure",
+      "source_file": "AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "source_line": 206,
+      "original_statement": "DECLARE @rowsAffected INT;\nEXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;\nSELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"ERROR\",\n  \"error\": \"'uniqueID'\",\n  \"timestamp\": \"2026-02-13T18:21:56.041763\"\n}",
+      "notes": "SQL Equivalency tool returned ERROR. Converted DECLARE/EXEC/SELECT pattern to PostgreSQL function call. Assumed PostgreSQL function bobsbookstore_dbo.uspdeleteauthor exists."
+    },
+    {
+      "statement_id": 4,
+      "statement_name": "SelectAuthorsByHireYear - Select Authors with Age Calculation",
+      "source_file": "AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "source_line": 226,
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT \"BusinessEntityID\", \n       TO_CHAR(\"ModifiedDate\", 'YYYY-MM-DD HH24:MI:SS') AS \"FormattedModifiedDate\", \n       EXTRACT(YEAR FROM AGE(NOW(), \"BirthDate\")) AS \"Age\" \nFROM bobsbookstore_dbo.author \nWHERE EXTRACT(YEAR FROM \"HireDate\") = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"ERROR\",\n  \"error\": \"'uniqueID'\",\n  \"timestamp\": \"2026-02-13T18:22:11.397841\"\n}",
+      "notes": "SQL Equivalency tool returned ERROR. Converted SQL Server date functions to PostgreSQL equivalents: FORMAT->TO_CHAR, DATEDIFF->EXTRACT/AGE, GETDATE->NOW, DATEPART->EXTRACT. Added quotes around column names for case sensitivity."
+    },
+    {
+      "statement_id": 5,
+      "statement_name": "FindAllProducts - Retrieve All Products via Stored Procedure",
+      "source_file": "ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "source_line": 31,
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\n  \"equivalence_status\": \"ERROR\",\n  \"error\": \"'uniqueID'\",\n  \"timestamp\": \"2026-02-13T18:22:12.408389\"\n}",
+      "notes": "SQL Equivalency tool returned ERROR. Converted EXEC stored procedure call to PostgreSQL function call with SELECT. Assumed PostgreSQL function bobsbookstore_dbo.uspgetproductdata exists."
+    }
+  ],
+  "summary": {
+    "dms_conversion_status": "All 5 statements failed DMS conversion with metadata model creation error",
+    "equivalency_validation_status": "All 5 statement pairs failed equivalency validation with uniqueID error",
+    "manual_conversion_applied": true,
+    "manual_conversion_count": 5,
+    "tool_error_pattern": "Both DMS MCP tool and SQL Equivalency tool experienced systemic errors, not related to individual SQL statement syntax",
+    "stored_procedure_conversions": 3,
+    "date_function_conversions": 4,
+    "schema_preserved": "bobsbookstore_dbo",
+    "requires_manual_review": true,
+    "review_notes": "All statements marked as ERROR due to SQL Equivalency tool failure. Manual code review and testing required to verify conversions are functionally correct."
+  },
+  "report_metadata": {
+    "generated_date": "2026-02-13",
+    "migration_type": "Microsoft SQL Server to PostgreSQL",
+    "application": "BobsBookstore",
+    "transformation_definition_version": "1.0"
+  }
+}
