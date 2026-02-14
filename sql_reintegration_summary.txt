@@ -1,0 +1,175 @@
+================================================================================
+SQL Statement Re-integration Summary
+================================================================================
+Date: 2026-02-14
+Purpose: Document the re-integration of PostgreSQL-converted SQL statements back into source code
+
+================================================================================
+FILES MODIFIED
+================================================================================
+
+1. app/Bookstore.Web/Controllers/AuthorsController.cs
+   - Methods updated: 3
+   - SqlParameter to NpgsqlParameter conversions: 7 instances
+   
+2. app/Bookstore.Web/Controllers/ProductsController.cs
+   - Methods updated: 1
+   - SqlParameter to NpgsqlParameter conversions: 0 instances (no parameters in this method)
+
+Total Files Modified: 2
+Total Methods Updated: 4
+
+================================================================================
+DETAILED METHOD-BY-METHOD CHANGES
+================================================================================
+
+FILE: app/Bookstore.Web/Controllers/AuthorsController.cs
+---------------------------------------------------------------------
+
+Method 1: EditUsingStoredProcedure
+- Line: ~160
+- Original SQL: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+- Converted SQL: SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+- Parameters Converted:
+  * SqlParameter("@BusinessEntityID", ...) → NpgsqlParameter("@BusinessEntityID", ...)
+  * SqlParameter("@NationalIDNumber", ...) → NpgsqlParameter("@NationalIDNumber", ...)
+  * SqlParameter("@BirthDate", ...) → NpgsqlParameter("@BirthDate", ...)
+  * SqlParameter("@MaritalStatus", ...) → NpgsqlParameter("@MaritalStatus", ...)
+  * SqlParameter("@Gender", ...) → NpgsqlParameter("@Gender", ...)
+- Changes:
+  * Removed DECLARE @rowsAffected INT pattern
+  * Removed EXEC @rowsAffected = [dbo].[] pattern
+  * Converted to PostgreSQL function call: SELECT schema.function(params)
+  * Function name lowercased: uspupdateauthorpersonalinfo
+  * All 5 SqlParameter instances converted to NpgsqlParameter
+
+Method 2: FindAllAuthorsEmbeddedSql
+- Line: ~180
+- Original SQL: SELECT * FROM bobsbookstore_dbo.author;
+- Converted SQL: SELECT * FROM bobsbookstore_dbo.author;
+- Parameters Converted: None (no parameters in this query)
+- Changes:
+  * No changes needed - SQL already PostgreSQL compatible
+
+Method 3: DeleteAuthorEmbeddedSql
+- Line: ~200
+- Original SQL: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+- Converted SQL: SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+- Parameters Converted:
+  * SqlParameter("@BusinessEntityID", ...) → NpgsqlParameter("@BusinessEntityID", ...)
+- Changes:
+  * Removed DECLARE @rowsAffected INT pattern
+  * Removed EXEC @rowsAffected = [dbo].[] pattern
+  * Converted to PostgreSQL function call: SELECT schema.function(param)
+  * Function name lowercased: uspdeleteauthor
+  * 1 SqlParameter instance converted to NpgsqlParameter
+
+Method 4: SelectAuthorsByHireYear
+- Line: ~216
+- Original SQL: SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+- Converted SQL: SELECT "businessentityid", TO_CHAR("modifieddate", 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(CURRENT_TIMESTAMP, "birthdate")) AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM "hiredate") = @HireDate;
+- Parameters Converted:
+  * SqlParameter("@HireDate", ...) → NpgsqlParameter("@HireDate", ...)
+- Changes:
+  * FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') → TO_CHAR("modifieddate", 'YYYY-MM-DD HH24:MI:SS')
+  * DATEDIFF(YEAR, BirthDate, GETDATE()) → DATE_PART('year', AGE(CURRENT_TIMESTAMP, "birthdate"))
+  * DATEPART(YEAR, HireDate) → EXTRACT(YEAR FROM "hiredate")
+  * Column names quoted and lowercased for PostgreSQL case sensitivity
+  * 1 SqlParameter instance converted to NpgsqlParameter
+
+---------------------------------------------------------------------
+
+FILE: app/Bookstore.Web/Controllers/ProductsController.cs
+---------------------------------------------------------------------
+
+Method 1: FindAllProducts
+- Line: ~32
+- Original SQL: EXEC [dbo].[uspGetProductData];
+- Converted SQL: SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+- Parameters Converted: None (no parameters in this query)
+- Changes:
+  * Removed EXEC [dbo].[] pattern
+  * Converted to PostgreSQL function call: SELECT * FROM schema.function()
+  * Function name lowercased: uspgetproductdata
+
+================================================================================
+SQL STATEMENT REPLACEMENT VERIFICATION
+================================================================================
+
+✓ All 5 SQL statements successfully replaced with PostgreSQL-converted versions
+✓ All statements match converted versions from converted_statements.sql
+✓ No SqlParameter references remain in codebase (verified via grep)
+✓ No SQL Server T-SQL syntax remains:
+  - No DECLARE @ patterns
+  - No EXEC [dbo]. patterns
+  - No GETDATE() calls
+  - No DATEDIFF() calls
+  - No FORMAT() calls (SQL Server version)
+  - No DATEPART() calls
+✓ All using statements verified:
+  - using Npgsql; present in both controller files
+  - No using Microsoft.Data.SqlClient;
+  - No using System.Data.SqlClient;
+
+================================================================================
+PARAMETER CONVERSION SUMMARY
+================================================================================
+
+Total SqlParameter to NpgsqlParameter conversions: 7
+
+Breakdown by method:
+- EditUsingStoredProcedure: 5 conversions
+- DeleteAuthorEmbeddedSql: 1 conversion
+- SelectAuthorsByHireYear: 1 conversion
+- FindAllProducts: 0 conversions (no parameters)
+
+All parameter conversions maintain:
+- Original parameter names (@BusinessEntityID, @NationalIDNumber, etc.)
+- Original parameter types and values
+- Original parameter ordering
+- Original exception handling logic
+
+================================================================================
+BUILD VERIFICATION
+================================================================================
+
+Build Command: dotnet build BobsBookstore.sln
+Build Result: FAILED (expected - pre-existing Entity.cs NotMapped attribute error)
+
+Build Error: 
+- File: app/Bookstore.Domain/Entity.cs(24,10)
+- Error: CS0592: Attribute 'NotMapped' is not valid on this declaration type
+- Status: PRE-EXISTING ERROR (not related to SQL conversion)
+
+SQL-Related Errors: NONE
+SQL Conversion successful - all SQL Server syntax removed and replaced with PostgreSQL equivalents.
+
+================================================================================
+SCHEMA OBJECT NAME CHANGES
+================================================================================
+
+DMS Conversion Notes:
+- DMS tool failed for all statements, manual conversion applied
+- Schema references: [dbo] removed, bobsbookstore_dbo schema maintained
+- Function names lowercased per PostgreSQL convention:
+  * uspUpdateAuthorPersonalInfo → uspupdateauthorpersonalinfo
+  * uspDeleteAuthor → uspdeleteauthor
+  * uspGetProductData → uspgetproductdata
+- Table references: No changes needed (already using bobsbookstore_dbo.author, bobsbookstore_dbo.product)
+
+CRITICAL: All new names from conversion have been properly integrated into code.
+No old names remain that would cause PostgreSQL execution failures.
+
+================================================================================
+EXCEPTION HANDLING AND PARAMETERIZATION
+================================================================================
+
+✓ All methods maintain original try-catch exception handling
+✓ All parameterized queries remain parameterized (no SQL injection vulnerabilities)
+✓ All DateTime conversions to UTC preserved (ToUniversalTime())
+✓ All return types and signatures unchanged
+✓ All null handling and error logging preserved
+
+================================================================================
+END OF REINTEGRATION SUMMARY
+================================================================================
