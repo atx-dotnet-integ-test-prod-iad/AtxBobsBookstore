@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bookstore.Data;
 using Bookstore.Domain.Products;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+
 
 namespace Bookstore.Web.Controllers
 {
@@ -26,10 +27,14 @@ namespace Bookstore.Web.Controllers
             return View(await FindAllProducts());
         }
         
+        // TODO: This stored procedure must be converted to a PostgreSQL function or replaced with EF Core LINQ queries.
+        // Stored Procedure: [dbo].[uspGetProductData]
+        // Parameters: None
         public async Task<List<Product>> FindAllProducts()
         {
             try
             {
+                Console.WriteLine("WARNING: Stored procedure [dbo].[uspGetProductData] needs manual conversion to PostgreSQL");
                 string sql = @"EXEC [dbo].[uspGetProductData];";
 
                 return await _context.Database.SqlQueryRaw<Product>(sql).ToListAsync();
