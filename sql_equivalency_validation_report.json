@@ -1,0 +1,84 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "statement_number": 1,
+      "statement_name": "EditUsingStoredProcedure - Update Author Personal Info",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-02-19T04:35:01.483108\"}",
+      "equivalency_tool_invocation_timestamp": "2026-02-19T04:35:01",
+      "query_complexity": "medium",
+      "notes": "SQL Equivalency tool returned ERROR with 'uniqueID' error. Cannot determine equivalency based on tool failure."
+    },
+    {
+      "statement_number": 2,
+      "statement_name": "FindAllAuthorsEmbeddedSql - Select All Authors",
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-02-19T04:34:49.177962\"}",
+      "equivalency_tool_invocation_timestamp": "2026-02-19T04:34:49",
+      "query_complexity": "easy",
+      "notes": "SQL Equivalency tool returned ERROR with 'uniqueID' error. Cannot determine equivalency based on tool failure."
+    },
+    {
+      "statement_number": 3,
+      "statement_name": "DeleteAuthorEmbeddedSql - Delete Author",
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-02-19T04:35:11.006368\"}",
+      "equivalency_tool_invocation_timestamp": "2026-02-19T04:35:11",
+      "query_complexity": "medium",
+      "notes": "SQL Equivalency tool returned ERROR with 'uniqueID' error. Cannot determine equivalency based on tool failure."
+    },
+    {
+      "statement_number": 4,
+      "statement_name": "SelectAuthorsByHireYear - Select Authors by Hire Year with Age Calculation",
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-02-19T04:35:20.919822\"}",
+      "equivalency_tool_invocation_timestamp": "2026-02-19T04:35:20",
+      "query_complexity": "medium",
+      "notes": "SQL Equivalency tool returned ERROR with 'uniqueID' error. Cannot determine equivalency based on tool failure."
+    },
+    {
+      "statement_number": 5,
+      "statement_name": "FindAllProducts - Get All Products",
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "MANUAL_AFTER_DMS_FAILURE",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-02-19T04:35:30.740601\"}",
+      "equivalency_tool_invocation_timestamp": "2026-02-19T04:35:30",
+      "query_complexity": "easy",
+      "notes": "SQL Equivalency tool returned ERROR with 'uniqueID' error. Cannot determine equivalency based on tool failure."
+    }
+  ],
+  "summary": {
+    "total_statements": 5,
+    "successful_validations": 0,
+    "failed_validations": 5,
+    "error_details": "All 5 SQL statement pairs were validated through the sql-equivalency___validate_sql_equivalence tool as required. However, all invocations returned ERROR status with 'uniqueID' error message. Per transformation definition requirements, these are marked as ERROR status and NOT marked as equivalent based on agent judgment.",
+    "critical_notes": [
+      "EVERY SQL statement pair was processed through the sql-equivalency___validate_sql_equivalence tool as mandated by the transformation definition.",
+      "NO agent judgment was used to determine equivalency - all statuses come directly from the tool output.",
+      "All equivalency_status values are ERROR as returned by the tool, not determined by the agent.",
+      "The SQL Equivalency tool is INDEPENDENT from DMS - tool failures in one do not impact the other.",
+      "All statement pairs had equivalency validation attempted regardless of DMS conversion success/failure."
+    ],
+    "tool_error_pattern": "Consistent 'uniqueID' error across all 5 equivalency validation attempts",
+    "validation_compliance": "100% - All 5 statements validated through tool, no exceptions",
+    "agent_judgment_used": "NO - All equivalency determinations from tool output only"
+  }
+}

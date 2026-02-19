@@ -1,0 +1,155 @@
+================================================================================
+DMS Conversion Log
+SQL Server to PostgreSQL Statement Conversion
+================================================================================
+Started: 2026-02-19 Step 2
+Tool: dms-mcp____statement_conversion_tool
+================================================================================
+
+STATEMENT 1: Update Author Personal Info (Stored Procedure Call)
+================================================================================
+Original SQL:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Invocation:
+- Schema: dbo
+- Timestamp: 2026-02-19T04:31:06
+- Status: ERROR
+- Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+
+Manual Conversion Applied:
+Since DMS tool failed, manual conversion was applied using PostgreSQL function call syntax.
+PostgreSQL doesn't support T-SQL EXEC with return value assignment the same way.
+The stored procedure should be converted to a PostgreSQL function that returns the rows affected.
+
+Converted SQL (PostgreSQL):
+SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Conversion Notes:
+- Removed DECLARE @rowsAffected INT (not needed)
+- Changed EXEC to SELECT function call
+- Schema-qualified function name as bobsbookstore_dbo.uspupdateauthorpersonalinfo
+- PostgreSQL functions are called with SELECT, not EXEC
+
+================================================================================
+
+STATEMENT 2: Select All Authors
+================================================================================
+Original SQL:
+SELECT * FROM bobsbookstore_dbo.author
+
+DMS Tool Invocation:
+- Schema: bobsbookstore_dbo
+- Timestamp: 2026-02-19T04:31:17
+- Status: ERROR
+- Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+
+Manual Conversion Applied:
+This is a simple SELECT statement that requires no syntax changes for PostgreSQL.
+The schema name is already in PostgreSQL format.
+
+Converted SQL (PostgreSQL):
+SELECT * FROM bobsbookstore_dbo.author
+
+Conversion Notes:
+- No changes needed - standard SQL syntax compatible with PostgreSQL
+- Schema name bobsbookstore_dbo is already in correct format
+
+================================================================================
+
+STATEMENT 3: Delete Author (Stored Procedure Call)
+================================================================================
+Original SQL:
+DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Invocation:
+- Schema: dbo
+- Timestamp: 2026-02-19T04:31:30
+- Status: ERROR
+- Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+
+Manual Conversion Applied:
+Since DMS tool failed, manual conversion was applied using PostgreSQL function call syntax.
+The stored procedure should be converted to a PostgreSQL function that returns the rows affected.
+
+Converted SQL (PostgreSQL):
+SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+Conversion Notes:
+- Removed DECLARE @rowsAffected INT (not needed)
+- Changed EXEC to SELECT function call
+- Schema-qualified function name as bobsbookstore_dbo.uspdeleteauthor
+- PostgreSQL functions are called with SELECT, not EXEC
+
+================================================================================
+
+STATEMENT 4: Select Authors by Hire Year with Age Calculation
+================================================================================
+Original SQL:
+SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS Tool Invocation:
+- Schema: bobsbookstore_dbo
+- Timestamp: 2026-02-19T04:31:42
+- Status: ERROR
+- Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+
+Manual Conversion Applied:
+Multiple SQL Server-specific functions need conversion:
+1. FORMAT() -> TO_CHAR()
+2. DATEDIFF(YEAR, date1, date2) -> EXTRACT(YEAR FROM AGE(date2, date1))
+3. GETDATE() -> CURRENT_DATE
+4. DATEPART(YEAR, date) -> EXTRACT(YEAR FROM date)
+
+Converted SQL (PostgreSQL):
+SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate)) AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+
+Conversion Notes:
+- FORMAT() replaced with TO_CHAR() with PostgreSQL format string
+- DATEDIFF(YEAR, BirthDate, GETDATE()) replaced with EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate))
+- GETDATE() replaced with CURRENT_DATE
+- DATEPART(YEAR, HireDate) replaced with EXTRACT(YEAR FROM HireDate)
+- Format string adjusted: 'yyyy-MM-dd HH:mm:ss' -> 'YYYY-MM-DD HH24:MI:SS'
+
+================================================================================
+
+STATEMENT 5: Get All Products (Stored Procedure Call)
+================================================================================
+Original SQL:
+EXEC [dbo].[uspGetProductData];
+
+DMS Tool Invocation:
+- Schema: dbo
+- Timestamp: 2026-02-19T04:31:53
+- Status: ERROR
+- Error: Metadata model creation failed: {'error': 'Unknown metadata model creation status: RECEIVED'}
+
+Manual Conversion Applied:
+Since DMS tool failed, manual conversion was applied.
+The stored procedure uses CURSOR which is not compatible with EF Core execution.
+Based on the procedure definition, it returns Product data.
+The most appropriate conversion is to call it as a function or convert to a simple SELECT.
+
+Converted SQL (PostgreSQL):
+SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+
+Conversion Notes:
+- Changed EXEC to SELECT function call
+- Schema-qualified function name as bobsbookstore_dbo.uspgetproductdata
+- Added () for function call
+- The stored procedure should be converted to a set-returning function in PostgreSQL
+
+================================================================================
+
+SUMMARY
+================================================================================
+Total Statements Processed: 5
+DMS Tool Successful Conversions: 0
+DMS Tool Failed Conversions: 5
+Manual Conversions Applied: 5
+
+All statements were processed through the DMS tool as required, but all failed with
+metadata model creation errors. Manual conversions were applied following PostgreSQL
+syntax and best practices, with full documentation of the conversion approach.
+
+================================================================================
