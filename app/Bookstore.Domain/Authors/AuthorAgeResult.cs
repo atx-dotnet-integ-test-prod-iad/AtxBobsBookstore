@@ -1,5 +1,6 @@
-namespace Bookstore.Domain.Authors;
+﻿namespace Bookstore.Domain.Authors;
 
+// This is a result class (DTO) not mapped to a database table
 public class AuthorAgeResult
 {
     public int BusinessEntityID { get; set; }
