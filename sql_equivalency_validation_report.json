@@ -1,0 +1,72 @@
+{
+  "number_of_statements_processed": 8,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 8,
+  "statement_details": [
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:46:03.561460\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "SELECT * FROM Author",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.author;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:46:15.073247\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:46:48.856419\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, to_char(modifieddate, 'yyyy-MM-dd HH24:MI:SS') AS formattedmodifieddate, aws_sqlserver_ext.datediff('year', (birthdate)::TIMESTAMP, (clock_timestamp())::TIMESTAMP) AS age FROM bobsusedbookstore_dbo.author WHERE date_part('year', hiredate) = @HireDate;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:47:02.618036\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:47:24.722065\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Author]( [BusinessEntityID] INT IDENTITY(1, 1) NOT NULL, [NationalIDNumber] nvarchar(15) NOT NULL, [LoginID] nvarchar(256) NOT NULL, [OrganizationNode] nvarchar(50) NULL, [JobTitle] nvarchar(50) NOT NULL, [BirthDate] date NOT NULL, [MaritalStatus] nchar(1) NOT NULL, [Gender] nchar(1) NOT NULL, [HireDate] date NOT NULL, [VacationHours] smallint NOT NULL DEFAULT ((0)), [CurrentFlag] bit NOT NULL DEFAULT ((1)), [ModifiedDate] datetime NOT NULL DEFAULT (getdate()) ) ON [PRIMARY];",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.author (businessentityid BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, organizationnode VARCHAR(50) NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL DEFAULT ((0)), currentflag NUMERIC(1, 0) NOT NULL DEFAULT ((1)), modifieddate TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (clock_timestamp()));",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:47:42.532786\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Product]( [ProductID] int IDENTITY(1, 1) NOT NULL, [Name] nvarchar(50) NOT NULL, [ProductNumber] nvarchar(25) NOT NULL, [MakeFlag] bit NOT NULL DEFAULT ((1)), [FinishedGoodsFlag] bit NOT NULL DEFAULT ((1)), [Color] nvarchar(15) NULL, [SafetyStockLevel] smallint NOT NULL, [ReorderPoint] smallint NOT NULL, [StandardCost] money NOT NULL, [ListPrice] money NOT NULL, [Size] nvarchar(5) NULL, [SizeUnitMeasureCode] nchar(3) NULL, [WeightUnitMeasureCode] nchar(3) NULL, [Weight] decimal(8,2) NULL, [DaysToManufacture] int NOT NULL, [ProductLine] nchar(2) NULL, [Class] nchar(2) NULL, [Style] nchar(2) NULL, [ProductSubcategoryID] int NULL, [ProductModelID] int NULL, [SellStartDate] datetime NOT NULL, [SellEndDate] datetime NULL, [DiscontinuedDate] datetime NULL, [rowguid] uniqueidentifier NOT NULL DEFAULT (newid()), [ModifiedDate] datetime NOT NULL DEFAULT (getdate()) ) ON [PRIMARY];",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.product (productid BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL, name VARCHAR(50) NOT NULL, productnumber VARCHAR(25) NOT NULL, makeflag NUMERIC(1, 0) NOT NULL DEFAULT ((1)), finishedgoodsflag NUMERIC(1, 0) NOT NULL DEFAULT ((1)), color VARCHAR(15) NULL, safetystocklevel SMALLINT NOT NULL, reorderpoint SMALLINT NOT NULL, standardcost NUMERIC(19, 4) NOT NULL, listprice NUMERIC(19, 4) NOT NULL, size VARCHAR(5) NULL, sizeunitmeasurecode CHAR(3) NULL, weightunitmeasurecode CHAR(3) NULL, weight NUMERIC(8, 2) NULL, daystomanufacture INTEGER NOT NULL, productline CHAR(2) NULL, class CHAR(2) NULL, style CHAR(2) NULL, productsubcategoryid INTEGER NULL, productmodelid INTEGER NULL, sellstartdate TIMESTAMP WITHOUT TIME ZONE NOT NULL, sellenddate TIMESTAMP WITHOUT TIME ZONE NULL, discontinueddate TIMESTAMP WITHOUT TIME ZONE NULL, rowguid UUID NOT NULL DEFAULT (aws_sqlserver_ext.newid()), modifieddate TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (clock_timestamp()));",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:48:00.207366\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "INSERT INTO [dbo].[Author] ([NationalIDNumber], [LoginID], [OrganizationNode], [JobTitle], [BirthDate], [MaritalStatus], [Gender], [HireDate], [VacationHours], [CurrentFlag], [ModifiedDate]) VALUES (N'295847284', N'adventure-works\\ken0', N'/1/', N'Chief Executive Officer', '1969-01-29', N'S', N'M', '2009-01-14', 99, 1, '2014-06-30 00:00:00.000');",
+      "converted_statement": "INSERT INTO bobsusedbookstore_dbo.author (nationalidnumber, loginid, organizationnode, jobtitle, birthdate, maritalstatus, gender, hiredate, vacationhours, currentflag, modifieddate) VALUES ('295847284', E'adventure-works\\\\ken0', '/1/', 'Chief Executive Officer', '1969-01-29', 'S', 'M', '2009-01-14', 99, 1, '2014-06-30 00:00:00.000');",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-05T21:48:14.724678\"}",
+      "dms_failure_reason": null
+    }
+  ]
+}
