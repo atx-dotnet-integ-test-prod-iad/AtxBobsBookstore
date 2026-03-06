@@ -1,0 +1,104 @@
+{
+  "number_of_statements_processed": 12,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 12,
+  "statement_details": [
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "SELECT * FROM dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:52:55.183716\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:53:06.684826\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "SELECT * FROM dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:53:17.838421\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM bobsbookstore_dbo.author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM AGE(NOW(), birthdate))::INT AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:53:32.249446\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM dbo.uspgetproductdata();",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:53:44.291126\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Members]([MemberID] INT IDENTITY(1,1) NOT NULL, [FirstName] nvarchar(100) NOT NULL, [LastName] nvarchar(100) NOT NULL, [Email] nvarchar(200) NOT NULL, [MembershipDate] datetime NOT NULL DEFAULT (getdate()), [MembershipLevel] nvarchar(20) NOT NULL DEFAULT 'Bronze');",
+      "converted_statement": "CREATE TABLE dbo.members(memberid INT GENERATED ALWAYS AS IDENTITY NOT NULL, firstname varchar(100) NOT NULL, lastname varchar(100) NOT NULL, email varchar(200) NOT NULL, membershipdate timestamp NOT NULL DEFAULT NOW(), membershiplevel varchar(20) NOT NULL DEFAULT 'Bronze');",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:53:55.835271\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "CREATE VIEW [dbo].[VwTopMembers] AS SELECT m.MemberID, m.FirstName, m.LastName, m.Email, m.MembershipLevel, COUNT(s.ShoppingID) AS TotalPurchases, SUM(s.TotalAmount) AS TotalSpent FROM [dbo].[Members] m INNER JOIN [dbo].[Shopping] s ON m.MemberID = s.MemberID GROUP BY m.MemberID, m.FirstName, m.LastName, m.Email, m.MembershipLevel HAVING COUNT(s.ShoppingID) > 5;",
+      "converted_statement": "CREATE VIEW dbo.vwtopmembers AS SELECT m.memberid, m.firstname, m.lastname, m.email, m.membershiplevel, COUNT(s.shoppingid) AS totalpurchases, SUM(s.totalamount) AS totalspent FROM dbo.members m INNER JOIN dbo.shopping s ON m.memberid = s.memberid GROUP BY m.memberid, m.firstname, m.lastname, m.email, m.membershiplevel HAVING COUNT(s.shoppingid) > 5;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:54:09.233132\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "CREATE FUNCTION [dbo].[ufnGetAccountingEndDate]() RETURNS datetime AS BEGIN RETURN DATEADD(millisecond, -2, CONVERT(datetime, '20040701', 112)); END;",
+      "converted_statement": "CREATE OR REPLACE FUNCTION dbo.ufngetaccountingenddate() RETURNS timestamp AS $$ BEGIN RETURN CAST('2004-07-01' AS timestamp) - INTERVAL '2 milliseconds'; END; $$ LANGUAGE plpgsql;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:54:20.475909\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Author]([BusinessEntityID] INT IDENTITY(1, 1) NOT NULL, [NationalIDNumber] nvarchar(15) NOT NULL, [LoginID] nvarchar(256) NOT NULL, [OrganizationNode] nvarchar(50) NULL, [JobTitle] nvarchar(50) NOT NULL, [BirthDate] date NOT NULL, [MaritalStatus] nchar(1) NOT NULL, [Gender] nchar(1) NOT NULL, [HireDate] date NOT NULL, [VacationHours] smallint NOT NULL DEFAULT ((0)), [CurrentFlag] bit NOT NULL DEFAULT ((1)), [ModifiedDate] datetime NOT NULL DEFAULT (getdate()));",
+      "converted_statement": "CREATE TABLE dbo.author(businessentityid INT GENERATED ALWAYS AS IDENTITY NOT NULL, nationalidnumber varchar(15) NOT NULL, loginid varchar(256) NOT NULL, organizationnode varchar(50) NULL, jobtitle varchar(50) NOT NULL, birthdate date NOT NULL, maritalstatus char(1) NOT NULL, gender char(1) NOT NULL, hiredate date NOT NULL, vacationhours smallint NOT NULL DEFAULT 0, currentflag boolean NOT NULL DEFAULT true, modifieddate timestamp NOT NULL DEFAULT NOW());",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:54:34.105929\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "ALTER TABLE [dbo].[Author] ADD CONSTRAINT [CK_Author_BirthDate] CHECK (([BirthDate]>='1930-01-01' AND [BirthDate]<=dateadd(year,(-18),getdate())));",
+      "converted_statement": "ALTER TABLE dbo.author ADD CONSTRAINT ck_author_birthdate CHECK ((birthdate>='1930-01-01' AND birthdate<=NOW() - INTERVAL '18 years'));",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:54:46.071896\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "CREATE PROCEDURE [dbo].[uspGetProductData] AS BEGIN SET NOCOUNT ON; SELECT ProductID, Name, ProductNumber, Color, StandardCost, ListPrice, Size, Weight, ProductLine, Class, Style, SellStartDate, SellEndDate, ModifiedDate FROM [dbo].[Product]; END;",
+      "converted_statement": "CREATE OR REPLACE FUNCTION dbo.uspgetproductdata() RETURNS TABLE(productid INT, name varchar, productnumber varchar, color varchar, standardcost numeric, listprice numeric, size varchar, weight numeric, productline varchar, class varchar, style varchar, sellstartdate timestamp, sellenddate timestamp, modifieddate timestamp) AS $$ BEGIN RETURN QUERY SELECT productid, name, productnumber, color, standardcost, listprice, size, weight, productline, class, style, sellstartdate, sellenddate, modifieddate FROM dbo.product; END; $$ LANGUAGE plpgsql;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:54:59.890934\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    },
+    {
+      "original_statement": "INSERT INTO [dbo].[Author] ([NationalIDNumber], [LoginID], [OrganizationNode], [JobTitle], [BirthDate], [MaritalStatus], [Gender], [HireDate], [VacationHours], [CurrentFlag], [ModifiedDate]) VALUES ('295847284', 'adventure-works\\ken0', '/', 'Chief Executive Officer', '1969-01-29', 'S', 'M', '2009-01-14', 99, 1, '2014-06-30');",
+      "converted_statement": "INSERT INTO dbo.author (nationalidnumber, loginid, organizationnode, jobtitle, birthdate, maritalstatus, gender, hiredate, vacationhours, currentflag, modifieddate) VALUES ('295847284', 'adventure-works\\ken0', '/', 'Chief Executive Officer', '1969-01-29', 'S', 'M', '2009-01-14', 99, true, '2014-06-30');",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-06T13:55:13.782976\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+    }
+  ]
+}
