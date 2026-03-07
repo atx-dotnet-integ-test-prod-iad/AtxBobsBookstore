@@ -1,0 +1,119 @@
+==============================================================
+DMS Conversion Summary Report
+Date: 2026-03-07
+Total Statements Processed: 5
+DMS Successful Conversions: 0
+DMS Failures (Manual Conversion Required): 5
+==============================================================
+
+All 5 SQL statements were passed through the DMS MCP tool (dms-mcp___statement_conversion_tool).
+All 5 returned the same error: "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}\"}"
+
+Manual conversions were applied with lowercase schema object names per the DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA protocol.
+
+Schema Mapping Rules Applied:
+- Stored procedures: [dbo].[procedureName] -> bobsusedbookstore_dbo.procedurename (lowercase)
+- Tables: dbo.TableName -> bobsbookstore_dbo.tablename (lowercase)
+- Column names: PascalCase -> lowercase
+- EXEC/DECLARE patterns: Converted to PostgreSQL CALL syntax
+- SQL Server functions: Converted to PostgreSQL equivalents
+
+==============================================================
+Statement 1: EditUsingStoredProcedure (DECLARE/EXEC uspUpdateAuthorPersonalInfo)
+==============================================================
+Original MS SQL:
+  DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+
+DMS Tool Output:
+  Status: error
+  Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+  Timestamp: 2026-03-07T05:29:46.488873
+
+Manual Conversion (PostgreSQL):
+  CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+Conversion Reasoning:
+  - DECLARE/EXEC pattern not supported in PostgreSQL; converted to CALL
+  - [dbo].[uspUpdateAuthorPersonalInfo] -> bobsusedbookstore_dbo.uspupdateauthorpersonalinfo (lowercase)
+  - Return value capture removed; PostgreSQL CALL doesn't return values the same way
+  - Parameters passed directly to CALL
+
+==============================================================
+Statement 2: FindAllAuthorsEmbeddedSql (SELECT * FROM dbo.Author)
+==============================================================
+Original MS SQL:
+  SELECT * FROM dbo.Author;
+
+DMS Tool Output:
+  Status: error
+  Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+  Timestamp: 2026-03-07T05:30:02.288313
+
+Manual Conversion (PostgreSQL):
+  SELECT * FROM bobsbookstore_dbo.author;
+
+Conversion Reasoning:
+  - dbo.Author -> bobsbookstore_dbo.author (lowercase schema and table name)
+  - SELECT syntax is compatible; only schema/table name change needed
+
+==============================================================
+Statement 3: DeleteAuthorEmbeddedSql (DECLARE/EXEC uspDeleteAuthor)
+==============================================================
+Original MS SQL:
+  DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+
+DMS Tool Output:
+  Status: error
+  Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+  Timestamp: 2026-03-07T05:30:27.326924
+
+Manual Conversion (PostgreSQL):
+  CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+
+Conversion Reasoning:
+  - DECLARE/EXEC pattern not supported in PostgreSQL; converted to CALL
+  - [dbo].[uspDeleteAuthor] -> bobsusedbookstore_dbo.uspdeleteauthor (lowercase)
+  - Return value capture removed; PostgreSQL CALL doesn't return values the same way
+
+==============================================================
+Statement 4: SelectAuthorsByHireYear (SELECT with DATEDIFF/FORMAT/DATEPART)
+==============================================================
+Original MS SQL:
+  SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM dbo.Author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+
+DMS Tool Output:
+  Status: error
+  Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+  Timestamp: 2026-03-07T05:30:42.986175
+
+Manual Conversion (PostgreSQL):
+  SELECT businessentityid, to_char(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, birthdate))::INT AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+Conversion Reasoning:
+  - dbo.Author -> bobsbookstore_dbo.author (lowercase)
+  - BusinessEntityID -> businessentityid (lowercase column name)
+  - FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') -> to_char(modifieddate, 'YYYY-MM-DD HH24:MI:SS')
+  - DATEDIFF(YEAR, BirthDate, GETDATE()) -> EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, birthdate))::INT
+  - DATEPART(YEAR, HireDate) -> EXTRACT(YEAR FROM hiredate)
+  - GETDATE() -> CURRENT_TIMESTAMP
+  - All column names lowercased
+  - Alias names lowercased
+
+==============================================================
+Statement 5: FindAllProducts (EXEC uspGetProductData)
+==============================================================
+Original MS SQL:
+  EXEC [dbo].[uspGetProductData];
+
+DMS Tool Output:
+  Status: error
+  Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'The selected objects were not found.'}}"}
+  Timestamp: 2026-03-07T05:30:58.680242
+
+Manual Conversion (PostgreSQL):
+  CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);
+
+Conversion Reasoning:
+  - EXEC -> CALL (PostgreSQL stored procedure invocation)
+  - [dbo].[uspGetProductData] -> bobsusedbookstore_dbo.uspgetproductdata (lowercase)
+  - Added cursor parameter for PostgreSQL stored procedure that returns result sets
