@@ -1,0 +1,48 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "original_statement": "SELECT * FROM [dbo].[Author]",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.author;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T15:45:53.403153\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "EXEC [HumanResources].[uspUpdateEmployeePersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender",
+      "converted_statement": "CALL HumanResources.uspUpdateEmployeePersonalInfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T15:45:54.424480\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspDeleteAuthor] @BusinessEntityID",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T15:45:55.444141\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, CONVERT(VARCHAR, ModifiedDate, 120) AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM [HumanResources].[Employee] WHERE YEAR(HireDate) = @HireDate",
+      "converted_statement": "SELECT businessentityid, CAST (ModifiedDate AS VARCHAR(30)) AS formattedmodifieddate, datediff(year, BirthDate, clock_timestamp()) AS age FROM HumanResources.Employee WHERE date_part('year', HireDate::TIMESTAMP) = @HireDate;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T15:45:56.468795\"}",
+      "dms_failure_reason": null
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData]",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T15:45:57.485556\"}",
+      "dms_failure_reason": null
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "mssql1": {
-      "type": "mssql.local",
+      "type": "postgresql.local",
       "connectionId": "BobBookstoreContextConnection"
     }
   }
