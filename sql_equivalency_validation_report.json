@@ -1,0 +1,73 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "statement_number": 1,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "source_line": 163,
+      "original_statement": "EXEC dbo.uspUpdateAuthorPersonalInfo @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T02:46:36.388796\"}",
+      "dms_tool_status": "success",
+      "dms_failure_reason": null
+    },
+    {
+      "statement_number": 2,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql",
+      "source_line": 187,
+      "original_statement": "SELECT * FROM dbo.Author",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.author;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T02:46:46.372002\"}",
+      "dms_tool_status": "success",
+      "dms_failure_reason": null
+    },
+    {
+      "statement_number": 3,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "source_line": 208,
+      "original_statement": "EXEC dbo.uspDeleteAuthor @BusinessEntityID;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T02:47:26.188307\"}",
+      "dms_tool_status": "success",
+      "dms_failure_reason": null
+    },
+    {
+      "statement_number": 4,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "source_line": 228,
+      "original_statement": "SELECT BusinessEntityID, CONVERT(VARCHAR(19), ModifiedDate, 120) AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM dbo.Author WHERE YEAR(HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, aws_sqlserver_ext.conv_datetime_to_string('VARCHAR(19)', 'DATETIME', modifieddate, 120) AS formattedmodifieddate, aws_sqlserver_ext.datediff('year', birthdate::TIMESTAMP, clock_timestamp()::TIMESTAMP) AS age FROM bobsusedbookstore_dbo.author WHERE date_part('year', hiredate) = @HireDate;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T02:47:37.131426\"}",
+      "dms_tool_status": "success",
+      "dms_failure_reason": null
+    },
+    {
+      "statement_number": 5,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts",
+      "source_line": 34,
+      "original_statement": "EXEC dbo.uspGetProductData;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-07T02:47:49.963230\"}",
+      "dms_tool_status": "success",
+      "dms_failure_reason": null
+    }
+  ]
+}
