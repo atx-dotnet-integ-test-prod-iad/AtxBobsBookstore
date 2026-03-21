@@ -1,0 +1,118 @@
+-- ========================================
+-- CONVERTED SQL STATEMENTS CATALOG
+-- BobsBookstore - MS SQL Server to PostgreSQL Migration
+-- ========================================
+-- All 5 statements were passed through the DMS MCP tool (dms-mcp___statement_conversion_tool).
+-- DMS FAILED for all 5 statements with error: "Metadata model creation failed: No objects were found
+-- according to the specified selection rules. Please review your selection rules and try again."
+--
+-- Manual conversion applied with lowercase schema object naming per transformation rules.
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- ========================================
+
+-- ========================================
+-- STATEMENT 1: Update Author Personal Info (Stored Procedure Call)
+-- ========================================
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- DMS Call Timestamp: 2026-03-21T05:32:11.559002
+-- DMS Status: error
+-- DMS Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+-- DMS Error Timestamp: 2026-03-21T05:32:26.393808
+--
+-- Original MS SQL Server:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+--
+-- Manual Conversion Reasoning:
+--   - Converted EXEC stored procedure call to PostgreSQL SELECT function_name() syntax
+--   - Applied lowercase to all schema objects: uspUpdateAuthorPersonalInfo -> uspupdateauthorpersonalinfo
+--   - Preserved parameter names for parameterized query compatibility
+--
+-- Converted PostgreSQL Statement:
+SELECT uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+
+-- ========================================
+-- STATEMENT 2: Find All Authors (Simple SELECT)
+-- ========================================
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- DMS Call Timestamp: 2026-03-21T05:32:37.696097
+-- DMS Status: error
+-- DMS Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+-- DMS Error Timestamp: 2026-03-21T05:32:52.399171
+--
+-- Original MS SQL Server:
+-- SELECT * FROM Author
+--
+-- Manual Conversion Reasoning:
+--   - Applied lowercase to table name: Author -> author
+--
+-- Converted PostgreSQL Statement:
+SELECT * FROM author
+
+-- ========================================
+-- STATEMENT 3: Delete Author (Stored Procedure Call)
+-- ========================================
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- DMS Call Timestamp: 2026-03-21T05:33:03.446455
+-- DMS Status: error
+-- DMS Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+-- DMS Error Timestamp: 2026-03-21T05:33:18.189157
+--
+-- Original MS SQL Server:
+-- DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+--
+-- Manual Conversion Reasoning:
+--   - Converted EXEC stored procedure call to PostgreSQL SELECT function_name() syntax
+--   - Applied lowercase to all schema objects: uspDeleteAuthor -> uspdeleteauthor
+--   - Preserved parameter name for parameterized query compatibility
+--
+-- Converted PostgreSQL Statement:
+SELECT uspdeleteauthor(@BusinessEntityID);
+
+-- ========================================
+-- STATEMENT 4: Select Authors By Hire Year (Complex SELECT with SQL Server functions)
+-- ========================================
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- DMS Call Timestamp: 2026-03-21T05:33:27.302931
+-- DMS Status: error
+-- DMS Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+-- DMS Error Timestamp: 2026-03-21T05:33:42.194194
+--
+-- Original MS SQL Server:
+-- SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+--
+-- Manual Conversion Reasoning:
+--   - FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') -> TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS')
+--   - DATEDIFF(YEAR, BirthDate, GETDATE()) -> DATE_PART('year', AGE(NOW(), birthdate))::INT
+--   - DATEPART(YEAR, HireDate) -> EXTRACT(YEAR FROM hiredate)
+--   - Applied lowercase to all schema objects: BusinessEntityID -> businessentityid, Author -> author, etc.
+--   - Preserved alias names in lowercase: FormattedModifiedDate -> formattedmodifieddate, Age -> age
+--
+-- Converted PostgreSQL Statement:
+SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, DATE_PART('year', AGE(NOW(), birthdate))::INT AS age FROM author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+
+-- ========================================
+-- STATEMENT 5: Get Product Data (Stored Procedure Call)
+-- ========================================
+-- Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+-- DMS Call Timestamp: 2026-03-21T05:33:50.267887
+-- DMS Status: error
+-- DMS Error: Metadata model creation failed: {'error': "Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}"}
+-- DMS Error Timestamp: 2026-03-21T05:34:05.294792
+--
+-- Original MS SQL Server:
+-- EXEC [dbo].[uspGetProductData];
+--
+-- Manual Conversion Reasoning:
+--   - Converted EXEC stored procedure call to PostgreSQL SELECT * FROM function_name() syntax
+--   - Applied lowercase to all schema objects: uspGetProductData -> uspgetproductdata
+--
+-- Converted PostgreSQL Statement:
+SELECT * FROM uspgetproductdata();
+
+-- ========================================
+-- END OF CONVERTED STATEMENTS
+-- Total: 5 SQL statements converted
+-- DMS Tool Successes: 0
+-- DMS Tool Failures: 5 (all failed with metadata model creation error)
+-- Manual Conversions (DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA): 5
+-- ========================================
