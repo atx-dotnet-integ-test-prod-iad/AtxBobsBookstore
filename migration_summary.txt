@@ -1,0 +1,136 @@
+===============================================================================
+FINAL MIGRATION SUMMARY REPORT
+BobsBookstore: MS SQL Server to PostgreSQL Migration
+Date: 2026-03-21
+===============================================================================
+
+1. SQL STATEMENT PROCESSING SUMMARY
+====================================
+Total SQL statements processed: 5
+Statements successfully converted by DMS MCP tool: 0
+Statements requiring manual intervention: 5
+  - Reason: DMS Metadata model creation failed for all statements
+  - DMS Error: "No objects were found according to the specified selection rules."
+  - Manual conversion applied: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  - All schema object names converted to lowercase
+  - SQL Server functions converted to PostgreSQL equivalents
+
+2. DMS CONVERSION DETAIL
+=========================
+
+Statement 1: EditUsingStoredProcedure (AuthorsController.cs, line 163)
+  Original:  DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+  Converted: SELECT uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+  DMS Status: FAILED (Metadata model creation failed)
+  DMS Timestamp: 2026-03-21T07:25:23.297979
+  Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  Changes: EXEC stored_proc -> SELECT function(); schema objects -> lowercase
+
+Statement 2: FindAllAuthorsEmbeddedSql (AuthorsController.cs, line 187)
+  Original:  SELECT * FROM Author
+  Converted: SELECT * FROM author
+  DMS Status: FAILED (Metadata model creation failed)
+  DMS Timestamp: 2026-03-21T07:25:46.790165
+  Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  Changes: Table name Author -> author (lowercase)
+
+Statement 3: DeleteAuthorEmbeddedSql (AuthorsController.cs, line 208)
+  Original:  DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+  Converted: SELECT uspdeleteauthor(@BusinessEntityID);
+  DMS Status: FAILED (Metadata model creation failed)
+  DMS Timestamp: 2026-03-21T07:26:09.107008
+  Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  Changes: EXEC stored_proc -> SELECT function(); schema objects -> lowercase
+
+Statement 4: SelectAuthorsByHireYear (AuthorsController.cs, line 228)
+  Original:  SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate;
+  Converted: SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM birthdate) AS age FROM author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+  DMS Status: FAILED (Metadata model creation failed)
+  DMS Timestamp: 2026-03-21T07:26:32.432669
+  Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  Changes: FORMAT->TO_CHAR, DATEDIFF->EXTRACT subtraction, GETDATE()->CURRENT_DATE, DATEPART->EXTRACT; all schema objects -> lowercase
+
+Statement 5: FindAllProducts (ProductsController.cs, line 34)
+  Original:  EXEC [dbo].[uspGetProductData];
+  Converted: SELECT * FROM uspgetproductdata();
+  DMS Status: FAILED (Metadata model creation failed)
+  DMS Timestamp: 2026-03-21T07:26:55.228298
+  Conversion Method: DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA
+  Changes: EXEC stored_proc -> SELECT * FROM function(); schema objects -> lowercase
+
+3. SQL EQUIVALENCY VALIDATION SUMMARY
+======================================
+Total statements validated: 5
+Statements validated as EQUIVALENT: 0
+Statements validated as NOT_EQUIVALENT: 0
+Statements with equivalency validation ERROR: 5
+  - Error from tool: "'uniqueID'" for all statements
+  - Note: All equivalency statuses come from the sql-equivalency tool, NOT agent judgment
+  - All 5 statements were independently passed through the tool
+  - Equivalency Timestamps:
+    S1: 2026-03-21T07:29:15.142676
+    S2: 2026-03-21T07:29:24.750770
+    S3: 2026-03-21T07:29:35.585296
+    S4: 2026-03-21T07:29:46.761969
+    S5: 2026-03-21T07:30:01.821831
+
+4. FILES MODIFIED DURING MIGRATION
+====================================
+- sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs
+  * SQL statements converted to PostgreSQL (4 statements)
+  * NpgsqlParameter used for parameter bindings (7 instances)
+  * using Npgsql import present
+
+- sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs
+  * SQL statement converted to PostgreSQL (1 statement)
+  * using Npgsql import present
+
+- sourceCode/app/Bookstore.Web/Startup/ServicesSetup.cs
+  * UseNpgsql used (not UseSqlServer)
+  * NpgsqlConnectionStringBuilder used (not SqlConnectionStringBuilder)
+  * Connection string format uses PostgreSQL format (Host=, Port=, Database=)
+  * using Npgsql import present
+
+- sourceCode/app/Bookstore.Data/Bookstore.Data.csproj
+  * Npgsql.EntityFrameworkCore.PostgreSQL v8.0.0 present
+  * NO Microsoft.Data.SqlClient, System.Data.SqlClient, or Microsoft.EntityFrameworkCore.SqlServer
+
+- sourceCode/app/Bookstore.Web/Bookstore.Web.csproj
+  * Npgsql v8.0.0 present
+  * Npgsql.EntityFrameworkCore.PostgreSQL v8.0.0 present
+  * NO SQL Server packages
+
+- sourceCode/app/Bookstore.Domain/Bookstore.Domain.csproj
+  * No database-specific packages (clean)
+
+5. VERIFICATION CHECKS
+========================
+Package References:
+  - Npgsql.EntityFrameworkCore.PostgreSQL in Data.csproj: PASS (1 instance)
+  - Npgsql + Npgsql.EntityFrameworkCore.PostgreSQL in Web.csproj: PASS (2 instances)
+  - No SQL Server packages in any .csproj: PASS (0 instances)
+  - Domain.csproj clean: PASS (no DB packages)
+
+ADO.NET Class Replacements:
+  - SqlConnection/SqlCommand/SqlDataReader/SqlParameter in .cs files: PASS (0 instances)
+  - NpgsqlParameter instances: PASS (7 instances)
+  - using Npgsql in relevant files: PASS (3 files)
+
+Connection String:
+  - UseNpgsql (not UseSqlServer): PASS
+  - NpgsqlConnectionStringBuilder (not SqlConnectionStringBuilder): PASS
+  - PostgreSQL format (Host=, Port=, Database=): PASS
+
+Build:
+  - dotnet build BobsBookstore.sln: PASS (0 errors, 186 warnings - all pre-existing)
+
+6. MIGRATION ARTIFACTS
+=======================
+- sourceCode/extracted_statements.sql - All 5 original MS SQL statements with source locations
+- sourceCode/converted_statements.sql - All 5 converted PostgreSQL statements with conversion methods and DMS timestamps
+- sourceCode/sql_equivalency_validation_report.json - Complete equivalency validation report (5 entries)
+- sourceCode/migration_summary.txt - This comprehensive summary report
+
+===============================================================================
+END OF MIGRATION SUMMARY
+===============================================================================
