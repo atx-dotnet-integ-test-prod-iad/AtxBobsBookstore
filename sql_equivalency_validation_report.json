@@ -1,0 +1,72 @@
+{
+  "number_of_statements_processed": 8,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 8,
+  "statement_details": [
+    {
+      "original_statement": "EXEC [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:51:46.125087\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "SELECT * FROM [dbo].[Author];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.author;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:51:56.881857\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspDeleteAuthor] @BusinessEntityID;",
+      "converted_statement": "SELECT bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:52:07.361304\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, CONVERT(VARCHAR, ModifiedDate, 120) AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM [dbo].[Author] WHERE YEAR(HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:52:22.195860\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:52:31.570799\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Author]([BusinessEntityID] [int] IDENTITY(1,1) NOT NULL, [NationalIDNumber] [nvarchar](15) NOT NULL, [LoginID] [nvarchar](256) NOT NULL, [JobTitle] [nvarchar](50) NOT NULL, [BirthDate] [date] NOT NULL, [MaritalStatus] [nchar](1) NOT NULL, [Gender] [nchar](1) NOT NULL, [HireDate] [date] NOT NULL, [VacationHours] [smallint] NOT NULL, [CurrentFlag] [bit] NOT NULL, [ModifiedDate] [datetime] NOT NULL, PRIMARY KEY CLUSTERED ([BusinessEntityID] ASC)) ON [PRIMARY];",
+      "converted_statement": "CREATE TABLE bobsbookstore_dbo.author(businessentityid INTEGER GENERATED ALWAYS AS IDENTITY NOT NULL, nationalidnumber VARCHAR(15) NOT NULL, loginid VARCHAR(256) NOT NULL, jobtitle VARCHAR(50) NOT NULL, birthdate DATE NOT NULL, maritalstatus CHAR(1) NOT NULL, gender CHAR(1) NOT NULL, hiredate DATE NOT NULL, vacationhours SMALLINT NOT NULL, currentflag BOOLEAN NOT NULL, modifieddate TIMESTAMP NOT NULL, PRIMARY KEY (businessentityid));",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:52:45.166805\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "INSERT INTO [dbo].[Author] ([NationalIDNumber], [LoginID], [JobTitle], [BirthDate], [MaritalStatus], [Gender], [HireDate], [VacationHours], [CurrentFlag], [ModifiedDate]) VALUES (N'295847284', N'adventure-works\\ken0', N'Chief Executive Officer', '1969-01-29', N'S', N'M', '2009-01-14', 99, 1, '2014-06-30');",
+      "converted_statement": "INSERT INTO bobsbookstore_dbo.author (nationalidnumber, loginid, jobtitle, birthdate, maritalstatus, gender, hiredate, vacationhours, currentflag, modifieddate) VALUES ('295847284', 'adventure-works\\ken0', 'Chief Executive Officer', '1969-01-29', 'S', 'M', '2009-01-14', 99, true, '2014-06-30');",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:52:58.439435\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    },
+    {
+      "original_statement": "CREATE VIEW [dbo].[VwTopMembers] AS SELECT * FROM (SELECT CustomerID, FirstName, LastName, Email, TotalOrderSum, ROW_NUMBER() OVER (ORDER BY TotalOrderSum DESC) AS RowNum FROM [dbo].[Members]) AS RankedMembers WHERE RowNum <= 10;",
+      "converted_statement": "CREATE VIEW bobsbookstore_dbo.vwtopmembers AS SELECT * FROM (SELECT customerid, firstname, lastname, email, totalordersum, ROW_NUMBER() OVER (ORDER BY totalordersum DESC) AS rownum FROM bobsbookstore_dbo.members) AS rankedmembers WHERE rownum <= 10;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-24T17:53:09.627072\"}",
+      "dms_failure_reason": "Metadata model creation failed: No objects were found according to the specified selection rules. Please review your selection rules and try again."
+    }
+  ]
+}
