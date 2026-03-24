@@ -1,0 +1,51 @@
+# DMS Conversion Failure Summary Log
+# Date: 2026-03-23
+# Project: BobsBookstore SQL Server to PostgreSQL Migration
+
+## DMS Configuration
+- Migration Project ARN: arn:aws:dms:us-east-1:789616364195:migration-project:73N4TGCKEFESJJWR43O334CC7U
+- Database: BobsBookstore
+- Schema: dbo
+- Region: us-east-1
+
+## Summary
+All 5 SQL statements failed DMS conversion with the same error:
+"Metadata model creation failed: No objects were found according to the specified selection rules."
+
+This indicates the DMS migration project's metadata model could not locate the specified database objects.
+Manual conversion was applied using lowercase schema object names per the transformation definition guidelines.
+
+## Statement 1: EditUsingStoredProcedure (AuthorsController.cs)
+- Original: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;
+- DMS Error: Metadata model creation failed - No objects found
+- Manual Conversion: SELECT * FROM bobsbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);
+- Conversion Rationale: T-SQL EXEC stored procedure call converted to PostgreSQL function call using SELECT * FROM syntax. Schema [dbo] mapped to bobsbookstore_dbo (matching EF Core ApplicationDbContext configuration). Stored procedure name lowercased per PostgreSQL conventions.
+
+## Statement 2: FindAllAuthorsEmbeddedSql (AuthorsController.cs)
+- Original: SELECT * FROM bobsbookstore_dbo.author
+- DMS Error: Metadata model creation failed - No objects found
+- Manual Conversion: SELECT * FROM bobsbookstore_dbo.author
+- Conversion Rationale: Statement already uses PostgreSQL-compatible syntax with bobsbookstore_dbo schema. Table name already lowercase. No changes needed.
+
+## Statement 3: DeleteAuthorEmbeddedSql (AuthorsController.cs)
+- Original: DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;
+- DMS Error: Metadata model creation failed - No objects found
+- Manual Conversion: SELECT * FROM bobsbookstore_dbo.uspdeleteauthor(@BusinessEntityID);
+- Conversion Rationale: T-SQL EXEC stored procedure call converted to PostgreSQL function call using SELECT * FROM syntax. Schema [dbo] mapped to bobsbookstore_dbo. Stored procedure name lowercased.
+
+## Statement 4: SelectAuthorsByHireYear (AuthorsController.cs)
+- Original: SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, BirthDate))::INTEGER AS Age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;
+- DMS Error: Metadata model creation failed - No objects found
+- Manual Conversion: SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthdate))::INTEGER AS age FROM bobsbookstore_dbo.author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;
+- Conversion Rationale: Column names lowercased to match PostgreSQL schema (businessentityid, modifieddate, birthdate, hiredate). PostgreSQL functions (TO_CHAR, EXTRACT, AGE, CURRENT_DATE) and cast (::INTEGER) already valid. Parameter @HireDate kept as-is for Npgsql parameter binding.
+
+## Statement 5: FindAllProducts (ProductsController.cs)
+- Original: EXEC [dbo].[uspGetProductData];
+- DMS Error: Metadata model creation failed - No objects found
+- Manual Conversion: SELECT * FROM bobsbookstore_dbo.uspgetproductdata();
+- Conversion Rationale: T-SQL EXEC stored procedure call converted to PostgreSQL function call using SELECT * FROM syntax. Schema [dbo] mapped to bobsbookstore_dbo. Stored procedure name lowercased.
+
+## SQL Equivalency Validation
+All 5 statement pairs were submitted to the SQL Equivalency tool (sql-equivalency___validate_sql_equivalence).
+All 5 returned ERROR status with error: "'uniqueID'" - this appears to be a tool infrastructure issue.
+Per transformation definition, all are marked as ERROR status in the validation report.
