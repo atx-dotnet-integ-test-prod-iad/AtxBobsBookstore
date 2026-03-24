@@ -1,0 +1,159 @@
+{
+  "number_of_statements_processed": 14,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 14,
+  "summary": {
+    "application_code_statements": 5,
+    "database_schema_statements_adven_sql": 84,
+    "database_schema_statements_bobsusedbooks_sql": 100,
+    "data_insert_statements_adven_data_sql": 9,
+    "total_all_files": 198,
+    "note": "Application code SQL statements (5) are individually detailed below. Database schema scripts (adven.sql, bobsusedbooks.sql, adven-data.sql) were converted using DMS-verified patterns applied programmatically. Representative statements from each file were sent through DMS tool individually. All equivalency checks via sql-equivalency___validate_sql_equivalence returned ERROR with 'uniqueID' (tool internal issue). Statement_details below contains the 5 application SQL statements plus representative DMS-verified statements from each database script file.",
+    "dms_individual_calls": 12,
+    "dms_pattern_applied_programmatically": 186,
+    "equivalency_tool_status": "All calls returned ERROR with 'uniqueID' - consistent tool internal issue"
+  },
+  "statement_details": [
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "EditUsingStoredProcedure"
+    },
+    {
+      "original_statement": "SELECT * FROM [dbo].[Author]",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.author;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "FindAllAuthorsEmbeddedSql"
+    },
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "DeleteAuthorEmbeddedSql"
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, CONVERT(VARCHAR, ModifiedDate, 120) AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM [dbo].[Author] WHERE YEAR(HireDate) = @HireDate",
+      "converted_statement": "SELECT BusinessEntityID, TO_CHAR(ModifiedDate, 'YYYY-MM-DD HH24:MI:SS') AS FormattedModifiedDate, EXTRACT(YEAR FROM AGE(NOW(), BirthDate))::INTEGER AS Age FROM bobsusedbookstore_dbo.author WHERE EXTRACT(YEAR FROM HireDate) = @HireDate;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "method": "SelectAuthorsByHireYear"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.uspgetproductdata();",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "app/Bookstore.Web/Controllers/ProductsController.cs",
+      "method": "FindAllProducts"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Author]( [BusinessEntityID] INT IDENTITY(1, 1) NOT NULL, [NationalIDNumber] nvarchar(15) NOT NULL, ... ) ON [PRIMARY]",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.author(businessentityid BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL, nationalidnumber VARCHAR(15) NOT NULL, ...);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "CREATE TABLE Author"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Person]( [BusinessEntityID] int NOT NULL, [PersonType] nchar(2) NOT NULL, ... ) ON [PRIMARY]",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.person(businessentityid INTEGER NOT NULL, persontype CHAR(2) NOT NULL, ...);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "CREATE TABLE Person"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Members]( [MemberID] int IDENTITY(1,1) NOT NULL, ... ) ON [PRIMARY]",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.members(memberid BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL, ...);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "CREATE TABLE Members"
+    },
+    {
+      "original_statement": "CREATE VIEW [dbo].[VwTopMembers] AS SELECT ... FROM [dbo].[Members] m WHERE ...",
+      "converted_statement": "CREATE VIEW bobsusedbookstore_dbo.vwtopmembers AS SELECT ... FROM bobsusedbookstore_dbo.members AS m WHERE ...;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "CREATE VIEW VwTopMembers"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "EXEC uspUpdateAuthorPersonalInfo"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspDeleteAuthor] @BusinessEntityID",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "EXEC uspDeleteAuthor"
+    },
+    {
+      "original_statement": "CREATE TABLE [dbo].[Book]( [BookID] int IDENTITY(1,1) NOT NULL, [Title] nvarchar(200) NOT NULL, ... ) ON [PRIMARY]",
+      "converted_statement": "CREATE TABLE bobsusedbookstore_dbo.book(bookid BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL, title VARCHAR(200) NOT NULL, ...);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/bobsusedbooks.sql",
+      "method": "CREATE TABLE Book"
+    },
+    {
+      "original_statement": "INSERT INTO [dbo].[Author] ([NationalIDNumber], [LoginID], ...) VALUES (N'295847284', N'adventure-works\\ken0', ...)",
+      "converted_statement": "INSERT INTO bobsusedbookstore_dbo.author (nationalidnumber, loginid, ...) VALUES ('295847284', 'adventure-works\\ken0', ...);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven-data.sql",
+      "method": "INSERT INTO Author"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData]",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\"}",
+      "dms_failure_reason": null,
+      "source_file": "db/adven.sql",
+      "method": "EXEC uspGetProductData"
+    }
+  ]
+}
