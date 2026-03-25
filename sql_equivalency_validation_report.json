@@ -1,0 +1,61 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspUpdateAuthorPersonalInfo] @BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-25T20:07:28.889127\"}",
+      "dms_failure_reason": null,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "EditUsingStoredProcedure",
+      "dms_notes": "Full composite DECLARE/EXEC/SELECT statement failed with 'Statement definition is not valid'. EXEC portion was submitted separately and succeeded. DMS converted EXEC to CALL with schema bobsusedbookstore_dbo."
+    },
+    {
+      "original_statement": "SELECT * FROM Author",
+      "converted_statement": "SELECT * FROM bobsusedbookstore_dbo.author;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-25T20:06:27.247532\"}",
+      "dms_failure_reason": null,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "FindAllAuthorsEmbeddedSql"
+    },
+    {
+      "original_statement": "DECLARE @rowsAffected INT;EXEC @rowsAffected = [dbo].[uspDeleteAuthor] @BusinessEntityID;SELECT @rowsAffected;",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-25T20:07:28.889127\"}",
+      "dms_failure_reason": null,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "DeleteAuthorEmbeddedSql",
+      "dms_notes": "Full composite DECLARE/EXEC/SELECT statement failed with 'Statement definition is not valid'. EXEC portion was submitted separately and succeeded. DMS converted EXEC to CALL with schema bobsusedbookstore_dbo."
+    },
+    {
+      "original_statement": "SELECT BusinessEntityID, FORMAT(ModifiedDate, 'yyyy-MM-dd HH:mm:ss') AS FormattedModifiedDate, DATEDIFF(YEAR, BirthDate, GETDATE()) AS Age FROM Author WHERE DATEPART(YEAR, HireDate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, to_char(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, aws_sqlserver_ext.datediff('YEAR', (birthdate)::TIMESTAMP, (clock_timestamp())::TIMESTAMP) AS age FROM bobsusedbookstore_dbo.author WHERE date_part('year', hiredate) = @HireDate;",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-25T20:07:29.963625\"}",
+      "dms_failure_reason": null,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/AuthorsController.cs",
+      "source_method": "SelectAuthorsByHireYear",
+      "dms_notes": "DMS used GenAI-assisted conversion for SQL Server-specific functions: FORMAT -> to_char, DATEDIFF -> aws_sqlserver_ext.datediff, GETDATE() -> clock_timestamp(), DATEPART -> date_part"
+    },
+    {
+      "original_statement": "EXEC [dbo].[uspGetProductData];",
+      "converted_statement": "CALL bobsusedbookstore_dbo.uspgetproductdata(par_my_cursor => uspgetproductdata$par_my_cursor);",
+      "conversion_method": "DMS_TOOL",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-25T20:07:31.027180\"}",
+      "dms_failure_reason": null,
+      "source_file": "sourceCode/app/Bookstore.Web/Controllers/ProductsController.cs",
+      "source_method": "FindAllProducts"
+    }
+  ]
+}
