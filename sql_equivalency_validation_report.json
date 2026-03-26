@@ -1,0 +1,48 @@
+{
+  "number_of_statements_processed": 5,
+  "number_of_statements_equivalent": 0,
+  "number_of_statements_non_equivalent": 0,
+  "number_of_statements_with_equivalency_error": 5,
+  "statement_details": [
+    {
+      "original_statement": "SELECT dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "converted_statement": "SELECT dbo.uspupdateauthorpersonalinfo(@BusinessEntityID, @NationalIDNumber, @BirthDate, @MaritalStatus, @Gender);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-26T12:00:22.519664\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT * FROM author",
+      "converted_statement": "SELECT * FROM author",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-26T12:00:23.589213\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT dbo.uspdeleteauthor(@BusinessEntityID);",
+      "converted_statement": "SELECT dbo.uspdeleteauthor(@BusinessEntityID);",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-26T12:00:24.650170\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM NOW())::INT - EXTRACT(YEAR FROM birthdate)::INT AS age FROM author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "converted_statement": "SELECT businessentityid, TO_CHAR(modifieddate, 'YYYY-MM-DD HH24:MI:SS') AS formattedmodifieddate, EXTRACT(YEAR FROM NOW())::INT - EXTRACT(YEAR FROM birthdate)::INT AS age FROM author WHERE EXTRACT(YEAR FROM hiredate) = @HireDate;",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-26T12:00:25.721126\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\"}"
+    },
+    {
+      "original_statement": "SELECT * FROM dbo.uspgetproductdata();",
+      "converted_statement": "SELECT * FROM dbo.uspgetproductdata();",
+      "conversion_method": "DMS_FAILURE_MANUAL_CONVERSION_WITH_LOWERCASE_SCHEMA",
+      "equivalency_status": "ERROR",
+      "equivalency_tool_output": "{\"equivalence_status\": \"ERROR\", \"error\": \"'uniqueID'\", \"timestamp\": \"2026-03-26T12:00:26.790059\"}",
+      "dms_failure_reason": "Metadata model creation failed: {'error': \"Metadata model creation failed: {'default_error_details': {'message': 'No objects were found according to the specified selection rules. Please review your selection rules and try again.'}}\"}"
+    }
+  ]
+}
