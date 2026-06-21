@@ -165,3 +165,113 @@ When you have completed working with the sample applications we recommend deleti
 
 * Or, in a command-line shell, navigate to the solution folder and run the command `cdk destroy BobsBookstore*`. 
 > **NOTE:** If you supplied `--profile` parameter to the CDK when instantiating the stack, be sure to provide the same ones on deletion, otherwise the CDK command will error out complaining that the stack cannot be found.
+
+---
+
+## Database Schema Creation Strategy (PostgreSQL)
+
+> **Relevant to the SQL Server → PostgreSQL provider migration (Npgsql / EF Core 8)**
+
+### How the Schema Is Created
+
+This project does **not** use EF Core's code-first migration infrastructure (`dotnet ef migrations add` / `dotnet ef database update`). Instead, the database schema is created at application startup via `Database.EnsureCreatedAsync()`, which is called in:
+
+```
+Bookstore.Web/Startup/MiddlewareSetup.cs
+```
+
+Specifically:
+
+```csharp
+// Bookstore.Web/Startup/MiddlewareSetup.cs  (line ~47)
+using (var scope = app.Services.CreateAsyncScope())
+{
+    await scope.ServiceProvider.GetService<ApplicationDbContext>()!.Database.EnsureCreatedAsync();
+}
+```
+
+This call:
+* Creates the **PostgreSQL database** (if it does not already exist).
+* Creates **all tables, indexes, foreign keys, and seed data** derived from the `OnModelCreating` mappings in `ApplicationDbContext` and the `HasData` calls in `SeedData.cs` — in a single idempotent operation.
+* Does **not** create or require an `__EFMigrationsHistory` table.
+
+### Schema Details (Post-Migration)
+
+All entity tables are mapped to the **`bobsbookstore_dbo`** PostgreSQL schema with lowercase identifiers, as defined in `Bookstore.Data/ApplicationDbContext.cs`:
+
+| Entity | PostgreSQL Table | Schema |
+|---|---|---|
+| `Customer` | `customer` | `bobsbookstore_dbo` |
+| `Book` | `book` | `bobsbookstore_dbo` |
+| `Offer` | `offer` | `bobsbookstore_dbo` |
+| `Order` | `Order` | `bobsbookstore_dbo` |
+| `Address` | `address` | `bobsbookstore_dbo` |
+| `ShoppingCart` | `shoppingcart` | `bobsbookstore_dbo` |
+| `ShoppingCartItem` | `shoppingcartitem` | `bobsbookstore_dbo` |
+| `OrderItem` | `orderitem` | `bobsbookstore_dbo` |
+| `Author` | `author` | `bobsbookstore_dbo` |
+| `Product` | `product` | `bobsbookstore_dbo` |
+| `ReferenceDataItem` | `referencedata` | `bobsbookstore_dbo` |
+
+> **Note:** The `bobsbookstore_dbo` schema must exist in the PostgreSQL database before startup, **or** the connecting role must have `CREATE` privilege on the database so that EF Core can create it. Alternatively, pre-create the schema with: `CREATE SCHEMA IF NOT EXISTS bobsbookstore_dbo;`
+
+### Why There Are No Migration Files
+
+No files exist under a `Migrations/` folder in either `Bookstore.Data` or `Bookstore.Web` — this is intentional. The chosen strategy is:
+
+| Strategy | Used? | Notes |
+|---|---|---|
+| `EnsureCreatedAsync()` | ✅ **Yes** | Creates schema from model on first run; no migration history tracked |
+| EF Core Migrations | ❌ No | Would require `dotnet ef migrations add` and `__EFMigrationsHistory` table |
+| Raw SQL scripts (`db/*.sql`) | Reference only | Files in `db/` folder are legacy SQL Server scripts, not applied by the app |
+
+### If You Switch to EF Core Migrations in the Future
+
+If the team decides to adopt EF Core Migrations (e.g., for incremental schema changes in production), follow these steps **after** the Npgsql provider is active:
+
+1. **Remove or guard the `EnsureCreatedAsync()` call** — it is incompatible with migrations-managed databases.
+
+2. **Scaffold the initial migration:**
+   ```bash
+   dotnet ef migrations add InitialCreate --project Bookstore.Data --startup-project Bookstore.Web
+   ```
+
+3. **Transform the generated migration file** for PostgreSQL compatibility. Apply the following rules to any file produced under `Bookstore.Data/Migrations/`:
+
+   | Concern | Rule |
+   |---|---|
+   | Using statements | Add `using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;` |
+   | Identity columns | Replace `.Annotation("SqlServer:Identity", "1, 1")` → `.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)` |
+   | `nvarchar(max)` / `varchar(max)` | → `text` |
+   | `nvarchar(n)` / `varchar(n)` | → `varchar(n)` |
+   | `datetime` / `datetime2` / `smalldatetime` | → `timestamp without time zone` |
+   | `datetimeoffset` | → `timestamp with time zone` |
+   | `bit` | → `boolean` |
+   | `tinyint` | → `smallint` |
+   | `int` | → `integer` |
+   | `money` | → `numeric(19,4)` |
+   | `uniqueidentifier` | → `uuid` |
+   | `varbinary(max)` / `image` | → `bytea` |
+   | Table names | Apply `schema: "bobsbookstore_dbo"` to all `CreateTable` / `DropTable` / `AddColumn` etc. calls |
+   | Column names | Apply lowercase snake_case mappings from `ApplicationDbContext.OnModelCreating` |
+   | Index names | Lowercase, e.g., `IX_book_genreid` → `ix_book_genreid` |
+   | Foreign key names | Lowercase, e.g., `FK_book_referencedata_genreid` → `fk_book_referencedata_genreid` |
+   | Raw SQL in `migrationBuilder.Sql()` | Qualify table references as `bobsbookstore_dbo.<tablename>` and use lowercase identifiers |
+
+4. **Apply the migration:**
+   ```bash
+   dotnet ef database update --project Bookstore.Data --startup-project Bookstore.Web
+   ```
+
+### Npgsql Legacy Timestamp Behaviour
+
+The `ApplicationDbContext` static constructor enables the Npgsql legacy timestamp mode required for `DateTime` columns without explicit timezone:
+
+```csharp
+static ApplicationDbContext()
+{
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+}
+```
+
+This ensures `DateTime` values are written as `timestamp without time zone` (UTC-assumed), matching the `createdon` / `updatedon` / `deliverydate` / `dateofbirth` columns mapped across all entities. This switch must remain in place when using `EnsureCreatedAsync()` **or** EF Core Migrations.
