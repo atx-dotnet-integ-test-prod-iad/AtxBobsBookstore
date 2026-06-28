@@ -1,11 +1,11 @@
-﻿using Amazon.Rekognition;
+using Npgsql;
+using Amazon.Rekognition;
 using Amazon.S3;
 using Amazon.SecretsManager.Model;
 using Amazon.SecretsManager;
 using Bookstore.Data;
 using Bookstore.Domain.AdminUser;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +13,7 @@ using System.Text.Json;
 using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+
 
 namespace Bookstore.Web.Startup
 {
@@ -31,9 +32,9 @@ namespace Bookstore.Web.Startup
             builder.Services.AddAWSService<IAmazonRekognition>();
 
             var connString = GetDatabaseConnectionString(builder.Configuration);
-            builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(connString));
+            builder.Services.AddDbContext<ApplicationDbContext>(option => option.UseNpgsql(connString));
             builder.Services.AddSession();
- 
+
             return builder;
         }
 
@@ -70,12 +71,29 @@ namespace Bookstore.Web.Startup
                 var options = configuration.GetAWSOptions();
                 if (options != null)
                 {
-                    // local "integrated" debug mode using credentials/region in appsettings
-                    secretsManagerClient = options.CreateServiceClient<IAmazonSecretsManager>();
+// local "integrated" debug mode using credentials/region in appsettings
+                    var credentials = options.Credentials;
+                    var region = options.Region;
+                    if (credentials != null && region != null)
+                    {
+                        secretsManagerClient = new AmazonSecretsManagerClient(credentials, region);
+                    }
+                    else if (credentials != null)
+                    {
+                        secretsManagerClient = new AmazonSecretsManagerClient(credentials);
+                    }
+                    else if (region != null)
+                    {
+                        secretsManagerClient = new AmazonSecretsManagerClient(region);
+                    }
+                    else
+                    {
+                        secretsManagerClient = new AmazonSecretsManagerClient();
+                    }
                 }
                 else
                 {
-                    // deployed mode using credentials/region inferred on host
+// deployed mode using credentials/region inferred on host
                     secretsManagerClient = new AmazonSecretsManagerClient();
                 }
                 var response = secretsManagerClient.GetSecretValueAsync(new GetSecretValueRequest
@@ -88,11 +106,12 @@ namespace Bookstore.Web.Startup
                     PropertyNameCaseInsensitive = true
                 });
 
-                var partialConnString = $"Server={dbSecrets.Host},{dbSecrets.Port}; Initial Catalog=BobsUsedBookStore;MultipleActiveResultSets=true; Integrated Security=false;TrustServerCertificate=True\r\n";
-
-                var builder = new SqlConnectionStringBuilder(partialConnString)
+                var builder = new NpgsqlConnectionStringBuilder
                 {
-                    UserID = dbSecrets.Username,
+                    Host = dbSecrets.Host,
+                    Port = dbSecrets.Port,
+                    Database = "postgres",
+                    Username = dbSecrets.Username,
                     Password = dbSecrets.Password
                 };
 
