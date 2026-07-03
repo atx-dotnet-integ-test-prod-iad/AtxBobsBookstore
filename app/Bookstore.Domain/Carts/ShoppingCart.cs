@@ -1,4 +1,7 @@
-﻿namespace Bookstore.Domain.Carts
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Bookstore.Domain.Carts
 {
     public class ShoppingCart : Entity
     {
