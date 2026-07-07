@@ -1,4 +1,7 @@
-﻿namespace Bookstore.Domain.Customers
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Bookstore.Domain.Customers
 {
     public class Customer : Entity
     {
@@ -10,6 +13,7 @@
 
         public string? LastName { get; set; }
 
+        [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
 
         public string? Email { get; set; }
